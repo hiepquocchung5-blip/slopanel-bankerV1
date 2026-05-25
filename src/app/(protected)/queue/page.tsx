@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import { API } from '@/lib/api';
 import Header from '@/components/ui/Header';
-import { Check, X, Clock, Loader2 } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
+import { Check, X, Clock, Loader2, ShieldAlert, Eye, EyeOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Transaction {
@@ -16,9 +17,12 @@ interface Transaction {
 }
 
 export default function QueuePage() {
+  const { user } = useAuth();
   const [txs, setTxs] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [processingId, setProcessingId] = useState<number | null>(null);
+
+  const isAdmin = user?.is_staff;
 
   const fetchQueue = async () => {
     try {
@@ -36,6 +40,7 @@ export default function QueuePage() {
   }, []);
 
   const handleAction = async (id: number, action: 'approve' | 'reject') => {
+    if (!isAdmin) return;
     if (!confirm(`Confirm ${action.toUpperCase()} for this transaction?`)) return;
     
     setProcessingId(id);
@@ -53,10 +58,19 @@ export default function QueuePage() {
     <div className="animate-in fade-in duration-500">
       <Header 
         title="Financial Queue" 
-        subtitle={`${txs.length} Pending Requests`} 
+        subtitle={isAdmin ? `${txs.length} Pending Requests` : "Read-Only Terminal"} 
       />
 
       <div className="p-6 space-y-4">
+        {!isAdmin && (
+           <div className="bg-blue-500/10 border border-blue-500/20 p-4 rounded-2xl flex items-center gap-3 mb-4">
+              <Eye size={18} className="text-blue-400" />
+              <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest leading-relaxed">
+                Agent Mode: You are viewing live transaction traffic. Approval clearance required for processing.
+              </p>
+           </div>
+        )}
+
         {isLoading ? (
           <div className="h-64 flex items-center justify-center">
              <Loader2 size={32} className="text-gold animate-spin" />
@@ -96,24 +110,31 @@ export default function QueuePage() {
                   </div>
                </div>
 
-               <div className="flex gap-3 mt-6">
-                  <button 
-                    disabled={processingId !== null}
-                    onClick={() => handleAction(tx.id, 'approve')}
-                    className="flex-1 bg-green-600/10 hover:bg-green-600/20 text-green-400 border border-green-500/20 py-3.5 rounded-2xl text-[10px] font-black tracking-widest transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
-                  >
-                    {processingId === tx.id ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
-                    APPROVE
-                  </button>
-                  <button 
-                    disabled={processingId !== null}
-                    onClick={() => handleAction(tx.id, 'reject')}
-                    className="flex-1 bg-red-600/10 hover:bg-red-600/20 text-red-400 border border-red-500/20 py-3.5 rounded-2xl text-[10px] font-black tracking-widest transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
-                  >
-                    {processingId === tx.id ? <Loader2 size={14} className="animate-spin" /> : <X size={14} />}
-                    REJECT
-                  </button>
-               </div>
+               {isAdmin ? (
+                 <div className="flex gap-3 mt-6">
+                    <button 
+                      disabled={processingId !== null}
+                      onClick={() => handleAction(tx.id, 'approve')}
+                      className="flex-1 bg-green-600/10 hover:bg-green-600/20 text-green-400 border border-green-600/50 py-3.5 rounded-2xl text-[10px] font-black tracking-widest transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
+                    >
+                      {processingId === tx.id ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
+                      APPROVE
+                    </button>
+                    <button 
+                      disabled={processingId !== null}
+                      onClick={() => handleAction(tx.id, 'reject')}
+                      className="flex-1 bg-red-600/10 hover:bg-red-600/20 text-red-400 border border-red-500/20 py-3.5 rounded-2xl text-[10px] font-black tracking-widest transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
+                    >
+                      {processingId === tx.id ? <Loader2 size={14} className="animate-spin" /> : <X size={14} />}
+                      REJECT
+                    </button>
+                 </div>
+               ) : (
+                 <div className="mt-6 flex items-center justify-center py-3 bg-white/5 border border-white/5 rounded-2xl">
+                    <ShieldAlert size={12} className="text-gray-500 mr-2" />
+                    <span className="text-[8px] font-black text-gray-500 tracking-[0.2em] uppercase">Pending Admin Action</span>
+                 </div>
+               )}
             </div>
           ))
         )}
