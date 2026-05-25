@@ -1,0 +1,45 @@
+import { CONFIG } from './config';
+
+export const API = {
+  async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('banker_token') : null;
+    
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'X-Suro-App-Sign': 'Suropara_Stealth_V2_2026!',
+      ...(options.headers as Record<string, string> || {})
+    };
+
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    try {
+      const res = await fetch(`${CONFIG.API_BASE}${endpoint}`, { ...options, headers });
+
+      if (res.status === 401 || res.status === 403) {
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('banker_token');
+          window.location.href = '/login';
+        }
+        throw new Error("Session Expired or Unauthorized");
+      }
+
+      const isJson = res.headers.get('content-type')?.includes('application/json');
+      const data = isJson ? await res.json() : null;
+
+      if (!res.ok) {
+        throw new Error(data?.error || data?.detail || "API Request Failed");
+      }
+
+      return data as T;
+    } catch (error: any) {
+      if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
+        console.error(`[NETWORK ERROR] Could not connect to ${CONFIG.API_BASE}${endpoint}. Check CORS settings or server status.`);
+      } else {
+        console.error(`[API ERROR] ${endpoint}:`, error.message);
+      }
+      throw error;
+    }
+  }
+};

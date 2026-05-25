@@ -1,26 +1,88 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: #000000;
+  --foreground: #ffffff;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #000;
+  color: #fff;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+@layer components {
+  .app-container {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    margin-left: auto;
+    margin-right: auto;
+    overflow: hidden;
+    background-color: #050508;
+    max-width: 480px;
+    box-shadow: 0 0 50px rgba(212, 175, 55, 0.1);
+  }
+
+  @media (min-width: 768px) {
+    .app-container {
+      max-width: 1000px;
+      border-left: 1px solid rgba(255, 255, 255, 0.05);
+      border-right: 1px solid rgba(255, 255, 255, 0.05);
+    }
+  }
+
+  .glass-panel {
+    background-color: rgba(15, 15, 20, 0.7);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .glass-nav {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 1.5rem;
+    right: 1.5rem;
+    height: 70px;
+    background-color: rgba(10, 10, 15, 0.85);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    z-index: 100;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+  }
+
+  @media (min-width: 768px) {
+    .glass-nav {
+      max-width: 600px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+  }
+
+  .scrollable {
+    overflow-y: auto;
+    height: 100%;
+    padding-bottom: 110px;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+  }
+
+  .scrollable::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.hide {
+  display: none !important;
 }
