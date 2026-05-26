@@ -25,8 +25,8 @@ export default function BottomNav() {
   ];
 
   return (
-    <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[100] w-[calc(100%-48px)] max-w-[560px]">
-      <nav className="liquid-glass rounded-[36px] p-2 flex items-center justify-between shadow-card relative overflow-visible h-[84px] border-white/60">
+    <div className="fixed bottom-6 md:bottom-12 left-1/2 -translate-x-1/2 z-[999] w-[calc(100%-32px)] max-w-[640px] pointer-events-none">
+      <nav className="liquid-glass rounded-[40px] p-3 flex items-center justify-between shadow-[0_25px_60px_rgba(0,31,35,0.2)] relative overflow-visible h-[92px] border-white/90 pointer-events-auto">
         {navItems.map((item) => {
           if (item.managementOnly && !isManagement) return null;
           const isActive = pathname === item.href;
@@ -37,17 +37,17 @@ export default function BottomNav() {
               href={item.href}
               className={cn(
                 "flex flex-col items-center justify-center flex-1 h-full transition-all duration-500 relative z-10 group",
-                isActive ? "text-white" : "text-text-secondary hover:text-primary-dark"
+                isActive ? "text-aqua-white" : "text-text-secondary hover:text-primary-dark"
               )}
             >
               <div className={cn(
-                "p-3.5 rounded-[24px] transition-all duration-500",
-                isActive ? "bg-primary-dark shadow-[0_8px_25px_rgba(49,151,149,0.4)] scale-110 -translate-y-1.5" : "group-hover:bg-primary/10"
+                "p-4 rounded-[28px] transition-all duration-500",
+                isActive ? "bg-primary-dark shadow-[0_12px_30px_rgba(49,151,149,0.5)] scale-110 -translate-y-2.5" : "group-hover:bg-primary/10"
               )}>
-                <item.icon size={22} className={cn("transition-transform", isActive && "animate-float")} />
+                <item.icon size={26} className={cn("transition-transform", isActive && "animate-float")} />
               </div>
               <span className={cn(
-                "text-[9px] font-black tracking-widest uppercase mt-1 transition-all duration-500",
+                "text-[11px] font-black tracking-widest uppercase mt-1 transition-all duration-500",
                 isActive ? "opacity-100" : "opacity-0 group-hover:opacity-100"
               )}>
                 {item.label}
@@ -56,16 +56,16 @@ export default function BottomNav() {
           );
         })}
         
-        <div className="w-[1px] h-8 bg-black/5 mx-3" />
+        <div className="w-[1.5px] h-10 bg-black/5 mx-4" />
         
         <button 
           onClick={logout}
-          className="flex flex-col items-center justify-center p-3 text-red-500/70 hover:text-red-500 transition-all group"
+          className="flex flex-col items-center justify-center p-4 text-red-500/80 hover:text-red-600 transition-all group"
         >
-          <div className="p-3.5 rounded-[24px] group-hover:bg-red-500/10 transition-all">
-            <LogOut size={22} />
+          <div className="p-4 rounded-[26px] group-hover:bg-red-500/10 transition-all">
+            <LogOut size={24} />
           </div>
-          <span className="text-[9px] font-black tracking-widest uppercase mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <span className="text-[10px] font-black tracking-widest uppercase mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
             Exit
           </span>
         </button>

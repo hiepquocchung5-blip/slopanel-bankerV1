@@ -22,7 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="antialiased overflow-hidden" suppressHydrationWarning>
+      <body className="antialiased overflow-hidden bg-background" suppressHydrationWarning>
         <AuthProvider>
           <div className="app-container">
             {children}

@@ -117,17 +117,17 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="premium-card p-8 group">
               <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-all duration-500">
-                 <TrendingUp size={64} className="text-primary" />
+                 <TrendingUp size={64} className="text-primary-dark" />
               </div>
-              <p className="text-[11px] text-text-light/40 font-black mb-2 tracking-[0.2em] uppercase">House Revenue</p>
+              <p className="text-[11px] text-text-secondary font-black mb-2 tracking-[0.2em] uppercase">House Revenue</p>
               <div className="flex items-baseline gap-2">
-                <p className="text-4xl font-black text-white tabular-nums leading-none">
+                <p className="text-4xl font-black text-text-primary tabular-nums leading-none">
                   {displayProfit.toLocaleString()}
                 </p>
-                <span className="text-[12px] text-white/40 font-bold uppercase tracking-widest">MMK</span>
+                <span className="text-[12px] text-text-secondary font-bold uppercase tracking-widest">MMK</span>
               </div>
               {isCashier && (
-                <p className="text-[10px] text-primary/60 font-black mt-4 tracking-widest uppercase">Secured 90% Visibility</p>
+                <p className="text-[10px] text-primary-dark font-black mt-4 tracking-widest uppercase">Secured 90% Visibility</p>
               )}
             </div>
 
@@ -155,16 +155,16 @@ export default function Dashboard() {
              </div>
 
              <div className="premium-card p-8 flex flex-col items-center text-center group hover:scale-[1.02] transition-all">
-                <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-4 shadow-soft">
-                  <Wallet size={24} className="text-white" />
+                <div className="w-14 h-14 rounded-2xl bg-primary/5 border border-primary/20 flex items-center justify-center mb-4 shadow-soft">
+                  <Wallet size={24} className="text-primary-dark" />
                 </div>
-                <p className="text-[11px] text-white/40 font-black tracking-widest mb-1 uppercase opacity-60">Earnings</p>
+                <p className="text-[11px] text-text-secondary font-black tracking-widest mb-1 uppercase opacity-60">Earnings</p>
                 <div className="flex flex-col items-center">
-                  <p className="text-3xl font-black text-white tabular-nums leading-none">
+                  <p className="text-3xl font-black text-text-primary tabular-nums leading-none">
                     {parseFloat(refStats.total_commission_earned).toLocaleString()}
                   </p>
                   {isAgent && (
-                    <p className="text-[9px] text-primary/80 font-black mt-2 tracking-widest uppercase">Includes 10% System Commission</p>
+                    <p className="text-[9px] text-primary-dark font-black mt-2 tracking-widest uppercase">Includes 10% System Commission</p>
                   )}
                 </div>
              </div>
@@ -245,28 +245,28 @@ export default function Dashboard() {
           <div className="premium-card p-10 group">
             <div className="absolute top-[-20%] right-[-10%] w-[50%] h-[100%] bg-primary/[0.05] rounded-full blur-[80px]" />
             <div className="flex items-center gap-6 mb-10">
-              <div className="w-16 h-16 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center shadow-soft">
-                 <Fingerprint size={32} className="text-white/40 group-hover:text-primary transition-all duration-700" />
+              <div className="w-16 h-16 rounded-3xl bg-primary/5 border border-primary/10 flex items-center justify-center shadow-soft">
+                 <Fingerprint size={32} className="text-primary-dark group-hover:text-primary transition-all duration-700" />
               </div>
               <div>
-                 <p className="text-sm font-black text-white tracking-widest uppercase">Registry Integrity</p>
-                 <p className="text-[11px] text-green-400 font-bold uppercase mt-1 flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
+                 <p className="text-sm font-black text-text-primary tracking-widest uppercase">Registry Integrity</p>
+                 <p className="text-[11px] text-green-600 font-bold uppercase mt-1 flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
                     Verified & Encrypted
                  </p>
               </div>
             </div>
             
-            <div className="grid grid-cols-2 gap-10 border-t border-white/5 pt-10">
+            <div className="grid grid-cols-2 gap-10 border-t border-black/5 pt-10">
               <div>
-                 <p className="text-[10px] text-white/30 font-black tracking-widest mb-2 uppercase">Volume Transacted</p>
-                 <p className="text-xl font-black text-white tabular-nums leading-none">
+                 <p className="text-[10px] text-text-secondary font-black tracking-widest mb-2 uppercase opacity-40">Volume Transacted</p>
+                 <p className="text-xl font-black text-text-primary tabular-nums leading-none">
                    {displayWagered.toLocaleString()}
                  </p>
               </div>
               <div className="text-right">
-                 <p className="text-[10px] text-white/30 font-black tracking-widest mb-2 uppercase">Machine Cycles</p>
-                 <p className="text-xl font-black text-white tabular-nums leading-none">{houseStats.global.total_spins.toLocaleString()}</p>
+                 <p className="text-[10px] text-text-secondary font-black tracking-widest mb-2 uppercase opacity-40">Machine Cycles</p>
+                 <p className="text-xl font-black text-text-primary tabular-nums leading-none">{houseStats.global.total_spins.toLocaleString()}</p>
               </div>
             </div>
           </div>
