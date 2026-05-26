@@ -5,7 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { API } from '@/lib/api';
 import Header from '@/components/ui/Header';
 import LiveClock from '@/components/ui/LiveClock';
-import { Users, Wallet, TrendingUp, BarChart3, Fingerprint, QrCode, Zap, User as UserIcon, Phone, ShieldCheck, ArrowRight } from 'lucide-react';
+import { Users, Wallet, TrendingUp, BarChart3, Fingerprint, QrCode, Zap, User as UserIcon, Phone, ShieldCheck, ArrowRight, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 
