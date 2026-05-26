@@ -49,7 +49,8 @@ body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
   height: 100%;
 }
 
@@ -59,16 +60,7 @@ body {
     position: relative;
     width: 100%;
     min-height: 100vh;
-    margin-inline: auto;
     background: var(--background);
-    display: flex;
-    flex-direction: column;
-  }
-
-  @media (max-width: 480px) {
-    .app-container {
-      /* Mobile specific adjustments */
-    }
   }
 
   /* SCROLLABLE AREA */
@@ -78,6 +70,8 @@ body {
     overflow-x: hidden;
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
+    display: flex;
+    flex-direction: column;
   }
 
   .scroll-container::-webkit-scrollbar {
