@@ -42,6 +42,8 @@ export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
 
   const isManagement = user?.is_staff || user?.is_cashier;
+  const isCashier = user?.is_cashier;
+  const isAgent = user?.user_type === 'AGENT';
 
   useEffect(() => {
     const fetchData = async () => {
@@ -76,94 +78,111 @@ export default function Dashboard() {
 
   if (!user) return null;
 
+  // Apply 90% visibility logic for Cashiers
+  const displayProfit = houseStats ? (isCashier ? parseFloat(houseStats.global.house_profit) * 0.9 : parseFloat(houseStats.global.house_profit)) : 0;
+  const displayWagered = houseStats ? (isCashier ? parseFloat(houseStats.global.total_wagered) * 0.9 : parseFloat(houseStats.global.total_wagered)) : 0;
+
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 scrollable">
       <Header 
         title="Command Center" 
         subtitle="System Status: Operational" 
       />
 
       {/* Hero Greeting Section */}
-      <div className="px-6 pt-6 flex justify-between items-end">
+      <div className="px-6 pt-8 flex justify-between items-end">
         <div className="space-y-1">
-          <p className="text-[10px] font-black text-gold tracking-[0.3em] uppercase opacity-70">Authorized Access</p>
-          <h2 className="text-2xl font-black text-white tracking-tight flex items-center gap-2">
+          <p className="text-[10px] font-black text-primary tracking-[0.3em] uppercase opacity-70">Authorized Access</p>
+          <h2 className="text-3xl font-black text-text-primary tracking-tight flex items-center gap-2">
             Welcome, {user.username || 'Staff'}
-            <ShieldCheck size={18} className="text-blue-500 fill-blue-500/10" />
+            <ShieldCheck size={20} className="text-primary-dark" />
           </h2>
           <div className="flex items-center gap-3">
-             <div className="flex items-center gap-1.5 text-gray-500">
+             <div className="flex items-center gap-1.5 text-text-secondary">
                 <Phone size={10} />
-                <span className="text-[10px] font-bold tracking-widest">{user.phone_number}</span>
+                <span className="text-[11px] font-bold tracking-widest">{user.phone_number}</span>
              </div>
-             <div className="w-1 h-1 bg-white/10 rounded-full" />
-             <span className="text-[9px] font-black text-gray-600 uppercase tracking-widest bg-white/5 px-2 py-0.5 rounded border border-white/5">
-               LVL: {user.is_staff ? 'ADMIN_SEC_4' : user.is_cashier ? 'CASHIER_SEC_3' : 'AGENT_CORE'}
+             <div className="w-1 h-1 bg-black/10 rounded-full" />
+             <span className="text-[10px] font-black text-primary-dark uppercase tracking-widest bg-primary/10 px-3 py-1 rounded-full border border-primary/20 shadow-soft">
+               {user.is_staff ? 'ADMIN_SEC_4' : user.is_cashier ? 'CASHIER_SEC_3' : 'AGENT_CORE'}
              </span>
           </div>
         </div>
         <LiveClock />
       </div>
 
-      <div className="p-6 space-y-6">
+      <div className="p-6 space-y-8">
         {/* TOP STATS GRID */}
         {isManagement && houseStats ? (
-          <div className="grid grid-cols-2 gap-4">
-            <div className="glass-panel p-6 rounded-[24px] border-green-500/10 relative overflow-hidden group">
-              <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
-                 <TrendingUp size={40} className="text-green-500" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="premium-card p-8 group">
+              <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-all duration-500">
+                 <TrendingUp size={64} className="text-primary" />
               </div>
-              <p className="text-[9px] text-gray-500 font-black mb-1 tracking-[0.2em] uppercase">House Revenue</p>
-              <p className="text-2xl font-black text-green-400 tabular-nums leading-none">
-                {parseFloat(houseStats.global.house_profit).toLocaleString()}
-                <span className="text-[10px] ml-1 opacity-50 font-bold">MMK</span>
-              </p>
+              <p className="text-[11px] text-text-light/40 font-black mb-2 tracking-[0.2em] uppercase">House Revenue</p>
+              <div className="flex items-baseline gap-2">
+                <p className="text-4xl font-black text-white tabular-nums leading-none">
+                  {displayProfit.toLocaleString()}
+                </p>
+                <span className="text-[12px] text-white/40 font-bold uppercase tracking-widest">MMK</span>
+              </div>
+              {isCashier && (
+                <p className="text-[10px] text-primary/60 font-black mt-4 tracking-widest uppercase">Secured 90% Visibility</p>
+              )}
             </div>
 
-            <div className="glass-panel p-6 rounded-[24px] border-gold/10 relative overflow-hidden group">
-              <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
-                 <BarChart3 size={40} className="text-gold" />
+            <div className="glass-card p-8 group">
+              <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-all duration-500">
+                 <BarChart3 size={64} className="text-primary-dark" />
               </div>
-              <p className="text-[9px] text-gray-500 font-black mb-1 tracking-[0.2em] uppercase">Global RTP</p>
-              <p className={`text-2xl font-black tabular-nums leading-none ${houseStats.global.rtp_percentage > 100 ? 'text-red-500' : 'text-gold'}`}>
+              <p className="text-[11px] text-text-secondary font-black mb-2 tracking-[0.2em] uppercase">Global RTP</p>
+              <p className={cn(
+                "text-4xl font-black tabular-nums leading-none",
+                houseStats.global.rtp_percentage > 100 ? 'text-red-500' : 'text-primary-dark'
+              )}>
                 {houseStats.global.rtp_percentage}%
               </p>
             </div>
           </div>
         ) : refStats ? (
-          <div className="grid grid-cols-2 gap-4">
-             <div className="glass-panel p-6 rounded-[32px] border-white/5 flex flex-col items-center text-center group hover:border-white/10 transition-all">
-                <div className="w-10 h-10 rounded-2xl bg-gold/5 border border-gold/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                  <Users size={20} className="text-gold" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+             <div className="glass-card p-8 flex flex-col items-center text-center group hover:scale-[1.02] transition-all">
+                <div className="w-14 h-14 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-4 shadow-soft">
+                  <Users size={24} className="text-primary-dark" />
                 </div>
-                <p className="text-[9px] text-gray-500 font-black tracking-widest mb-1 uppercase opacity-60">Downline</p>
-                <p className="text-2xl font-black text-white tabular-nums leading-none">{refStats.total_referrals}</p>
+                <p className="text-[11px] text-text-secondary font-black tracking-widest mb-1 uppercase opacity-60">Downline</p>
+                <p className="text-3xl font-black text-text-primary tabular-nums leading-none">{refStats.total_referrals}</p>
              </div>
 
-             <div className="glass-panel p-6 rounded-[32px] border-green-500/10 flex flex-col items-center text-center bg-green-500/[0.01] group hover:border-green-500/20 transition-all">
-                <div className="w-10 h-10 rounded-2xl bg-green-500/5 border border-green-500/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                  <Wallet size={20} className="text-green-500" />
+             <div className="premium-card p-8 flex flex-col items-center text-center group hover:scale-[1.02] transition-all">
+                <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-4 shadow-soft">
+                  <Wallet size={24} className="text-white" />
                 </div>
-                <p className="text-[9px] text-gray-500 font-black tracking-widest mb-1 uppercase opacity-60">Earnings</p>
-                <p className="text-2xl font-black text-green-400 tabular-nums leading-none">
-                  {parseFloat(refStats.total_commission_earned).toLocaleString()}
-                </p>
+                <p className="text-[11px] text-white/40 font-black tracking-widest mb-1 uppercase opacity-60">Earnings</p>
+                <div className="flex flex-col items-center">
+                  <p className="text-3xl font-black text-white tabular-nums leading-none">
+                    {parseFloat(refStats.total_commission_earned).toLocaleString()}
+                  </p>
+                  {isAgent && (
+                    <p className="text-[9px] text-primary/80 font-black mt-2 tracking-widest uppercase">Includes 10% System Commission</p>
+                  )}
+                </div>
              </div>
           </div>
         ) : null}
 
         {/* AGENT INVITE BOX (If Agent) */}
         {!isManagement && refStats && (
-          <div className="text-center py-2">
-             <div className="inline-block p-8 glass-panel rounded-[40px] border-gold/30 shadow-[0_0_50px_rgba(212,175,55,0.08)] bg-black/20 w-full max-w-[340px]">
-                <p className="text-[11px] text-gray-500 font-black mb-5 tracking-[0.4em] uppercase opacity-60">Authentication Key</p>
-                <p className="text-4xl font-black text-white tracking-[0.2em] font-mono drop-shadow-[0_0_20px_rgba(255,255,255,0.25)] leading-none">
+          <div className="text-center py-4">
+             <div className="inline-block p-10 glass-card shadow-card w-full max-w-[400px]">
+                <p className="text-[11px] text-text-secondary font-black mb-6 tracking-[0.4em] uppercase opacity-60">Authentication Key</p>
+                <p className="text-5xl font-black text-text-primary tracking-[0.2em] font-mono leading-none">
                   {refStats.referral_code}
                 </p>
-                <div className="flex justify-center mt-8">
-                   <button className="px-6 py-2.5 bg-gold/10 border border-gold/20 rounded-full flex items-center gap-3 hover:bg-gold/20 transition-all active:scale-95 group">
-                      <QrCode size={14} className="text-gold group-hover:scale-110 transition-transform" />
-                      <span className="text-[10px] font-black text-gold tracking-[0.2em] uppercase">Copy Registry Key</span>
+                <div className="flex justify-center mt-10">
+                   <button className="btn-primary px-8">
+                      <QrCode size={18} />
+                      COPY REGISTRY KEY
                    </button>
                 </div>
              </div>
@@ -171,44 +190,49 @@ export default function Dashboard() {
         )}
 
         {/* RECENT QUEUE ACTIVITY (Both Management & Agent) */}
-        <div className="space-y-4">
-           <div className="flex justify-between items-center px-1">
-              <div className="flex items-center gap-2">
-                 <Zap size={14} className="text-gold fill-gold/20" />
-                 <h3 className="text-[10px] font-black text-white tracking-[0.3em] uppercase">Active Queue Traffic</h3>
+        <div className="space-y-6">
+           <div className="flex justify-between items-center px-2">
+              <div className="flex items-center gap-3">
+                 <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+                 <h3 className="text-[11px] font-black text-text-primary tracking-[0.3em] uppercase">Active Queue Traffic</h3>
               </div>
-              <Link href="/queue" className="text-[9px] font-black text-gold/60 hover:text-gold tracking-widest uppercase flex items-center gap-1 transition-colors">
-                 View Terminal <ArrowRight size={10} />
+              <Link href="/queue" className="text-[10px] font-black text-primary-dark hover:text-primary tracking-widest uppercase flex items-center gap-2 transition-all group">
+                 Open Terminal 
+                 <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
               </Link>
            </div>
 
-           <div className="space-y-2">
+           <div className="space-y-3">
               {isLoading ? (
-                <div className="py-12 flex items-center justify-center">
-                   <div className="w-6 h-6 border-2 border-gold/20 border-t-gold rounded-full animate-spin" />
+                <div className="py-16 flex items-center justify-center">
+                   <Loader2 size={32} className="text-primary animate-spin" />
                 </div>
               ) : recentQueue.length === 0 ? (
-                <div className="py-8 glass-panel rounded-2xl flex items-center justify-center opacity-30 border-dashed border-white/10">
-                   <p className="text-[9px] font-black tracking-widest uppercase">No Active Requests</p>
+                <div className="py-12 glass-card rounded-3xl flex items-center justify-center opacity-40 border-dashed">
+                   <p className="text-[10px] font-black tracking-widest uppercase">No Active Requests</p>
                 </div>
               ) : (
                 recentQueue.map(tx => (
-                  <div key={tx.id} className="glass-panel p-4 rounded-2xl border-white/5 flex items-center justify-between hover:bg-white/[0.02] transition-all">
-                     <div className="flex items-center gap-3">
+                  <div key={tx.id} className="transaction-item border border-border-soft">
+                     <div className="flex items-center gap-4">
                         <div className={cn(
-                          "w-8 h-8 rounded-xl flex items-center justify-center border",
-                          tx.tx_type === 'DEPOSIT' ? "bg-green-500/5 border-green-500/20 text-green-400" : "bg-red-500/5 border-red-500/20 text-red-400"
+                          "w-12 h-12 rounded-2xl flex items-center justify-center shadow-soft border",
+                          tx.tx_type === 'DEPOSIT' ? "bg-green-500/10 border-green-500/20 text-green-600" : "bg-red-500/10 border-red-500/20 text-red-600"
                         )}>
-                           <Zap size={14} />
+                           <Zap size={18} className={cn(tx.tx_type === 'DEPOSIT' ? "fill-green-500/20" : "fill-red-500/20")} />
                         </div>
                         <div>
-                           <p className="text-[10px] font-black text-white tracking-widest uppercase">{tx.tx_type}</p>
-                           <p className="text-[8px] text-gray-500 font-bold uppercase tracking-widest">ID: {tx.id}</p>
+                           <p className="text-[11px] font-black text-text-primary tracking-widest uppercase">{tx.tx_type}</p>
+                           <p className="text-[9px] text-text-secondary font-bold uppercase tracking-widest">ID: {tx.id}</p>
                         </div>
                      </div>
                      <div className="text-right">
-                        <p className="text-sm font-black text-gold tabular-nums leading-none mb-1">{parseFloat(tx.amount).toLocaleString()}</p>
-                        <p className="text-[8px] text-gray-600 font-bold uppercase tracking-widest">{new Date(tx.created_at).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</p>
+                        <p className="text-lg font-black text-text-primary tabular-nums leading-none mb-1">
+                          {parseFloat(tx.amount).toLocaleString()}
+                        </p>
+                        <p className="text-[9px] text-text-secondary font-bold uppercase tracking-widest">
+                          {new Date(tx.created_at).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}
+                        </p>
                      </div>
                   </div>
                 ))
@@ -218,26 +242,31 @@ export default function Dashboard() {
 
         {/* SYSTEM INTEGRITY BLOCK (Management Only) */}
         {isManagement && houseStats && (
-          <div className="glass-panel p-8 rounded-[28px] border-white/5 bg-black/40 relative overflow-hidden group">
-            <div className="absolute top-[-20%] right-[-10%] w-[40%] h-[80%] bg-gold/[0.03] rounded-full blur-[60px]" />
-            <div className="flex items-center gap-4 mb-8">
-              <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
-                 <Fingerprint size={24} className="text-gray-400 group-hover:text-gold transition-colors duration-500" />
+          <div className="premium-card p-10 group">
+            <div className="absolute top-[-20%] right-[-10%] w-[50%] h-[100%] bg-primary/[0.05] rounded-full blur-[80px]" />
+            <div className="flex items-center gap-6 mb-10">
+              <div className="w-16 h-16 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center shadow-soft">
+                 <Fingerprint size={32} className="text-white/40 group-hover:text-primary transition-all duration-700" />
               </div>
               <div>
-                 <p className="text-xs font-black text-white tracking-widest uppercase">Registry Integrity</p>
-                 <p className="text-[10px] text-gray-500 font-bold uppercase mt-1 text-green-500/80">Status: Verified & Encrypted</p>
+                 <p className="text-sm font-black text-white tracking-widest uppercase">Registry Integrity</p>
+                 <p className="text-[11px] text-green-400 font-bold uppercase mt-1 flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
+                    Verified & Encrypted
+                 </p>
               </div>
             </div>
             
-            <div className="grid grid-cols-2 gap-8 border-t border-white/5 pt-8">
+            <div className="grid grid-cols-2 gap-10 border-t border-white/5 pt-10">
               <div>
-                 <p className="text-[9px] text-gray-600 font-black tracking-widest mb-1 uppercase">Volume Transacted</p>
-                 <p className="text-lg font-black text-white tabular-nums leading-none">{parseFloat(houseStats.global.total_wagered).toLocaleString()}</p>
+                 <p className="text-[10px] text-white/30 font-black tracking-widest mb-2 uppercase">Volume Transacted</p>
+                 <p className="text-xl font-black text-white tabular-nums leading-none">
+                   {displayWagered.toLocaleString()}
+                 </p>
               </div>
               <div className="text-right">
-                 <p className="text-[9px] text-gray-600 font-black tracking-widest mb-1 uppercase">Machine Cycles</p>
-                 <p className="text-lg font-black text-white tabular-nums leading-none">{houseStats.global.total_spins.toLocaleString()}</p>
+                 <p className="text-[10px] text-white/30 font-black tracking-widest mb-2 uppercase">Machine Cycles</p>
+                 <p className="text-xl font-black text-white tabular-nums leading-none">{houseStats.global.total_spins.toLocaleString()}</p>
               </div>
             </div>
           </div>
