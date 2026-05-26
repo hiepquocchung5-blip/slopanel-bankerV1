@@ -41,12 +41,14 @@ export default function Dashboard() {
   const [recentQueue, setRecentQueue] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const isManagement = user?.is_staff || user?.is_cashier;
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const fetchTasks: Promise<any>[] = [];
         
-        if (user?.is_staff) {
+        if (isManagement) {
           fetchTasks.push(API.request<HouseStats>('game/admin/analytics/'));
           fetchTasks.push(API.request<Transaction[]>('payments/admin/transactions/'));
         } else {
@@ -56,7 +58,7 @@ export default function Dashboard() {
 
         const results = await Promise.all(fetchTasks);
         
-        if (user?.is_staff) {
+        if (isManagement) {
           setHouseStats(results[0]);
           setRecentQueue(results[1].filter((t: any) => t.status === 'PENDING').slice(0, 3));
         } else {
@@ -70,7 +72,7 @@ export default function Dashboard() {
       }
     };
     fetchData();
-  }, [user]);
+  }, [user, isManagement]);
 
   if (!user) return null;
 
@@ -86,7 +88,7 @@ export default function Dashboard() {
         <div className="space-y-1">
           <p className="text-[10px] font-black text-gold tracking-[0.3em] uppercase opacity-70">Authorized Access</p>
           <h2 className="text-2xl font-black text-white tracking-tight flex items-center gap-2">
-            Welcome, {user.username || 'Agent'}
+            Welcome, {user.username || 'Staff'}
             <ShieldCheck size={18} className="text-blue-500 fill-blue-500/10" />
           </h2>
           <div className="flex items-center gap-3">
@@ -96,7 +98,7 @@ export default function Dashboard() {
              </div>
              <div className="w-1 h-1 bg-white/10 rounded-full" />
              <span className="text-[9px] font-black text-gray-600 uppercase tracking-widest bg-white/5 px-2 py-0.5 rounded border border-white/5">
-               LVL: {user.is_staff ? 'ADMIN_SEC_4' : 'AGENT_CORE'}
+               LVL: {user.is_staff ? 'ADMIN_SEC_4' : user.is_cashier ? 'CASHIER_SEC_3' : 'AGENT_CORE'}
              </span>
           </div>
         </div>
@@ -105,7 +107,7 @@ export default function Dashboard() {
 
       <div className="p-6 space-y-6">
         {/* TOP STATS GRID */}
-        {user.is_staff && houseStats ? (
+        {isManagement && houseStats ? (
           <div className="grid grid-cols-2 gap-4">
             <div className="glass-panel p-6 rounded-[24px] border-green-500/10 relative overflow-hidden group">
               <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
@@ -151,7 +153,7 @@ export default function Dashboard() {
         ) : null}
 
         {/* AGENT INVITE BOX (If Agent) */}
-        {!user.is_staff && refStats && (
+        {!isManagement && refStats && (
           <div className="text-center py-2">
              <div className="inline-block p-8 glass-panel rounded-[40px] border-gold/30 shadow-[0_0_50px_rgba(212,175,55,0.08)] bg-black/20 w-full max-w-[340px]">
                 <p className="text-[11px] text-gray-500 font-black mb-5 tracking-[0.4em] uppercase opacity-60">Authentication Key</p>
@@ -168,7 +170,7 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* RECENT QUEUE ACTIVITY (Both Admin & Agent) */}
+        {/* RECENT QUEUE ACTIVITY (Both Management & Agent) */}
         <div className="space-y-4">
            <div className="flex justify-between items-center px-1">
               <div className="flex items-center gap-2">
@@ -201,7 +203,7 @@ export default function Dashboard() {
                         </div>
                         <div>
                            <p className="text-[10px] font-black text-white tracking-widest uppercase">{tx.tx_type}</p>
-                           <p className="text-[8px] text-gray-500 font-bold uppercase tracking-widest">USER_ID: {tx.user}</p>
+                           <p className="text-[8px] text-gray-500 font-bold uppercase tracking-widest">ID: {tx.id}</p>
                         </div>
                      </div>
                      <div className="text-right">
@@ -214,8 +216,8 @@ export default function Dashboard() {
            </div>
         </div>
 
-        {/* SYSTEM INTEGRITY BLOCK (Admin Only) */}
-        {user.is_staff && houseStats && (
+        {/* SYSTEM INTEGRITY BLOCK (Management Only) */}
+        {isManagement && houseStats && (
           <div className="glass-panel p-8 rounded-[28px] border-white/5 bg-black/40 relative overflow-hidden group">
             <div className="absolute top-[-20%] right-[-10%] w-[40%] h-[80%] bg-gold/[0.03] rounded-full blur-[60px]" />
             <div className="flex items-center gap-4 mb-8">

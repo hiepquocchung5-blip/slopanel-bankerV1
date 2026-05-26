@@ -10,6 +10,7 @@ export interface User {
   username: string | null;
   user_type: 'NORMAL' | 'AGENT' | 'VIP';
   is_staff: boolean;
+  is_cashier: boolean;
   balance: string;
   referral_code: string;
 }
@@ -40,7 +41,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const profile = await API.request<User>('users/profile/');
       
-      if (profile.user_type === 'NORMAL' && !profile.is_staff) {
+      if (profile.user_type === 'NORMAL' && !profile.is_staff && !profile.is_cashier) {
         throw new Error("Clearance Level Too Low.");
       }
       
