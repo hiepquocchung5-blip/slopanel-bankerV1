@@ -83,7 +83,7 @@ export default function Dashboard() {
   const displayWagered = houseStats ? (isCashier ? parseFloat(houseStats.global.total_wagered) * 0.9 : parseFloat(houseStats.global.total_wagered)) : 0;
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 scrollable">
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
       <Header 
         title="Command Center" 
         subtitle="System Status: Operational" 

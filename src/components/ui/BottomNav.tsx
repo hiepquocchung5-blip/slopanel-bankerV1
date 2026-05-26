@@ -25,8 +25,7 @@ export default function BottomNav() {
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-[9999] p-6 pb-10 pointer-events-none flex justify-center">
-      <nav className="liquid-glass rounded-[48px] p-2 flex items-center justify-between shadow-[0_30px_80px_rgba(0,31,35,0.3)] border border-white/80 h-[96px] w-full max-w-[680px] pointer-events-auto">
+    <nav className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[9999] w-[calc(100%-40px)] max-w-[680px] liquid-glass rounded-[48px] p-2 flex items-center justify-between shadow-[0_30px_80px_rgba(0,31,35,0.3)] border border-white/80 h-[96px]">
         {navItems.map((item) => {
           if (item.managementOnly && !isManagement) return null;
           const isActive = pathname === item.href;
@@ -42,7 +41,7 @@ export default function BottomNav() {
             >
               <div className={cn(
                 "p-4 rounded-[32px] transition-all duration-500",
-                isActive ? "bg-primary-dark shadow-[0_15px_35px_rgba(49,151,149,0.5)] scale-110 -translate-y-4" : "group-hover:bg-primary/10"
+                isActive ? "bg-primary-dark shadow-[0_15px_35px_rgba(49,151,149,0.6)] scale-110 -translate-y-4" : "group-hover:bg-primary/10"
               )}>
                 <item.icon size={28} className={cn("transition-transform", isActive && "animate-float")} />
               </div>
@@ -69,7 +68,6 @@ export default function BottomNav() {
             Exit
           </span>
         </button>
-      </nav>
-    </div>
+    </nav>
   );
 }

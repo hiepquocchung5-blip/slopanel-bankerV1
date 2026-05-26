@@ -29,24 +29,23 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
   if (!user) return null;
 
   return (
-    <>
-      <div className="app-container">
-         {/* Aqua Background Glows */}
-         <div className="fixed inset-0 pointer-events-none z-0">
-            <div className="absolute top-[-10%] left-[-5%] w-[70%] h-[50%] bg-primary/10 rounded-full blur-[140px]" />
-            <div className="absolute bottom-[-5%] right-[-5%] w-[60%] h-[40%] bg-primary-dark/5 rounded-full blur-[120px]" />
-         </div>
+    <div className="relative w-full h-screen bg-background overflow-hidden">
+       {/* Global Aqua Background Glows */}
+       <div className="fixed inset-0 pointer-events-none z-0">
+          <div className="absolute top-[-10%] left-[-5%] w-[70%] h-[50%] bg-primary/10 rounded-full blur-[140px]" />
+          <div className="absolute bottom-[-5%] right-[-5%] w-[60%] h-[40%] bg-primary-dark/5 rounded-full blur-[120px]" />
+       </div>
 
-         <BackButton />
+       <BackButton />
 
-         <div className="scroll-container relative z-10">
-            <main className="w-full flex-1">
-               {children}
-            </main>
-            <Footer />
-         </div>
-      </div>
-      <BottomNav />
-    </>
+       <div className="scroll-container relative z-10 w-full h-full">
+          <main className="w-full flex-1 min-h-screen">
+             {children}
+          </main>
+          <Footer />
+       </div>
+
+       <BottomNav />
+    </div>
   );
 }
