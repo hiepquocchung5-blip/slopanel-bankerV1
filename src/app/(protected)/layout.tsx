@@ -5,6 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import BottomNav from '@/components/ui/BottomNav';
 import BackButton from '@/components/ui/BackButton';
+import Footer from '@/components/ui/Footer';
 import { Loader2 } from 'lucide-react';
 
 export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
@@ -28,7 +29,7 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
+    <div className="app-container">
        {/* Aqua Background Glows */}
        <div className="fixed inset-0 pointer-events-none z-0">
           <div className="absolute top-[-10%] left-[-5%] w-[70%] h-[50%] bg-primary/10 rounded-full blur-[140px]" />
@@ -37,9 +38,12 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
 
        <BackButton />
 
-       <main className="relative z-10 w-full min-h-screen">
-          {children}
-       </main>
+       <div className="scroll-container relative z-10">
+          <main className="w-full min-h-screen">
+             {children}
+          </main>
+          <Footer />
+       </div>
 
        <BottomNav />
     </div>
