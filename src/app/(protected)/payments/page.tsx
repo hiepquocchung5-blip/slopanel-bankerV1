@@ -76,33 +76,33 @@ export default function PaymentsPage() {
   };
 
   return (
-    <div className="animate-in fade-in duration-500">
+    <div className="animate-in fade-in duration-500 pb-32 scrollable">
       <Header 
-        title="Payment Configuration" 
-        subtitle="Team Deposit Gateways" 
+        title="Gateways" 
+        subtitle="Financial Protocol Registry" 
       />
 
       <div className="p-6">
         <button 
           onClick={() => setIsAdding(!isAdding)}
           className={cn(
-            "w-full py-4 rounded-[24px] border border-white/5 font-black text-xs tracking-widest transition-all active:scale-95 flex items-center justify-center gap-3 mb-8 shadow-xl",
-            isAdding ? "bg-white/10 text-white" : "bg-gold/5 text-gold border-gold/10"
+            "w-full btn-primary mb-8",
+            isAdding && "bg-white/10 text-text-primary border-black/5"
           )}
         >
           {isAdding ? <Minus size={18} /> : <Plus size={18} />}
-          {isAdding ? 'CANCEL ADDITION' : 'ADD TEAM ACCOUNT'}
+          {isAdding ? 'CANCEL OPERATION' : 'REGISTER NEW GATEWAY'}
         </button>
 
         {isAdding && (
-          <div className="glass-panel p-8 rounded-[32px] border-gold/20 mb-10 animate-in slide-in-from-top duration-300">
-             <form onSubmit={handleAdd} className="space-y-5">
+          <div className="glass-card p-8 mb-10 animate-in slide-in-from-top duration-300 border-primary/20 shadow-soft">
+             <form onSubmit={handleAdd} className="space-y-6">
                 <div className="space-y-2">
-                   <p className="text-[9px] font-black text-gray-500 tracking-widest uppercase ml-1">Financial Institution</p>
+                   <p className="text-[10px] font-black text-text-secondary tracking-widest uppercase ml-1 opacity-60">Financial Institution</p>
                    <div className="relative">
-                      <Landmark size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
+                      <Landmark size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-text-secondary" />
                       <input 
-                        className="w-full bg-black/60 border border-white/5 rounded-2xl py-4 pl-12 pr-4 text-white font-bold outline-none focus:border-gold/30"
+                        className="input-modern pl-14"
                         placeholder="e.g. KBZ Pay"
                         value={newBank}
                         onChange={e => setNewBank(e.target.value)}
@@ -112,11 +112,11 @@ export default function PaymentsPage() {
                 </div>
 
                 <div className="space-y-2">
-                   <p className="text-[9px] font-black text-gray-500 tracking-widest uppercase ml-1">Account Number</p>
+                   <p className="text-[10px] font-black text-text-secondary tracking-widest uppercase ml-1 opacity-60">Account Identifier</p>
                    <div className="relative">
-                      <CreditCard size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
+                      <CreditCard size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-text-secondary" />
                       <input 
-                        className="w-full bg-black/60 border border-white/5 rounded-2xl py-4 pl-12 pr-4 text-white font-bold outline-none focus:border-gold/30"
+                        className="input-modern pl-14"
                         placeholder="09..."
                         value={newAcc}
                         onChange={e => setNewAcc(e.target.value)}
@@ -126,11 +126,11 @@ export default function PaymentsPage() {
                 </div>
 
                 <div className="space-y-2">
-                   <p className="text-[9px] font-black text-gray-500 tracking-widest uppercase ml-1">Account Legal Name</p>
+                   <p className="text-[10px] font-black text-text-secondary tracking-widest uppercase ml-1 opacity-60">Legal Entity Name</p>
                    <div className="relative">
-                      <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
+                      <User size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-text-secondary" />
                       <input 
-                        className="w-full bg-black/60 border border-white/5 rounded-2xl py-4 pl-12 pr-4 text-white font-bold outline-none focus:border-gold/30"
+                        className="input-modern pl-14"
                         placeholder="U AUNG..."
                         value={newName}
                         onChange={e => setNewName(e.target.value)}
@@ -141,7 +141,7 @@ export default function PaymentsPage() {
 
                 <button 
                   disabled={processingId === -1}
-                  className="w-full bg-gold py-4 rounded-2xl text-black font-black text-xs tracking-widest shadow-[0_0_25px_rgba(212,175,55,0.2)] mt-4 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
+                  className="w-full btn-primary shadow-soft"
                 >
                   {processingId === -1 && <Loader2 size={16} className="animate-spin" />}
                   COMMIT TO REGISTRY
@@ -150,49 +150,49 @@ export default function PaymentsPage() {
           </div>
         )}
 
-        <div className="space-y-4">
+        <div className="space-y-5">
            {isLoading ? (
              <div className="h-40 flex items-center justify-center">
-                <Loader2 size={32} className="text-gold animate-spin" />
+                <Loader2 size={32} className="text-primary animate-spin" />
              </div>
            ) : methods.length === 0 ? (
-             <div className="py-20 flex flex-col items-center justify-center text-center opacity-30">
-                <AlertCircle size={48} className="mb-4 text-gray-500" />
-                <p className="text-sm font-black tracking-[0.2em] uppercase">No Methods Configured</p>
+             <div className="py-24 flex flex-col items-center justify-center text-center opacity-20">
+                <AlertCircle size={64} className="mb-6 text-text-secondary" />
+                <p className="text-sm font-black tracking-[0.4em] uppercase text-text-primary">No Active Protocols</p>
              </div>
            ) : (
              methods.map(m => (
                <div key={m.id} className={cn(
-                 "glass-panel p-6 rounded-[28px] border-white/5 flex justify-between items-center",
-                 !m.is_active && "opacity-40"
+                 "glass-card p-6 flex justify-between items-center border-black/5 shadow-soft transition-all duration-500",
+                 !m.is_active && "opacity-40 grayscale"
                )}>
                   <div className="flex-1">
-                     <div className="flex items-center gap-2 mb-1">
-                        <p className="text-[10px] font-black text-gold tracking-widest uppercase">{m.bank_name}</p>
-                        <ShieldCheck size={10} className="text-gold/50" />
+                     <div className="flex items-center gap-2 mb-2">
+                        <p className="text-[10px] font-black text-primary-dark tracking-widest uppercase">{m.bank_name}</p>
+                        <ShieldCheck size={12} className="text-primary-dark/40" />
                      </div>
-                     <p className="text-xl font-black text-white tracking-wide">{m.bank_account}</p>
-                     <p className="text-[10px] font-bold text-gray-500 uppercase mt-1 tracking-widest">{m.account_name}</p>
+                     <p className="text-2xl font-black text-text-primary tracking-tight tabular-nums">{m.bank_account}</p>
+                     <p className="text-[11px] font-bold text-text-secondary uppercase mt-2 tracking-widest opacity-60">{m.account_name}</p>
                   </div>
                   
-                  <div className="flex flex-col items-end gap-3 ml-4">
+                  <div className="flex flex-col items-end gap-4 ml-6">
                      <span className={cn(
-                       "text-[8px] font-black tracking-widest uppercase px-2 py-0.5 rounded",
-                       m.is_active ? "bg-green-500/10 text-green-400" : "bg-red-500/10 text-red-400"
+                       "text-[9px] font-black tracking-widest uppercase px-3 py-1 rounded-full border shadow-soft",
+                       m.is_active ? "bg-green-500/10 text-green-600 border-green-500/20" : "bg-red-500/10 text-red-600 border-red-500/20"
                      )}>
-                        {m.is_active ? 'Online' : 'Disabled'}
+                        {m.is_active ? 'Online' : 'Offline'}
                      </span>
                      <button 
                        disabled={processingId !== null}
                        onClick={() => handleToggle(m.id, m.is_active)}
-                       className="p-1 hover:scale-110 active:scale-90 transition-transform disabled:opacity-50"
+                       className="p-1 hover:scale-110 active:scale-90 transition-all disabled:opacity-50"
                      >
                         {processingId === m.id ? (
-                          <Loader2 size={28} className="animate-spin text-gray-600" />
+                          <Loader2 size={32} className="animate-spin text-primary" />
                         ) : m.is_active ? (
-                          <ToggleRight size={36} className="text-green-500" />
+                          <ToggleRight size={44} className="text-primary-dark" />
                         ) : (
-                          <ToggleLeft size={36} className="text-gray-600" />
+                          <ToggleLeft size={44} className="text-text-secondary/40" />
                         )}
                      </button>
                   </div>

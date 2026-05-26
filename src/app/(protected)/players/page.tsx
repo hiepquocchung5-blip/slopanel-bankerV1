@@ -55,36 +55,39 @@ export default function PlayersPage() {
   };
 
   return (
-    <div className="animate-in fade-in duration-500">
+    <div className="animate-in fade-in duration-500 pb-32 scrollable">
       <Header 
-        title="Player Management" 
-        subtitle={isAdmin ? "Access Control & Monitoring" : "Registry Observer"} 
+        title="Player Hub" 
+        subtitle={isAdmin ? "Network Access Control" : "Registry Monitor"} 
       />
 
-      <div className="p-6 space-y-4">
+      <div className="p-6 space-y-6">
         {isLoading ? (
           <div className="h-64 flex items-center justify-center">
-             <Loader2 size={32} className="text-gold animate-spin" />
+             <Loader2 size={32} className="text-primary animate-spin" />
           </div>
         ) : players.map(p => (
           <div key={p.id} className={cn(
-            "glass-panel p-5 rounded-[24px] border-white/5 transition-opacity relative overflow-hidden",
-            !p.is_active && "opacity-40"
+            "glass-card p-6 border-black/5 shadow-soft transition-all duration-300",
+            !p.is_active && "opacity-50 grayscale bg-black/[0.02]"
           )}>
-            <div className="flex justify-between items-center mb-6">
-               <div className="flex items-center gap-4">
+            <div className="flex justify-between items-center mb-8">
+               <div className="flex items-center gap-5">
                   <div className={cn(
-                    "w-12 h-12 rounded-2xl flex items-center justify-center border",
-                    p.is_active ? "bg-gold/5 border-gold/20" : "bg-red-500/5 border-red-500/20"
+                    "w-14 h-14 rounded-2xl flex items-center justify-center border shadow-soft transition-colors duration-500",
+                    p.is_active ? "bg-primary/10 border-primary/20 text-primary-dark" : "bg-red-500/10 border-red-500/20 text-red-500"
                   )}>
-                    {p.is_active ? <Shield size={22} className="text-gold" /> : <UserX size={22} className="text-red-500" />}
+                    {p.is_active ? <Shield size={24} /> : <UserX size={24} />}
                   </div>
                   <div>
-                     <p className="text-sm font-black text-white tracking-widest">{p.phone_number}</p>
-                     <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest flex items-center gap-1">
-                       Tier: <span className="text-gold">{p.vip_tier || 'NORMAL'}</span>
-                       <ShieldCheck size={10} className="text-gold/50" />
-                     </span>
+                     <p className="text-base font-black text-text-primary tracking-widest">{p.phone_number}</p>
+                     <div className="flex items-center gap-2 mt-1">
+                        <span className="text-[10px] font-black text-text-secondary uppercase tracking-widest">
+                          LVL: <span className="text-primary-dark">{p.vip_tier || 'NORMAL'}</span>
+                        </span>
+                        <div className="w-1 h-1 bg-black/10 rounded-full" />
+                        <ShieldCheck size={12} className="text-primary-dark/40" />
+                     </div>
                   </div>
                </div>
 
@@ -93,36 +96,40 @@ export default function PlayersPage() {
                    disabled={processingId !== null}
                    onClick={() => handleToggleBan(p.id)}
                    className={cn(
-                     "px-6 py-2.5 rounded-xl text-[10px] font-black tracking-widest transition-all active:scale-95 disabled:opacity-50",
-                     p.is_active ? "bg-red-500/10 text-red-500 border border-red-500/20" : "bg-green-500/10 text-green-500 border border-green-500/20"
+                     "px-6 py-3 rounded-2xl text-[10px] font-black tracking-[0.2em] transition-all active:scale-95 disabled:opacity-50 shadow-soft border uppercase",
+                     p.is_active ? "bg-red-500/10 text-red-600 border-red-500/20 hover:bg-red-500 hover:text-white" : "bg-primary-dark text-white border-primary-dark"
                    )}
                  >
-                   {processingId === p.id ? <Loader2 size={14} className="animate-spin" /> : (p.is_active ? 'RESTRICT' : 'RESTORE')}
+                   {processingId === p.id ? <Loader2 size={14} className="animate-spin" /> : (p.is_active ? 'Restrict' : 'Restore')}
                  </button>
                ) : (
-                 <div className="px-4 py-2 bg-white/5 rounded-xl border border-white/5">
-                    <span className="text-[8px] font-black text-gray-600 tracking-widest uppercase">Verified</span>
+                 <div className="px-4 py-2 bg-black/5 rounded-xl border border-black/5">
+                    <span className="text-[9px] font-black text-text-secondary tracking-widest uppercase opacity-40">Verified</span>
                  </div>
                )}
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-               <div className="bg-black/40 border border-white/5 p-4 rounded-[20px] flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center">
-                    <Coins size={14} className={p.is_active ? "text-gold/60" : "text-gray-600"} />
+            <div className="grid grid-cols-2 gap-4">
+               <div className="bg-white/40 border border-black/5 p-5 rounded-[24px] flex items-center gap-4 shadow-soft">
+                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary-dark">
+                    <Coins size={16} />
                   </div>
                   <div>
-                    <p className="text-[8px] text-gray-600 font-black tracking-widest uppercase">Balance</p>
-                    <p className="text-xs font-black text-white tabular-nums">{parseFloat(p.balance).toLocaleString()}</p>
+                    <p className="text-[9px] text-text-secondary font-black tracking-widest uppercase opacity-60">Total Balance</p>
+                    <p className="text-sm font-black text-text-primary tabular-nums tracking-tighter">
+                      {parseFloat(p.balance).toLocaleString()}
+                    </p>
                   </div>
                </div>
-               <div className="bg-black/40 border border-white/5 p-4 rounded-[20px] flex items-center gap-3 text-right">
+               <div className="bg-white/40 border border-black/5 p-5 rounded-[24px] flex items-center gap-4 text-right shadow-soft">
                   <div className="flex-1">
-                    <p className="text-[8px] text-gray-600 font-black tracking-widest uppercase">Lifetime</p>
-                    <p className="text-xs font-black text-gold tabular-nums">{parseFloat(p.lifetime_deposit).toLocaleString()}</p>
+                    <p className="text-[9px] text-text-secondary font-black tracking-widest uppercase opacity-60">Revenue Contrib.</p>
+                    <p className="text-sm font-black text-primary-dark tabular-nums tracking-tighter">
+                      {parseFloat(p.lifetime_deposit).toLocaleString()}
+                    </p>
                   </div>
-                  <div className="w-8 h-8 rounded-full bg-gold/5 flex items-center justify-center">
-                    <Landmark size={14} className="text-gold/60" />
+                  <div className="w-10 h-10 rounded-full bg-primary/5 flex items-center justify-center text-primary-dark/40">
+                    <Landmark size={16} />
                   </div>
                </div>
             </div>

@@ -27,9 +27,9 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-background">
-      <div className="w-full max-w-[440px] glass-card p-12 text-center shadow-card relative overflow-hidden">
+      <div className="w-full max-w-[440px] glass-card p-12 text-center shadow-card relative overflow-hidden border-black/5">
         {/* Decorative Circle */}
-        <div className="blur-circle -top-20 -left-20" />
+        <div className="blur-circle -top-24 -left-24 bg-primary/20" />
         
         <div className="relative z-10">
           <div className="w-24 h-24 bg-primary/10 rounded-[32px] flex items-center justify-center mx-auto mb-8 border border-primary/20 shadow-soft">
@@ -37,9 +37,9 @@ export default function LoginPage() {
           </div>
           
           <h2 className="text-4xl font-black text-text-primary tracking-tight mb-2 uppercase">Secure Access</h2>
-          <p className="text-[11px] text-text-secondary font-black tracking-[0.4em] mb-12 uppercase opacity-60">Authorized Personnel Only</p>
+          <p className="text-[11px] text-text-secondary font-black tracking-[0.4em] mb-12 uppercase opacity-60">Management Terminal v2.1</p>
           
-          <form onSubmit={handleSubmit} className="space-y-5 mb-10">
+          <form onSubmit={handleSubmit} className="space-y-6 mb-10">
             <div className="relative group">
               <Phone size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-text-secondary group-focus-within:text-primary-dark transition-colors" />
               <input 
@@ -73,24 +73,24 @@ export default function LoginPage() {
             <button 
               type="submit" 
               disabled={isSubmitting}
-              className="w-full btn-primary mt-6"
+              className="w-full btn-primary mt-6 shadow-soft"
             >
               {isSubmitting ? (
                 <>
                   <Loader2 size={20} className="animate-spin" />
-                  <span className="tracking-widest uppercase font-black">Verifying...</span>
+                  <span className="tracking-widest uppercase font-black">Decrypting...</span>
                 </>
               ) : (
-                <span className="tracking-widest uppercase font-black">Authenticate System</span>
+                <span className="tracking-widest uppercase font-black">Authenticate Protocol</span>
               )}
             </button>
           </form>
           
-          <div className="soft-divider mb-8" />
+          <div className="soft-divider mb-8 opacity-40" />
           
           <p className="text-text-secondary text-[10px] font-bold tracking-widest uppercase leading-loose opacity-60">
-            Access to this terminal is logged. <br/>
-            <span className="text-primary-dark font-black">End-to-End Encryption Active</span>
+            Authorized Personnel Only <br/>
+            <span className="text-primary-dark font-black">Secure Handshake Active</span>
           </p>
         </div>
       </div>
