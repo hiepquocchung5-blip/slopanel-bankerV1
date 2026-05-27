@@ -3,7 +3,6 @@
 import React from 'react';
 import { CONFIG } from '@/lib/config';
 import { Globe, Cpu, Zap, ShieldCheck } from 'lucide-react';
-import { Button } from "@heroui/react";
 
 export default function GlobalFooter() {
   const currentYear = new Date().getFullYear();
@@ -25,17 +24,15 @@ export default function GlobalFooter() {
         </div>
 
         <div className="flex items-center gap-3">
-          <Button 
-            as="a"
+          <a 
             href={CONFIG.MAIN_DOMAIN}
             target="_blank"
-            size="sm"
-            variant="flat"
-            className="text-[10px] font-black uppercase tracking-widest bg-slate-50 border border-slate-200 h-8"
-            startContent={<Globe size={12} />}
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 px-4 h-8 rounded-lg text-[10px] font-black uppercase tracking-widest bg-slate-50 border border-slate-200 text-slate-600 hover:bg-slate-100 transition-colors"
           >
+            <Globe size={12} />
             Main_Hub
-          </Button>
+          </a>
           <p className="hidden md:block text-[9px] font-bold text-slate-400 uppercase tracking-widest ml-4">
             &copy; {currentYear} SLOPARA ENT.
           </p>

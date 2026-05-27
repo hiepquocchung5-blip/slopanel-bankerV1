@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import Header from '@/components/ui/Header';
 import Footer from '@/components/ui/Footer';
 import { Loader2 } from 'lucide-react';
-import { Spinner } from "@heroui/react";
 
 export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
@@ -20,8 +19,9 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <Spinner size="lg" color="primary" label="Secure Handshake..." labelColor="primary" />
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center gap-4">
+        <Loader2 size={48} className="text-teal-600 animate-spin" />
+        <span className="text-sm font-black uppercase tracking-widest text-slate-400">Secure Handshake...</span>
       </div>
     );
   }
