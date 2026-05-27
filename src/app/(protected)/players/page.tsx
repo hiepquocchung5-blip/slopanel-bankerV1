@@ -55,12 +55,7 @@ export default function PlayersPage() {
   };
 
   return (
-    <div className="animate-in fade-in duration-500 pb-32 scrollable">
-      <Header 
-        title="Player Hub" 
-        subtitle={isAdmin ? "Network Access Control" : "Registry Monitor"} 
-      />
-
+    <div className="animate-in fade-in duration-500 pb-32">
       <div className="p-6 space-y-6">
         {isLoading ? (
           <div className="h-64 flex items-center justify-center">

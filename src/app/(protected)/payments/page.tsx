@@ -76,12 +76,7 @@ export default function PaymentsPage() {
   };
 
   return (
-    <div className="animate-in fade-in duration-500 pb-32 scrollable">
-      <Header 
-        title="Gateways" 
-        subtitle="Financial Protocol Registry" 
-      />
-
+    <div className="animate-in fade-in duration-500 pb-32">
       <div className="p-6">
         <button 
           onClick={() => setIsAdding(!isAdding)}

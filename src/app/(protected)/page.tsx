@@ -85,11 +85,6 @@ export default function Dashboard() {
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <Header 
-        title="Command Center" 
-        subtitle="System Status: Operational" 
-      />
-
       {/* Hero Greeting Section */}
       <div className="px-6 pt-10 md:pt-14 flex justify-between items-end">
         <div className="space-y-2">

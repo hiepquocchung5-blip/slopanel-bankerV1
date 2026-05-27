@@ -59,9 +59,9 @@
 }
 
 .liquid-glass {
-  background: rgba(255, 255, 255, 0.35);
-  backdrop-filter: blur(28px) saturate(190%) contrast(110%);
-  -webkit-backdrop-filter: blur(28px) saturate(190%) contrast(110%);
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(32px) saturate(200%) contrast(110%);
+  -webkit-backdrop-filter: blur(32px) saturate(200%) contrast(110%);
   border: 1.5px solid rgba(255, 255, 255, 0.8);
 }
 
@@ -75,8 +75,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   margin: 0;
   padding: 0;
-  min-height: 100vh;
-  width: 100%;
+  min-height: 100%;
 }
 
 @layer components {
@@ -86,32 +85,20 @@ body {
     width: 100%;
     min-height: 100vh;
     background: var(--background);
-  }
-
-  /* SCROLLABLE AREA */
-  .scroll-container {
-    width: 100%;
-    min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background: transparent;
   }
 
-  .scroll-container::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  .scroll-container::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  .scroll-container::-webkit-scrollbar-thumb {
-    background: var(--primary-soft);
-    border-radius: 10px;
-  }
-
-  .scroll-container::-webkit-scrollbar-thumb:hover {
-    background: var(--primary);
+  /* HYBRID SUPER BAR */
+  .super-bar {
+    @apply liquid-glass;
+    border-radius: 44px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    box-shadow: 0 40px 100px rgba(0, 31, 35, 0.35);
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
 
   /* GLASS CARD */
@@ -124,7 +111,7 @@ body {
     box-shadow: var(--shadow-soft);
   }
 
-  /* PREMIUM CARD - Updated to be Light/Aqua themed */
+  /* PREMIUM CARD */
   .premium-card {
     position: relative;
     background: linear-gradient(135deg, #ffffff 0%, var(--aqua-white) 100%);
@@ -140,38 +127,6 @@ body {
     inset: 0;
     background: radial-gradient(circle at top right, rgba(79, 209, 197, 0.15), transparent 50%);
     pointer-events: none;
-  }
-
-  /* BALANCE CARD */
-  .balance-card {
-    background: rgba(255, 255, 255, 0.72);
-    backdrop-filter: blur(22px);
-    -webkit-backdrop-filter: blur(22px);
-    border: 1px solid rgba(255, 255, 255, 0.7);
-    border-radius: var(--radius-xl);
-    box-shadow: var(--shadow-soft);
-    padding: 28px;
-    min-height: 240px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
-
-  /* TRANSACTION ITEM */
-  .transaction-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 14px 16px;
-    border-radius: 18px;
-    transition: all 0.25s ease;
-    background: rgba(255, 255, 255, 0.6);
-  }
-
-  .transaction-item:hover {
-    transform: translateY(-2px);
-    background: rgba(255, 255, 255, 0.92);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
   }
 
   /* BUTTON PRIMARY */
@@ -201,10 +156,6 @@ body {
     filter: brightness(1.1);
   }
 
-  .btn-primary:active, a.btn-primary:active {
-    transform: scale(0.96);
-  }
-
   /* BUTTON SECONDARY */
   .btn-secondary, a.btn-secondary {
     height: 52px;
@@ -223,113 +174,6 @@ body {
     gap: 10px;
     text-decoration: none;
     cursor: pointer;
-  }
-
-  .btn-secondary:hover, a.btn-secondary:hover {
-    background: white;
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-soft);
-    border-color: var(--primary-soft);
-  }
-
-  /* GLASS NAVIGATION */
-  .glass-nav {
-    position: fixed;
-    bottom: 20px;
-    left: 20px;
-    right: 20px;
-    height: 74px;
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
-    border-radius: 28px;
-    background: rgba(255, 255, 255, 0.72);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid rgba(255, 255, 255, 0.8);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-    z-index: 100;
-  }
-
-  @media (min-width: 768px) {
-    .glass-nav {
-      max-width: 620px;
-      left: 50%;
-      transform: translateX(-50%);
-    }
-  }
-
-  /* ACTIVE NAV ICON */
-  .nav-active {
-    width: 52px;
-    height: 52px;
-    border-radius: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-    color: white;
-    box-shadow: 0 10px 24px rgba(126, 97, 255, 0.28);
-  }
-
-  /* CHART BAR */
-  .chart-bar {
-    width: 44px;
-    border-radius: 16px 16px 8px 8px;
-    background: #ececf2;
-    transition: all 0.3s ease;
-  }
-
-  .chart-bar.active {
-    background: linear-gradient(180deg, #d9ccff, #bba7ff);
-    box-shadow: 0 10px 30px rgba(187, 167, 255, 0.35);
-  }
-
-  /* INPUT */
-  .input-modern {
-    width: 100%;
-    height: 56px;
-    padding-inline: 18px;
-    border-radius: 18px;
-    background: rgba(255, 255, 255, 0.75);
-    border: 1px solid rgba(0, 0, 0, 0.05);
-    outline: none;
-    transition: all 0.25s ease;
-  }
-
-  .input-modern:focus {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 4px rgba(187, 167, 255, 0.18);
-  }
-
-  /* SCROLL */
-  .scrollable {
-    overflow-y: auto;
-    height: 100%;
-    padding-bottom: 120px;
-    scroll-behavior: smooth;
-    scrollbar-width: none;
-  }
-
-  .scrollable::-webkit-scrollbar {
-    display: none;
-  }
-
-  /* LIQUID UI SYSTEM */
-  .liquid-tab {
-    position: absolute;
-    background: var(--primary);
-    border-radius: 20px;
-    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    z-index: -1;
-    box-shadow: 0 8px 25px rgba(187, 167, 255, 0.4);
-  }
-
-  .liquid-glass {
-    background: rgba(255, 255, 255, 0.4);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.5);
   }
 
   @keyframes float {
@@ -372,7 +216,7 @@ body {
 }
 
 .soft-divider {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid rgba(0, 43, 40, 0.05);
 }
 
 .blur-circle {
@@ -382,4 +226,8 @@ body {
   border-radius: 9999px;
   filter: blur(80px);
   background: rgba(187, 167, 255, 0.22);
+}
+
+.no-tap-highlight {
+  -webkit-tap-highlight-color: transparent;
 }

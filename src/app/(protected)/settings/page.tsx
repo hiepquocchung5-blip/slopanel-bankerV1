@@ -14,12 +14,7 @@ export default function SettingsPage() {
   ];
 
   return (
-    <div className="animate-in fade-in duration-500 pb-32 scrollable">
-      <Header 
-        title="System Config" 
-        subtitle="Registry & Protocol Management" 
-      />
-
+    <div className="animate-in fade-in duration-500 pb-32">
       <div className="p-6 space-y-4">
         {sections.map((item, i) => (
           <button 

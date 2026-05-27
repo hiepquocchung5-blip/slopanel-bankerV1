@@ -7,12 +7,7 @@ import { cn } from '@/lib/utils';
 
 export default function AnalyticsPage() {
   return (
-    <div className="animate-in fade-in duration-500 pb-32 scrollable">
-      <Header 
-        title="Performance Hub" 
-        subtitle="Live Network Analytics" 
-      />
-
+    <div className="animate-in fade-in duration-500 pb-32">
       <div className="p-6 space-y-8">
         <div className="premium-card p-8 group">
           <p className="text-[11px] text-white/40 font-black mb-2 tracking-[0.2em] uppercase">Network Health</p>

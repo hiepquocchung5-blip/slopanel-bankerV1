@@ -62,12 +62,7 @@ export default function QueuePage() {
   };
 
   return (
-    <div className="animate-in fade-in duration-500 pb-32 scrollable">
-      <Header 
-        title="Financial Queue" 
-        subtitle={isManagement ? `${txs.length} Pending Requests` : "Read-Only Terminal"} 
-      />
-
+    <div className="animate-in fade-in duration-500 pb-32">
       {selectedImage && (
         <div 
           className="fixed inset-0 z-[200] bg-black/90 backdrop-blur-2xl flex items-center justify-center p-4"

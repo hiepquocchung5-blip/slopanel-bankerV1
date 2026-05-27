@@ -29,16 +29,14 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-background relative">
+    <div className="app-container">
        {/* Global Aqua Background Glows */}
        <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
           <div className="absolute top-[-5%] left-[-10%] w-[80%] h-[40%] bg-primary/10 rounded-full blur-[140px]" />
           <div className="absolute bottom-[0%] right-[-5%] w-[60%] h-[30%] bg-primary-dark/5 rounded-full blur-[120px]" />
        </div>
 
-       <BackButton />
-
-       <main className="relative z-10 w-full min-h-screen pb-40">
+       <main className="relative z-10 w-full min-h-screen pb-60">
           {children}
           <Footer />
        </main>
