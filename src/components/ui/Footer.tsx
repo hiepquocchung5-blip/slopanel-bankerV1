@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { CONFIG } from '@/lib/config';
-import { Globe, Cpu, Zap, ShieldCheck } from 'lucide-react';
+import { Globe, Zap, ShieldCheck } from 'lucide-react';
 
 export default function GlobalFooter() {
   const currentYear = new Date().getFullYear();

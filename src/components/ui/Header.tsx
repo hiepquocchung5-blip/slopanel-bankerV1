@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
-import { Navbar, NavbarBrand, NavbarContent, NavbarItem, Button, Divider } from "@heroui/react";
+import { Button } from "@heroui/react";
 
 export default function GlobalHeader() {
   const pathname = usePathname();
@@ -17,8 +17,6 @@ export default function GlobalHeader() {
   const { user, logout } = useAuth();
 
   if (!user) return null;
-
-  const isManagement = user.is_staff || user.is_cashier;
 
   const navItems = [
     { label: 'Dash', icon: LayoutDashboard, href: '/' },
@@ -34,15 +32,14 @@ export default function GlobalHeader() {
   const pageTitle = currentItem?.label || 'Terminal';
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-[10001] bg-white border-b border-slate-200 shadow-sm">
+    <header className="fixed top-0 left-0 right-0 z-[10001] border-b border-slate-200/80 bg-white/90 shadow-[0_10px_30px_rgba(15,23,42,0.04)] backdrop-blur-xl">
       <div className="max-w-[1400px] mx-auto">
-        {/* TOP LEVEL: Identity */}
-        <div className="px-6 py-4 flex items-center justify-between border-b border-slate-50">
+        <div className="px-6 py-4 flex items-center justify-between border-b border-slate-100/80">
           <div className="flex items-center gap-4">
             <Button 
               isIconOnly
               onPress={() => router.back()}
-              variant="flat"
+              variant="outline"
               className="bg-slate-50 text-slate-600 border border-slate-200"
             >
               <ChevronLeft size={20} strokeWidth={3} />
@@ -73,7 +70,6 @@ export default function GlobalHeader() {
           </div>
         </div>
 
-        {/* NAVIGATION LEVEL: Fixed Under Title */}
         <nav className="px-6 py-3 flex items-center justify-between gap-4 overflow-x-auto no-scrollbar">
           <div className="flex items-center gap-2">
             {navItems.map((item) => {
@@ -102,12 +98,11 @@ export default function GlobalHeader() {
           
           <Button 
             onPress={logout}
-            variant="flat"
-            color="danger"
+            variant="danger-soft"
             size="sm"
-            className="font-black text-[10px] tracking-widest uppercase border-2 border-red-100 px-4"
-            startContent={<LogOut size={14} strokeWidth={3} />}
+            className="font-black text-[10px] tracking-widest uppercase border-2 border-red-100 px-4 flex items-center gap-2"
           >
+            <LogOut size={14} strokeWidth={3} />
             Session_End
           </Button>
         </nav>

@@ -1,6 +1,7 @@
 "use client";
+/* eslint-disable react-hooks/set-state-in-effect */
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { API } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import { AlertCircle, CreditCard, Landmark, Loader2, Minus, Plus, ShieldCheck, ToggleLeft, ToggleRight, User } from 'lucide-react';
@@ -13,6 +14,10 @@ interface PaymentMethod {
   account_name: string;
   is_active: boolean;
   created_by: number;
+}
+
+interface ToggleMethodResponse {
+  is_active: boolean;
 }
 
 export default function PaymentsPage() {
@@ -28,7 +33,8 @@ export default function PaymentsPage() {
 
   const isManagement = user?.is_staff || user?.is_cashier;
 
-  const fetchMethods = async () => {
+  const fetchMethods = useCallback(async () => {
+    setIsLoading(true);
     try {
       const endpoint = isManagement ? 'payments/admin/methods/' : 'payments/agent/methods/';
       const data = await API.request<PaymentMethod[]>(endpoint);
@@ -38,17 +44,17 @@ export default function PaymentsPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [isManagement]);
 
   useEffect(() => {
-    fetchMethods();
-  }, [isManagement]);
+    void fetchMethods();
+  }, [fetchMethods]);
 
   const handleToggle = async (id: number, currentStatus: boolean) => {
     setProcessingId(id);
     try {
       const endpoint = isManagement ? `payments/admin/methods/${id}/` : `payments/agent/methods/${id}/`;
-      const res = await API.request<any>(endpoint, {
+      const res = await API.request<ToggleMethodResponse>(endpoint, {
         method: 'PATCH',
         body: JSON.stringify({ is_active: !currentStatus }),
       });

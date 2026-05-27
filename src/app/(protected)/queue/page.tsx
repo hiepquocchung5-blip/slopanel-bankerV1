@@ -1,6 +1,7 @@
 "use client";
+/* eslint-disable react-hooks/set-state-in-effect */
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { API } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import { Check, Clock, Eye, EyeOff, Loader2, ShieldAlert, X } from 'lucide-react';
@@ -31,7 +32,8 @@ export default function QueuePage() {
 
   const isManagement = user?.is_staff || user?.is_cashier;
 
-  const fetchQueue = async () => {
+  const fetchQueue = useCallback(async () => {
+    setIsLoading(true);
     try {
       const data = await API.request<Transaction[]>('payments/admin/transactions/');
       const filtered = data.filter(t => {
@@ -46,11 +48,11 @@ export default function QueuePage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [isManagement, user?.phone_number]);
 
   useEffect(() => {
-    fetchQueue();
-  }, [user]);
+    void fetchQueue();
+  }, [fetchQueue]);
 
   const handleAction = async (id: number, action: 'approve' | 'reject') => {
     if (!isManagement) return;

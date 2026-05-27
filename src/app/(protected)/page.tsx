@@ -1,15 +1,13 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { API } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import { 
-  ArrowRight, BarChart3, Fingerprint, QrCode, ShieldCheck, 
-  TrendingUp, User as UserIcon, Users, Wallet, Zap, Phone, Check, Loader2 
+  BarChart3, Fingerprint, QrCode, ShieldCheck,
+  TrendingUp, Users, Wallet, Zap, Loader2
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { motion } from 'framer-motion';
 
 interface HouseStats {
   global: {

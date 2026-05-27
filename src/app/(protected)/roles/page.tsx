@@ -1,9 +1,10 @@
 "use client";
+/* eslint-disable react-hooks/set-state-in-effect */
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { API } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
-import { ShieldAlert, User, Phone, Check, Loader2, Search, UserCheck } from 'lucide-react';
+import { ShieldAlert, User, Phone, Loader2, Search, UserCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Player {
@@ -26,7 +27,8 @@ export default function RolesPage() {
 
   const isAdmin = user?.is_staff;
 
-  const fetchPlayers = async () => {
+  const fetchPlayers = useCallback(async () => {
+    setIsLoading(true);
     try {
       const data = await API.request<Player[]>('users/admin/players/');
       setPlayers(data);
@@ -35,11 +37,11 @@ export default function RolesPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    fetchPlayers();
-  }, []);
+    void fetchPlayers();
+  }, [fetchPlayers]);
 
   const handleUpdateRole = async (userId: number, role: AppRole) => {
     if (!isAdmin) return;

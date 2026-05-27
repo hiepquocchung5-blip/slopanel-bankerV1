@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { ShieldAlert, Phone, Lock, Loader2, KeyRound } from 'lucide-react';
+import { Phone, Lock, Loader2, KeyRound } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { motion } from 'framer-motion';
 
@@ -20,8 +20,8 @@ export default function LoginPage() {
     setError(null);
     try {
       await login(phone, password);
-    } catch (err: any) {
-      setError(err.message || "Authentication failed.");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Authentication failed.");
       setIsSubmitting(false);
     }
   };

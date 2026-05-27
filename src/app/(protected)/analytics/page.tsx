@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { BarChart3, ArrowDownRight, ArrowUpRight, TrendingUp, Users, ShieldAlert } from 'lucide-react';
+import { ArrowDownRight, ArrowUpRight, TrendingUp, Users, ShieldAlert } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
 
