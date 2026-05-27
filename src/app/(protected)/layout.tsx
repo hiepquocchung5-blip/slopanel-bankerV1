@@ -38,7 +38,7 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
 
        <Header />
 
-       <main className="relative z-10 w-full min-h-screen pt-32 pb-60">
+       <main className="relative z-10 w-full min-h-screen pt-24 pb-40">
           {children}
           <Footer />
        </main>
