@@ -9,7 +9,6 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
-import { Button } from "@heroui/react";
 
 export default function GlobalHeader() {
   const pathname = usePathname();
@@ -30,20 +29,21 @@ export default function GlobalHeader() {
 
   const currentItem = navItems.find(item => item.href === pathname);
   const pageTitle = currentItem?.label || 'Terminal';
+  const navButtonBase =
+    "inline-flex items-center justify-center gap-2 rounded-xl border-2 px-4 py-2 font-black uppercase transition-all duration-200";
 
   return (
     <header className="fixed top-0 left-0 right-0 z-[10001] border-b border-slate-200/80 bg-white/90 shadow-[0_10px_30px_rgba(15,23,42,0.04)] backdrop-blur-xl">
       <div className="max-w-[1400px] mx-auto">
         <div className="px-6 py-4 flex items-center justify-between border-b border-slate-100/80">
           <div className="flex items-center gap-4">
-            <Button 
-              isIconOnly
-              onPress={() => router.back()}
-              variant="outline"
-              className="bg-slate-50 text-slate-600 border border-slate-200"
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-600 transition-colors hover:bg-slate-100"
             >
               <ChevronLeft size={20} strokeWidth={3} />
-            </Button>
+            </button>
             
             <div className="flex flex-col">
               <h1 className="text-xl font-black text-slate-900 tracking-tighter uppercase leading-none">
@@ -96,15 +96,17 @@ export default function GlobalHeader() {
             })}
           </div>
           
-          <Button 
-            onPress={logout}
-            variant="danger-soft"
-            size="sm"
-            className="font-black text-[10px] tracking-widest uppercase border-2 border-red-100 px-4 flex items-center gap-2"
+          <button
+            type="button"
+            onClick={logout}
+            className={cn(
+              navButtonBase,
+              "border-red-100 bg-red-50 text-red-600 hover:bg-red-100"
+            )}
           >
             <LogOut size={14} strokeWidth={3} />
             Session_End
-          </Button>
+          </button>
         </nav>
       </div>
     </header>
