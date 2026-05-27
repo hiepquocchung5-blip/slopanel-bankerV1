@@ -57,7 +57,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const initAuth = async () => {
       const token = localStorage.getItem('banker_token');
       if (token) {
-        await refreshProfile();
+        if (pathname === '/login') {
+          router.push('/');
+        } else {
+          await refreshProfile();
+        }
       } else if (pathname !== '/login') {
         router.push('/login');
       }

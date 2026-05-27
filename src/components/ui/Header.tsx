@@ -36,44 +36,44 @@ export default function GlobalHeader() {
     <header className="fixed top-0 left-0 right-0 z-[10001] bg-white border-b border-slate-200 shadow-sm">
       <div className="max-w-[1400px] mx-auto">
         {/* IDENTITY ROW */}
-        <div className="px-6 py-6 flex items-center justify-between border-b border-slate-50">
-          <div className="flex items-center gap-5">
+        <div className="px-6 py-5 flex items-center justify-between border-b border-slate-50">
+          <div className="flex items-center gap-6">
             <button 
               onClick={() => router.back()}
-              className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-colors border border-slate-200 shadow-sm"
+              className="w-11 h-11 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-all border border-slate-200 shadow-sm group active:scale-95"
             >
-              <ChevronLeft size={24} strokeWidth={3} />
+              <ChevronLeft size={22} strokeWidth={2.5} className="group-hover:-translate-x-0.5 transition-transform" />
             </button>
             
             <div className="flex flex-col">
-              <h1 className="text-2xl font-black text-slate-900 tracking-tighter uppercase leading-none">
+              <h1 className="text-xl font-black text-slate-900 tracking-tight uppercase leading-none">
                 {pageTitle}
               </h1>
-              <div className="h-[2px] w-full bg-teal-600/20 my-2 rounded-full" />
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 mt-1.5">
+                 <div className="w-1.5 h-1.5 bg-teal-500 rounded-full animate-pulse" />
                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">
-                   Secure_Link :: Active
+                   Registry_Node :: v2.2.1
                  </span>
               </div>
             </div>
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="hidden sm:flex flex-col items-end mr-1">
-               <span className="text-[14px] font-black text-slate-900 uppercase tracking-tight">{user.username || 'Operator'}</span>
-               <span className="text-[10px] font-bold text-teal-600 uppercase tracking-widest">
-                 LVL: {user.is_staff ? '04' : user.is_cashier ? '03' : '02'}
+            <div className="hidden sm:flex flex-col items-end mr-2">
+               <span className="text-[13px] font-black text-slate-900 uppercase tracking-tight">{user.username || 'OPERATOR'}</span>
+               <span className="text-[10px] font-black text-teal-600 uppercase tracking-widest bg-teal-50 px-2 py-0.5 rounded border border-teal-100">
+                 LVL: {user.is_staff ? '04_ADMIN' : user.is_cashier ? '03_CASHIER' : '02_AGENT'}
                </span>
             </div>
-            <div className="w-12 h-12 rounded-2xl bg-teal-50 flex items-center justify-center text-teal-600 border border-teal-100 shadow-sm">
-              <User size={24} strokeWidth={2.5} />
+            <div className="w-11 h-11 rounded-full bg-slate-900 flex items-center justify-center text-white shadow-lg border-2 border-white">
+              <User size={20} strokeWidth={2.5} />
             </div>
           </div>
         </div>
 
-        {/* NAVIGATION ROW */}
-        <nav className="px-6 py-4 flex items-center justify-between gap-4 overflow-x-auto no-scrollbar">
-          <div className="flex items-center gap-2">
+        {/* NAVIGATION ROW - Refined with darker Slate background for contrast */}
+        <nav className="bg-slate-900 px-6 py-3.5 flex items-center justify-between gap-4 overflow-x-auto no-scrollbar">
+          <div className="flex items-center gap-2.5">
             {navItems.map((item) => {
               const isAgent = !user.is_staff && !user.is_cashier;
               if (item.managementOnly && isAgent) return null;
@@ -85,13 +85,13 @@ export default function GlobalHeader() {
                   key={item.href} 
                   href={item.href}
                   className={cn(
-                    "flex items-center gap-2 px-6 py-2.5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all duration-200 whitespace-nowrap border-2",
+                    "flex items-center gap-2.5 px-5 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-[0.15em] transition-all duration-300 whitespace-nowrap border-2",
                     isActive 
-                      ? "bg-teal-600 text-white border-teal-600 shadow-md scale-105" 
-                      : "text-slate-400 border-transparent hover:border-slate-200 hover:text-slate-600"
+                      ? "bg-teal-500 text-slate-900 border-teal-500 shadow-[0_0_15px_rgba(20,184,166,0.3)] scale-105" 
+                      : "text-slate-400 border-transparent hover:bg-white/5 hover:text-white"
                   )}
                 >
-                  <item.icon size={16} strokeWidth={isActive ? 3 : 2} />
+                  <item.icon size={15} strokeWidth={isActive ? 3 : 2} className={cn("transition-transform", isActive && "rotate-3")} />
                   {item.label}
                 </Link>
               );
@@ -100,10 +100,11 @@ export default function GlobalHeader() {
           
           <button 
             onClick={logout}
-            className="flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-red-50 text-red-600 text-[11px] font-black uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all border-2 border-red-100"
+            className="flex items-center gap-2.5 px-5 py-2.5 rounded-xl bg-red-500/10 text-red-500 text-[11px] font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all border-2 border-red-500/20 active:scale-95 shadow-lg shadow-red-500/5"
           >
-            <LogOut size={16} strokeWidth={3} />
-            Term_Session
+            <LogOut size={15} strokeWidth={3} />
+            <span className="hidden md:inline">Terminate_Session</span>
+            <span className="md:hidden">EXIT</span>
           </button>
         </nav>
       </div>
