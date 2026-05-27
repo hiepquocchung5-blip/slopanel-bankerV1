@@ -6,7 +6,6 @@ import { useAuth } from '@/context/AuthContext';
 import { Check, Clock, Eye, EyeOff, Loader2, ShieldAlert, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Card, CardHeader, CardBody, Button, User, Image, Badge, Chip, Spinner } from "@heroui/react";
 
 interface Transaction {
   id: number;
@@ -88,22 +87,21 @@ export default function QueuePage() {
             <motion.div 
                initial={{ scale: 0.9 }}
                animate={{ scale: 1 }}
+               exit={{ scale: 0.9 }}
                className="relative max-w-4xl"
                onClick={e => e.stopPropagation()}
             >
-              <Image
+              <img
                 src={selectedImage}
                 alt="Receipt"
                 className="w-full h-auto rounded-[32px] border border-white/10 shadow-2xl"
               />
-              <Button 
-                isIconOnly
-                radius="full"
-                className="absolute -top-4 -right-4 bg-white text-slate-900 shadow-xl"
-                onPress={() => setSelectedImage(null)}
+              <button 
+                className="absolute -top-4 -right-4 w-12 h-12 rounded-full bg-white text-slate-900 flex items-center justify-center shadow-xl hover:scale-110 transition-transform"
+                onClick={() => setSelectedImage(null)}
               >
-                <X size={20} strokeWidth={3} />
-              </Button>
+                <X size={24} strokeWidth={3} />
+              </button>
             </motion.div>
           </motion.div>
         )}
@@ -112,27 +110,24 @@ export default function QueuePage() {
       <div className="space-y-6">
         {isLoading ? (
           <div className="py-20 flex justify-center">
-            <Spinner size="lg" color="primary" />
+            <Loader2 size={48} className="animate-spin text-teal-600" />
           </div>
         ) : txs.length === 0 ? (
-          <Card className="py-20 border-dashed border-2 border-slate-200 bg-transparent shadow-none items-center">
+          <div className="py-20 border-dashed border-2 border-slate-200 rounded-[32px] flex flex-col items-center text-center">
             <Check size={64} className="text-slate-200 mb-4" />
             <p className="text-sm font-black uppercase tracking-widest text-slate-400">Queue is clear</p>
-          </Card>
+          </div>
         ) : (
           txs.map((tx) => (
-            <Card key={tx.id} radius="none" className="border border-slate-200 shadow-none overflow-visible rounded-[32px] p-2">
-              <CardBody className="p-8">
+            <div key={tx.id} className="bg-white border border-slate-200 rounded-[32px] p-8 shadow-sm transition-all duration-300 hover:border-teal-500/30">
                 <div className="flex flex-col lg:flex-row justify-between items-center gap-10">
                   <div className="flex flex-col md:flex-row items-center gap-8 text-center md:text-left">
                     {tx.tx_type === 'DEPOSIT' && tx.screenshot ? (
                       <div className="relative cursor-pointer" onClick={() => setSelectedImage(tx.screenshot)}>
-                        <Image
+                        <img
                           src={tx.screenshot}
                           alt="Receipt"
-                          width={112}
-                          height={112}
-                          className="rounded-[28px] object-cover border border-slate-100 shadow-sm transition-transform hover:scale-105"
+                          className="w-28 h-28 rounded-[28px] object-cover border border-slate-100 shadow-sm transition-transform hover:scale-105"
                         />
                         <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 hover:opacity-100 transition-opacity rounded-[28px]">
                            <Eye size={24} className="text-white" />
@@ -146,27 +141,19 @@ export default function QueuePage() {
 
                     <div className="flex flex-col items-center md:items-start gap-2">
                       <div className="flex items-center gap-3 mb-2">
-                        <Chip 
-                          variant="flat" 
-                          color={tx.tx_type === 'DEPOSIT' ? "success" : "danger"}
-                          className="font-black uppercase text-[10px] tracking-widest px-2"
-                        >
+                        <span className={cn(
+                          "px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border",
+                          tx.tx_type === 'DEPOSIT' ? "bg-teal-50 text-teal-700 border-teal-200" : "bg-red-50 text-red-700 border-red-200"
+                        )}>
                           {tx.tx_type}
-                        </Chip>
+                        </span>
                         <span className="text-[11px] font-black text-slate-300 tracking-widest uppercase">ID: {tx.txd_id || '------'}</span>
                       </div>
                       
-                      <User 
-                        name={tx.user_name || 'Member'}
-                        description={tx.user_phone}
-                        avatarProps={{
-                          className: "hidden"
-                        }}
-                        classNames={{
-                          name: "text-2xl font-black text-slate-900 uppercase tracking-tight",
-                          description: "text-base font-bold text-teal-600 tracking-widest"
-                        }}
-                      />
+                      <div className="flex flex-col items-center md:items-start">
+                         <p className="text-2xl font-black text-slate-900 uppercase tracking-tight leading-none">{tx.user_name || 'Member'}</p>
+                         <p className="text-base font-bold text-teal-600 tracking-widest mt-1">{tx.user_phone}</p>
+                      </div>
                     </div>
                   </div>
 
@@ -193,23 +180,22 @@ export default function QueuePage() {
 
                 {isManagement ? (
                   <div className="mt-10 grid grid-cols-2 gap-4">
-                    <Button
-                      onPress={() => handleAction(tx.id, 'approve')}
-                      isLoading={processingId === tx.id}
-                      className="h-16 rounded-[24px] bg-teal-600 text-white font-black tracking-widest text-base shadow-lg"
-                      startContent={!processingId && <Check size={20} strokeWidth={3} />}
+                    <button
+                      onClick={() => handleAction(tx.id, 'approve')}
+                      disabled={processingId !== null}
+                      className="h-16 rounded-[24px] bg-teal-600 text-white font-black tracking-widest text-base shadow-lg hover:bg-teal-700 transition-colors flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50"
                     >
+                      {processingId === tx.id ? <Loader2 size={24} className="animate-spin" /> : <Check size={24} strokeWidth={3} />}
                       CONFIRM
-                    </Button>
-                    <Button
-                      onPress={() => handleAction(tx.id, 'reject')}
-                      isLoading={processingId === tx.id}
-                      variant="flat"
-                      className="h-16 rounded-[24px] bg-slate-100 text-slate-500 font-black tracking-widest text-base border-transparent hover:text-red-600 transition-colors"
-                      startContent={!processingId && <X size={20} strokeWidth={3} />}
+                    </button>
+                    <button
+                      onClick={() => handleAction(tx.id, 'reject')}
+                      disabled={processingId !== null}
+                      className="h-16 rounded-[24px] bg-slate-100 text-slate-500 font-black tracking-widest text-base border-transparent hover:text-red-600 transition-colors flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50"
                     >
+                      {processingId === tx.id ? <Loader2 size={24} className="animate-spin" /> : <X size={24} strokeWidth={3} />}
                       REJECT
-                    </Button>
+                    </button>
                   </div>
                 ) : (
                   <div className="mt-10 p-8 bg-slate-50 rounded-[28px] border border-slate-100 flex items-center justify-center text-slate-300">
@@ -217,8 +203,7 @@ export default function QueuePage() {
                     <span className="text-xs font-black uppercase tracking-[0.3em]">Registry Access Restricted</span>
                   </div>
                 )}
-              </CardBody>
-            </Card>
+            </div>
           ))
         )}
       </div>

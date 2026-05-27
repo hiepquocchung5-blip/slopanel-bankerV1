@@ -6,11 +6,10 @@ import { API } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import { 
   ArrowRight, BarChart3, Fingerprint, QrCode, ShieldCheck, 
-  TrendingUp, User as UserIcon, Users, Wallet, Zap, Phone, Check 
+  TrendingUp, User as UserIcon, Users, Wallet, Zap, Phone, Check, Loader2 
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
-import { Card, CardBody, Button, Spinner, User, Divider } from "@heroui/react";
 
 interface HouseStats {
   global: {
@@ -109,90 +108,86 @@ export default function Dashboard() {
       </div>
 
       {/* HERO SECTION */}
-      <Card className="border border-slate-200 shadow-none overflow-visible rounded-[40px]">
-        <CardBody className="p-12 flex flex-col items-center text-center">
+      <div className="bg-white border border-slate-200 rounded-[40px] p-12 flex flex-col items-center text-center shadow-sm">
            <div className="w-24 h-24 bg-teal-50 rounded-[32px] flex items-center justify-center mb-8 border border-teal-100">
               <ShieldCheck size={48} className="text-teal-600" />
            </div>
            <h2 className="text-4xl font-black text-slate-900 tracking-tight mb-3 uppercase">Identity Verified</h2>
-           <User 
-             name={user.username || 'Operator'}
-             description={user.phone_number}
-             avatarProps={{
-               className: "hidden"
-             }}
-             classNames={{
-               name: "text-lg font-black text-slate-900",
-               description: "text-sm font-bold text-slate-400 tracking-widest"
-             }}
-           />
+           
+           <div className="flex flex-col items-center">
+              <p className="text-lg font-black text-slate-900 uppercase">{user.username || 'Operator'}</p>
+              <p className="text-sm font-bold text-slate-400 tracking-widest">{user.phone_number}</p>
+           </div>
+
            <div className="mt-8 px-6 py-2 rounded-full bg-teal-600 text-white text-[11px] font-black tracking-widest uppercase shadow-md">
              {user.is_staff ? 'SEC_CLEARANCE_04' : user.is_cashier ? 'SEC_CLEARANCE_03' : 'AGENT_CORE_ACCESS'}
            </div>
-        </CardBody>
-      </Card>
+      </div>
 
       {/* STATS GRID */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {isManagement && houseStats ? (
           <>
-            <Card className="border border-slate-200 shadow-none p-8 flex flex-col items-center text-center rounded-[32px]">
+            <div className="bg-white border border-slate-200 p-8 flex flex-col items-center text-center rounded-[32px] shadow-sm">
               <TrendingUp size={32} className="text-teal-600 mb-4" />
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Revenue</p>
               <p className="text-2xl font-black text-slate-900 tabular-nums">{displayProfit.toLocaleString()}</p>
               {isCashier && <span className="text-[9px] font-black text-teal-600 mt-2">ADJUSTED 90%</span>}
-            </Card>
-            <Card className="border border-slate-200 shadow-none p-8 flex flex-col items-center text-center rounded-[32px]">
+            </div>
+            <div className="bg-white border border-slate-200 p-8 flex flex-col items-center text-center rounded-[32px] shadow-sm">
               <BarChart3 size={32} className="text-teal-600 mb-4" />
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Global RTP</p>
               <p className="text-2xl font-black text-slate-900 tabular-nums">{houseStats.global.rtp_percentage}%</p>
-            </Card>
-            <Card className="border border-slate-200 shadow-none p-8 flex flex-col items-center text-center rounded-[32px]">
+            </div>
+            <div className="bg-white border border-slate-200 p-8 flex flex-col items-center text-center rounded-[32px] shadow-sm">
               <Zap size={32} className="text-teal-600 mb-4" />
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Total Spins</p>
               <p className="text-2xl font-black text-slate-900 tabular-nums">{houseStats.global.total_spins.toLocaleString()}</p>
-            </Card>
-            <Card className="border border-slate-200 shadow-none p-8 flex flex-col items-center text-center rounded-[32px]">
+            </div>
+            <div className="bg-white border border-slate-200 p-8 flex flex-col items-center text-center rounded-[32px] shadow-sm">
               <Wallet size={32} className="text-teal-600 mb-4" />
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Volume</p>
               <p className="text-2xl font-black text-slate-900 tabular-nums">{displayWagered.toLocaleString()}</p>
-            </Card>
+            </div>
           </>
         ) : refStats ? (
           <>
-            <Card className="border border-slate-200 shadow-none p-10 flex flex-col items-center text-center rounded-[40px] lg:col-span-2">
+            <div className="bg-white border border-slate-200 p-10 flex flex-col items-center text-center rounded-[40px] lg:col-span-2 shadow-sm">
               <QrCode size={48} className="text-teal-600 mb-6" />
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Your Registry Key</p>
               <p className="text-5xl font-black text-slate-900 tracking-widest font-mono mb-8">{refStats.referral_code}</p>
-              <Button onPress={handleCopyCode} color="primary" className="font-black tracking-widest px-12 h-14 rounded-2xl">
+              <button 
+                onClick={handleCopyCode} 
+                className="bg-teal-600 text-white font-black tracking-widest px-12 h-14 rounded-2xl hover:bg-teal-700 transition-colors shadow-lg active:scale-95"
+              >
                 {copiedKey ? 'SUCCESS' : 'COPY REGISTRY KEY'}
-              </Button>
-            </Card>
-            <Card className="border border-slate-200 shadow-none p-10 flex flex-col items-center text-center rounded-[40px]">
+              </button>
+            </div>
+            <div className="bg-white border border-slate-200 p-10 flex flex-col items-center text-center rounded-[40px] shadow-sm">
               <Users size={40} className="text-teal-600 mb-6" />
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Downline</p>
               <p className="text-4xl font-black text-slate-900 tabular-nums">{refStats.total_referrals}</p>
-            </Card>
-            <Card className="border border-slate-200 shadow-none p-10 flex flex-col items-center text-center rounded-[40px]">
+            </div>
+            <div className="bg-white border border-slate-200 p-10 flex flex-col items-center text-center rounded-[40px] shadow-sm">
               <Wallet size={40} className="text-teal-600 mb-6" />
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Earnings</p>
               <p className="text-4xl font-black text-slate-900 tabular-nums">{parseFloat(refStats.total_commission_earned).toLocaleString()}</p>
-            </Card>
+            </div>
           </>
         ) : null}
       </div>
 
       {/* SECONDARY INFO */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <Card className="border border-slate-200 shadow-none p-10 rounded-[40px]">
-           <div className="flex justify-between items-center mb-10">
-              <h3 className="text-lg font-black text-slate-900 uppercase tracking-widest">Recent Traffic</h3>
-              <Button as={Link} href="/queue" variant="flat" size="sm" className="font-black text-[10px] tracking-widest uppercase">
+        <div className="bg-white border border-slate-200 p-10 rounded-[40px] shadow-sm">
+           <div className="flex justify-between items-center mb-10 text-center">
+              <h3 className="text-lg font-black text-slate-900 uppercase tracking-widest flex-1">Recent Traffic</h3>
+              <Link href="/queue" className="bg-slate-100 text-slate-900 font-black text-[10px] tracking-widest uppercase px-4 py-2 rounded-xl border border-slate-200 hover:bg-slate-200 transition-colors">
                 Terminal View
-              </Button>
+              </Link>
            </div>
            <div className="space-y-4">
-              {isLoading ? <Spinner size="sm" color="primary" className="mx-auto block" /> : 
+              {isLoading ? <Loader2 size={24} className="animate-spin mx-auto text-teal-600" /> : 
                recentQueue.length === 0 ? <p className="text-center text-slate-300 py-10 uppercase text-[10px] font-black tracking-widest">Feed Secure & Clear</p> :
                recentQueue.map(tx => (
                  <div key={tx.id} className="flex items-center justify-between p-5 bg-slate-50 rounded-2xl border border-slate-100">
@@ -205,16 +200,16 @@ export default function Dashboard() {
                ))
               }
            </div>
-        </Card>
+        </div>
 
-        <Card className="border border-slate-200 shadow-none p-12 flex flex-col justify-center items-center text-center rounded-[40px]">
+        <div className="bg-white border border-slate-200 p-12 flex flex-col justify-center items-center text-center rounded-[40px] shadow-sm">
            <Fingerprint size={64} className="text-teal-600 mb-8" />
            <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tight mb-4">Registry Integrity</h3>
            <p className="text-sm font-bold text-slate-400 uppercase tracking-widest leading-loose max-w-sm">
               Terminal session established via L3 encrypted node.
               All registry modifications are historically logged.
            </p>
-        </Card>
+        </div>
       </div>
     </div>
   );
