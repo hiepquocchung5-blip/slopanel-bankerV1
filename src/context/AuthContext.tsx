@@ -46,8 +46,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       
       setUser(profile);
-    } catch (error: any) {
-      console.error("[AUTH] Profile Check Failed:", error.message);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Profile check failed.';
+      console.error('[AUTH] Profile Check Failed:', message);
       logout();
     }
   }, [logout]);

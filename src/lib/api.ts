@@ -33,11 +33,12 @@ export const API = {
       }
 
       return data as T;
-    } catch (error: any) {
-      if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
+    } catch (error: unknown) {
+      const err = error as { name?: string; message?: string };
+      if (err.name === 'TypeError' && err.message === 'Failed to fetch') {
         console.error(`[NETWORK ERROR] Could not connect to ${CONFIG.API_BASE}${endpoint}. Check CORS settings or server status.`);
       } else {
-        console.error(`[API ERROR] ${endpoint}:`, error.message);
+        console.error(`[API ERROR] ${endpoint}:`, err.message || 'Unknown error');
       }
       throw error;
     }

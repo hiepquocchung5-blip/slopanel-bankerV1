@@ -1,13 +1,11 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
-import { useAuth } from '@/context/AuthContext';
-import { API } from '@/lib/api';
-import Header from '@/components/ui/Header';
-import LiveClock from '@/components/ui/LiveClock';
-import { Users, Wallet, TrendingUp, BarChart3, Fingerprint, QrCode, Zap, User as UserIcon, Phone, ShieldCheck, ArrowRight, Loader2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { API } from '@/lib/api';
+import { useAuth } from '@/context/AuthContext';
+import { ArrowRight, BarChart3, Fingerprint, Loader2, QrCode, ShieldCheck, TrendingUp, User, Users, Wallet, Zap } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 
 interface HouseStats {
@@ -16,7 +14,7 @@ interface HouseStats {
     rtp_percentage: number;
     total_spins: number;
     total_wagered: string;
-  }
+  };
 }
 
 interface ReferralStats {
@@ -41,265 +39,353 @@ export default function Dashboard() {
   const [refStats, setRefStats] = useState<ReferralStats | null>(null);
   const [recentQueue, setRecentQueue] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [copiedKey, setCopiedKey] = useState(false);
 
   const isManagement = user?.is_staff || user?.is_cashier;
   const isCashier = user?.is_cashier;
-  const isAgent = user?.user_type === 'AGENT';
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const fetchTasks: Promise<any>[] = [];
-        
         if (isManagement) {
-          fetchTasks.push(API.request<HouseStats>('game/admin/analytics/'));
-          fetchTasks.push(API.request<Transaction[]>('payments/admin/transactions/'));
+          const [house, queue] = await Promise.all([
+            API.request<HouseStats>('game/admin/analytics/'),
+            API.request<Transaction[]>('payments/admin/transactions/'),
+          ]);
+          setHouseStats(house);
+          setRecentQueue(queue.filter((t) => t.status === 'PENDING').slice(0, 3));
         } else {
-          fetchTasks.push(API.request<ReferralStats>('users/referrals/'));
-          fetchTasks.push(API.request<Transaction[]>('payments/admin/transactions/'));
+          const [referrals, queue] = await Promise.all([
+            API.request<ReferralStats>('users/referrals/'),
+            API.request<Transaction[]>('payments/admin/transactions/'),
+          ]);
+          setRefStats(referrals);
+          setRecentQueue(queue.filter((t) => t.status === 'PENDING').slice(0, 3));
         }
-
-        const results = await Promise.all(fetchTasks);
-        
-        if (isManagement) {
-          setHouseStats(results[0]);
-          setRecentQueue(results[1].filter((t: any) => t.status === 'PENDING').slice(0, 3));
-        } else {
-          setRefStats(results[0]);
-          setRecentQueue(results[1].filter((t: any) => t.status === 'PENDING').slice(0, 3));
-        }
-      } catch (e) {
-        console.error("Dashboard data load failed");
+      } catch {
+        console.error('Dashboard data load failed');
       } finally {
         setIsLoading(false);
       }
     };
+
     fetchData();
-  }, [user, isManagement]);
+  }, [isManagement]);
+
+  const displayProfit = houseStats
+    ? isCashier
+      ? parseFloat(houseStats.global.house_profit) * 0.9
+      : parseFloat(houseStats.global.house_profit)
+    : 0;
+
+  const displayWagered = houseStats
+    ? isCashier
+      ? parseFloat(houseStats.global.total_wagered) * 0.9
+      : parseFloat(houseStats.global.total_wagered)
+    : 0;
+
+  const handleCopyCode = async () => {
+    if (!refStats?.referral_code) return;
+
+    try {
+      await navigator.clipboard.writeText(refStats.referral_code);
+      setCopiedKey(true);
+      window.setTimeout(() => setCopiedKey(false), 1400);
+    } catch {
+      console.error('Copy failed');
+    }
+  };
+
+  const heroStats = useMemo(() => {
+    if (isManagement && houseStats) {
+      return [
+        {
+          label: 'House revenue',
+          value: displayProfit.toLocaleString(),
+          meta: 'MMK',
+          icon: TrendingUp,
+          tone: 'text-primary',
+        },
+        {
+          label: 'Global RTP',
+          value: `${houseStats.global.rtp_percentage}%`,
+          meta: 'Performance',
+          icon: BarChart3,
+          tone: houseStats.global.rtp_percentage > 100 ? 'text-danger' : 'text-primary',
+        },
+        {
+          label: 'Total spins',
+          value: houseStats.global.total_spins.toLocaleString(),
+          meta: 'Machine cycles',
+          icon: Zap,
+          tone: 'text-white',
+        },
+        {
+          label: 'Wagered volume',
+          value: displayWagered.toLocaleString(),
+          meta: 'MMK',
+          icon: Wallet,
+          tone: 'text-white',
+        },
+      ];
+    }
+
+    if (refStats) {
+      return [
+        {
+          label: 'Network size',
+          value: refStats.total_referrals.toString(),
+          meta: 'Referrals',
+          icon: Users,
+          tone: 'text-primary',
+        },
+        {
+          label: 'Commission earned',
+          value: parseFloat(refStats.total_commission_earned).toLocaleString(),
+          meta: 'MMK',
+          icon: Wallet,
+          tone: 'text-white',
+        },
+        {
+          label: 'Available code',
+          value: refStats.referral_code,
+          meta: 'Registry key',
+          icon: QrCode,
+          tone: 'text-primary',
+        },
+      ];
+    }
+
+    return [];
+  }, [displayProfit, displayWagered, houseStats, isManagement, refStats]);
 
   if (!user) return null;
 
-  // Apply 90% visibility logic for Cashiers
-  const displayProfit = houseStats ? (isCashier ? parseFloat(houseStats.global.house_profit) * 0.9 : parseFloat(houseStats.global.house_profit)) : 0;
-  const displayWagered = houseStats ? (isCashier ? parseFloat(houseStats.global.total_wagered) * 0.9 : parseFloat(houseStats.global.total_wagered)) : 0;
-
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-      {/* Hero Greeting Section */}
-      <div className="px-6 pt-10 md:pt-14 flex justify-between items-end">
-        <div className="space-y-2">
-          <p className="text-[12px] font-black text-primary-dark tracking-[0.4em] uppercase opacity-60">Authorized Access</p>
-          <h2 className="text-4xl font-black text-text-primary tracking-tighter flex items-center gap-3">
-            Welcome, {user.username || 'Staff'}
-            <ShieldCheck size={24} className="text-primary-dark" />
-          </h2>
-          <div className="flex items-center gap-4">
-             <div className="flex items-center gap-2 text-text-secondary">
-                <Phone size={12} />
-                <span className="text-[12px] font-bold tracking-widest">{user.phone_number}</span>
-             </div>
-             <div className="w-1.5 h-1.5 bg-primary/20 rounded-full" />
-             <span className="text-[11px] font-black text-primary-dark uppercase tracking-widest bg-primary/10 px-4 py-1.5 rounded-full border border-primary/20 shadow-soft">
-               {user.is_staff ? 'ADMIN_SEC_4' : user.is_cashier ? 'CASHIER_SEC_3' : 'AGENT_CORE'}
-             </span>
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <section className="panel-card p-6 md:p-8 lg:p-10">
+        <div className="flex flex-col gap-8 xl:flex-row xl:items-end xl:justify-between">
+          <div className="max-w-3xl">
+            <p className="page-kicker">Authorized access</p>
+            <h2 className="mt-3 page-title uppercase">
+              Welcome back, {user.username || 'Staff'}
+            </h2>
+            <p className="mt-4 max-w-2xl text-sm md:text-base leading-relaxed text-text-secondary">
+              Control the live banker portal from one place. Review payment traffic, check player access, and monitor house performance with a layout tuned for fast operator decisions.
+            </p>
           </div>
-        </div>
-        <div className="hidden md:block">
-           <LiveClock />
-        </div>
-      </div>
 
-      <div className="p-6 md:p-10 space-y-10">
-        {/* TOP STATS GRID */}
-        {isManagement && houseStats ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              whileHover={{ scale: 1.01, translateY: -5 }}
-              className="premium-card p-10 group md:col-span-2 depth-shadow transition-shadow hover:shadow-2xl"
-            >
-              <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-all duration-500">
-                 <TrendingUp size={80} className="text-primary-dark" />
-              </div>
-              <p className="text-[12px] text-text-secondary font-black mb-3 tracking-[0.3em] uppercase">House Revenue</p>
-              <div className="flex items-baseline gap-3">
-                <p className="text-5xl font-black text-text-primary tabular-nums leading-none tracking-tighter">
-                  {displayProfit.toLocaleString()}
-                </p>
-                <span className="text-[14px] text-text-secondary font-bold uppercase tracking-widest">MMK</span>
-              </div>
-              {isCashier && (
-                <div className="flex items-center gap-2 mt-6">
-                   <div className="w-1.5 h-1.5 bg-primary-dark rounded-full animate-pulse" />
-                   <p className="text-[11px] text-primary-dark font-black tracking-widest uppercase">Secured 90% Visibility</p>
-                </div>
-              )}
-            </motion.div>
-
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              whileHover={{ scale: 1.01, translateY: -5 }}
-              className="glass-card p-10 group md:col-span-2 depth-shadow transition-shadow hover:shadow-2xl"
-            >
-              <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-all duration-500">
-                 <BarChart3 size={80} className="text-primary-dark" />
-              </div>
-              <p className="text-[12px] text-text-secondary font-black mb-3 tracking-[0.3em] uppercase">Global Performance</p>
-              <div className="flex items-baseline gap-2">
-                <p className={cn(
-                  "text-5xl font-black tabular-nums leading-none tracking-tighter",
-                  houseStats.global.rtp_percentage > 100 ? 'text-red-500' : 'text-primary-dark'
-                )}>
-                  {houseStats.global.rtp_percentage}%
-                </p>
-                <span className="text-[14px] text-text-secondary font-bold uppercase tracking-widest">RTP</span>
-              </div>
-            </motion.div>
-          </div>
-        ) : refStats ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-             <motion.div 
-               initial={{ opacity: 0, scale: 0.95 }}
-               animate={{ opacity: 1, scale: 1 }}
-               whileHover={{ scale: 1.02 }}
-               className="glass-card p-10 flex flex-col items-center text-center group transition-all depth-shadow"
-             >
-                <div className="w-20 h-20 rounded-[32px] bg-primary/10 border border-primary/20 flex items-center justify-center mb-6 shadow-soft transition-transform group-hover:rotate-6">
-                  <Users size={32} className="text-primary-dark" />
-                </div>
-                <p className="text-[12px] text-text-secondary font-black tracking-[0.3em] mb-2 uppercase opacity-60">Network Size</p>
-                <p className="text-4xl font-black text-text-primary tabular-nums leading-none">{refStats.total_referrals}</p>
-             </motion.div>
-
-             <motion.div 
-               initial={{ opacity: 0, scale: 0.95 }}
-               animate={{ opacity: 1, scale: 1 }}
-               transition={{ delay: 0.1 }}
-               whileHover={{ scale: 1.02 }}
-               className="premium-card p-10 flex flex-col items-center text-center group transition-all depth-shadow"
-             >
-                <div className="w-20 h-20 rounded-[32px] bg-primary/5 border border-primary/20 flex items-center justify-center mb-6 shadow-soft transition-transform group-hover:-rotate-6">
-                  <Wallet size={32} className="text-primary-dark" />
-                </div>
-                <p className="text-[12px] text-text-secondary font-black tracking-[0.3em] mb-2 uppercase opacity-60">Total Earnings</p>
-                <div className="flex flex-col items-center">
-                  <p className="text-4xl font-black text-text-primary tabular-nums leading-none">
-                    {parseFloat(refStats.total_commission_earned).toLocaleString()}
-                  </p>
-                  {isAgent && (
-                    <div className="bg-primary/10 px-4 py-1.5 rounded-full mt-4 border border-primary/10">
-                       <p className="text-[10px] text-primary-dark font-black tracking-widest uppercase">Includes 10% System Commission</p>
-                    </div>
-                  )}
-                </div>
-             </motion.div>
-          </div>
-        ) : null}
-
-        {/* AGENT INVITE BOX (If Agent) */}
-        {!isManagement && refStats && (
-          <div className="text-center py-4">
-             <div className="inline-block p-10 glass-card shadow-card w-full max-w-[400px]">
-                <p className="text-[11px] text-text-secondary font-black mb-6 tracking-[0.4em] uppercase opacity-60">Authentication Key</p>
-                <p className="text-5xl font-black text-text-primary tracking-[0.2em] font-mono leading-none">
-                  {refStats.referral_code}
-                </p>
-                <div className="flex justify-center mt-10">
-                   <button className="btn-primary px-8">
-                      <QrCode size={18} />
-                      COPY REGISTRY KEY
-                   </button>
-                </div>
-             </div>
-          </div>
-        )}
-
-        {/* RECENT QUEUE ACTIVITY (Both Management & Agent) */}
-        <div className="space-y-6">
-           <div className="flex justify-between items-center px-2">
+          <div className="grid gap-3 sm:grid-cols-2 xl:min-w-[360px] xl:grid-cols-1">
+            <div className="nav-pill flex items-center justify-between gap-4 px-4 py-4">
               <div className="flex items-center gap-3">
-                 <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-                 <h3 className="text-[11px] font-black text-text-primary tracking-[0.3em] uppercase">Active Queue Traffic</h3>
-              </div>
-              <Link href="/queue" className="text-[10px] font-black text-primary-dark hover:text-primary tracking-widest uppercase flex items-center gap-2 transition-all group">
-                 Open Terminal 
-                 <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-              </Link>
-           </div>
-
-           <div className="space-y-3">
-              {isLoading ? (
-                <div className="py-16 flex items-center justify-center">
-                   <Loader2 size={32} className="text-primary animate-spin" />
+                <div className="w-11 h-11 rounded-2xl border border-primary/20 bg-primary/10 flex items-center justify-center text-primary">
+                  <ShieldCheck size={18} />
                 </div>
-              ) : recentQueue.length === 0 ? (
-                <div className="py-12 glass-card rounded-3xl flex items-center justify-center opacity-40 border-dashed">
-                   <p className="text-[10px] font-black tracking-widest uppercase">No Active Requests</p>
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.24em] text-text-secondary">Clearance</p>
+                  <p className="text-xs font-black uppercase tracking-[0.18em]">
+                    {user.is_staff ? 'Admin' : user.is_cashier ? 'Cashier' : 'Agent'}
+                  </p>
                 </div>
-              ) : (
-                recentQueue.map(tx => (
-                  <div key={tx.id} className="transaction-item border border-border-soft">
-                     <div className="flex items-center gap-4">
-                        <div className={cn(
-                          "w-12 h-12 rounded-2xl flex items-center justify-center shadow-soft border",
-                          tx.tx_type === 'DEPOSIT' ? "bg-green-500/10 border-green-500/20 text-green-600" : "bg-red-500/10 border-red-500/20 text-red-600"
-                        )}>
-                           <Zap size={18} className={cn(tx.tx_type === 'DEPOSIT' ? "fill-green-500/20" : "fill-red-500/20")} />
-                        </div>
-                        <div>
-                           <p className="text-[11px] font-black text-text-primary tracking-widest uppercase">{tx.tx_type}</p>
-                           <p className="text-[9px] text-text-secondary font-bold uppercase tracking-widest">ID: {tx.id}</p>
-                        </div>
-                     </div>
-                     <div className="text-right">
-                        <p className="text-lg font-black text-text-primary tabular-nums leading-none mb-1">
-                          {parseFloat(tx.amount).toLocaleString()}
-                        </p>
-                        <p className="text-[9px] text-text-secondary font-bold uppercase tracking-widest">
-                          {new Date(tx.created_at).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}
-                        </p>
-                     </div>
-                  </div>
-                ))
-              )}
-           </div>
-        </div>
-
-        {/* SYSTEM INTEGRITY BLOCK (Management Only) */}
-        {isManagement && houseStats && (
-          <div className="premium-card p-10 group">
-            <div className="absolute top-[-20%] right-[-10%] w-[50%] h-[100%] bg-primary/[0.05] rounded-full blur-[80px]" />
-            <div className="flex items-center gap-6 mb-10">
-              <div className="w-16 h-16 rounded-3xl bg-primary/5 border border-primary/10 flex items-center justify-center shadow-soft">
-                 <Fingerprint size={32} className="text-primary-dark group-hover:text-primary transition-all duration-700" />
               </div>
-              <div>
-                 <p className="text-sm font-black text-text-primary tracking-widest uppercase">Registry Integrity</p>
-                 <p className="text-[11px] text-green-600 font-bold uppercase mt-1 flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
-                    Verified & Encrypted
-                 </p>
-              </div>
+              <span className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">
+                Online
+              </span>
             </div>
-            
-            <div className="grid grid-cols-2 gap-10 border-t border-black/5 pt-10">
-              <div>
-                 <p className="text-[10px] text-text-secondary font-black tracking-widest mb-2 uppercase opacity-40">Volume Transacted</p>
-                 <p className="text-xl font-black text-text-primary tabular-nums leading-none">
-                   {displayWagered.toLocaleString()}
-                 </p>
+
+            <div className="nav-pill flex items-center gap-3 px-4 py-4">
+              <div className="w-11 h-11 rounded-2xl bg-white/6 border border-white/8 flex items-center justify-center text-white">
+                <User size={18} />
               </div>
-              <div className="text-right">
-                 <p className="text-[10px] text-text-secondary font-black tracking-widest mb-2 uppercase opacity-40">Machine Cycles</p>
-                 <p className="text-xl font-black text-text-primary tabular-nums leading-none">{houseStats.global.total_spins.toLocaleString()}</p>
+              <div className="min-w-0">
+                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-text-secondary">Phone</p>
+                <p className="truncate text-sm font-black uppercase tracking-[0.14em] text-white">
+                  {user.phone_number}
+                </p>
               </div>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      </section>
+
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {heroStats.map((item, index) => (
+          <motion.article
+            key={item.label}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.05 }}
+            className="stat-tile"
+          >
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="section-label">{item.label}</p>
+                <p className={cn('mt-4 text-3xl md:text-4xl font-black tracking-[-0.06em] tabular-nums', item.tone)}>
+                  {item.value}
+                </p>
+                <p className="mt-2 text-xs font-bold uppercase tracking-[0.24em] text-text-secondary">
+                  {item.meta}
+                </p>
+              </div>
+              <div className="w-12 h-12 rounded-2xl border border-white/8 bg-white/5 flex items-center justify-center text-primary">
+                <item.icon size={18} />
+              </div>
+            </div>
+          </motion.article>
+        ))}
+      </section>
+
+      {!isManagement && refStats && (
+        <section className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="premium-card p-6 md:p-8">
+            <p className="page-kicker">Agent registry</p>
+            <h3 className="mt-3 text-3xl font-black uppercase tracking-[-0.05em]">
+              Referral code
+            </h3>
+            <p className="mt-3 text-sm text-text-secondary max-w-xl">
+              Share this key to register new players under your network and track commission activity from one terminal.
+            </p>
+
+            <div className="mt-8 rounded-[28px] border border-primary/20 bg-primary/10 p-6 md:p-8">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.24em] text-text-secondary">Registry key</p>
+                  <p className="mt-2 font-mono text-4xl md:text-5xl font-black tracking-[0.16em] text-white">
+                    {refStats.referral_code}
+                  </p>
+                </div>
+                <div className="w-14 h-14 rounded-3xl border border-white/10 bg-white/5 flex items-center justify-center text-primary">
+                  <QrCode size={24} />
+                </div>
+              </div>
+              <button onClick={handleCopyCode} className="btn-primary mt-6 w-full sm:w-auto px-6">
+                {copiedKey ? 'Copied' : 'Copy registry key'}
+              </button>
+            </div>
+          </div>
+
+          <div className="panel-card p-6 md:p-8">
+            <p className="page-kicker">Network status</p>
+            <div className="mt-4 space-y-4">
+              <div className="nav-pill flex items-center justify-between px-4 py-4">
+                <span className="text-sm font-bold uppercase tracking-[0.2em] text-text-secondary">Total referrals</span>
+                <span className="text-xl font-black tabular-nums">{refStats.total_referrals}</span>
+              </div>
+              <div className="nav-pill flex items-center justify-between px-4 py-4">
+                <span className="text-sm font-bold uppercase tracking-[0.2em] text-text-secondary">Commission balance</span>
+                <span className="text-xl font-black tabular-nums">
+                  {parseFloat(refStats.commission_balance).toLocaleString()}
+                </span>
+              </div>
+              <div className="nav-pill flex items-center justify-between px-4 py-4">
+                <span className="text-sm font-bold uppercase tracking-[0.2em] text-text-secondary">System mode</span>
+                <span className="text-sm font-black uppercase tracking-[0.22em] text-primary">Live</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+        <div className="panel-card p-6 md:p-8">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="page-kicker">Live traffic</p>
+              <h3 className="mt-2 text-2xl font-black uppercase tracking-[-0.05em]">
+                Active queue feed
+              </h3>
+            </div>
+            <Link href="/queue" className="btn-secondary h-11 px-4">
+              Open queue
+              <ArrowRight size={14} />
+            </Link>
+          </div>
+
+          <div className="mt-6 space-y-3">
+            {isLoading ? (
+              <div className="py-16 flex items-center justify-center">
+                <Loader2 size={28} className="text-primary animate-spin" />
+              </div>
+            ) : recentQueue.length === 0 ? (
+              <div className="rounded-[28px] border border-dashed border-white/10 bg-white/3 px-6 py-10 text-center">
+                <p className="text-xs font-black uppercase tracking-[0.28em] text-text-secondary">
+                  No pending requests
+                </p>
+              </div>
+            ) : (
+              recentQueue.map((tx) => (
+                <div key={tx.id} className="transaction-item">
+                  <div className="flex items-center gap-4">
+                    <div
+                      className={cn(
+                        'w-12 h-12 rounded-2xl border flex items-center justify-center',
+                        tx.tx_type === 'DEPOSIT'
+                          ? 'border-success/20 bg-success/10 text-success'
+                          : 'border-danger/20 bg-danger/10 text-danger'
+                      )}
+                    >
+                      <Zap size={18} />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-[0.24em] text-text-secondary">
+                        {tx.tx_type}
+                      </p>
+                      <p className="mt-1 text-base font-black uppercase tracking-[0.14em]">
+                        Request #{tx.id}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-2xl font-black tabular-nums tracking-[-0.05em]">
+                      {parseFloat(tx.amount).toLocaleString()}
+                    </p>
+                    <p className="mt-2 text-[10px] font-black uppercase tracking-[0.22em] text-text-secondary">
+                      {new Date(tx.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </p>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        <div className="panel-card p-6 md:p-8">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="page-kicker">Registry integrity</p>
+              <h3 className="mt-2 text-2xl font-black uppercase tracking-[-0.05em]">
+                System snapshot
+              </h3>
+            </div>
+            <div className="w-12 h-12 rounded-2xl border border-primary/20 bg-primary/10 flex items-center justify-center text-primary">
+              <Fingerprint size={20} />
+            </div>
+          </div>
+
+          <div className="mt-6 space-y-4">
+            <div className="nav-pill px-4 py-4">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-text-secondary">Operator state</p>
+              <p className="mt-2 text-lg font-black uppercase tracking-[-0.04em] text-white">
+                {isManagement ? 'Management terminal' : 'Agent terminal'}
+              </p>
+            </div>
+            <div className="nav-pill px-4 py-4">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-text-secondary">Live mode</p>
+              <p className="mt-2 text-sm font-black uppercase tracking-[0.22em] text-primary">
+                Encrypted, realtime, role-aware
+              </p>
+            </div>
+            {isManagement && houseStats && (
+              <div className="nav-pill px-4 py-4">
+                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-text-secondary">House integrity</p>
+                <p className="mt-2 text-sm font-black uppercase tracking-[0.22em] text-success">
+                  Verified and monitored
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

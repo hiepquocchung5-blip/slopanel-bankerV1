@@ -3,8 +3,8 @@ import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 
 export const metadata: Metadata = {
-  title: "SLOPARA | Partner Portal",
-  description: "Secure Administrative Gateway",
+  title: "SLOPARA | Banker Portal",
+  description: "Operator and banker control console",
 };
 
 export const viewport: Viewport = {
@@ -12,7 +12,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: "#050508",
+  themeColor: "#05070d",
 };
 
 export default function RootLayout({
@@ -22,7 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="antialiased overflow-hidden bg-background" suppressHydrationWarning>
+      <body className="antialiased overflow-x-hidden bg-background" suppressHydrationWarning>
         <AuthProvider>
           <div className="app-container">
             {children}

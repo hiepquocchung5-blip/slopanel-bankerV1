@@ -2,9 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { API } from '@/lib/api';
-import Header from '@/components/ui/Header';
 import { useAuth } from '@/context/AuthContext';
-import { Ban, Shield, Loader2, Coins, Landmark, User as UserIcon, ShieldCheck, UserX } from 'lucide-react';
+import { Ban, Coins, Loader2, Landmark, Shield, ShieldCheck, UserX } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Player {
@@ -14,6 +13,10 @@ interface Player {
   vip_tier: string;
   balance: string;
   lifetime_deposit: string;
+}
+
+interface ToggleBanResponse {
+  is_active: boolean;
 }
 
 export default function PlayersPage() {
@@ -28,108 +31,145 @@ export default function PlayersPage() {
     try {
       const data = await API.request<Player[]>('users/admin/players/');
       setPlayers(data);
-    } catch (e) {
-      console.error("Players load failed");
+    } catch {
+      console.error('Players load failed');
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchPlayers();
+    void (async () => {
+      await fetchPlayers();
+    })();
   }, []);
 
   const handleToggleBan = async (id: number) => {
     if (!isAdmin) return;
-    if (!confirm(`Are you sure you want to change this user's access status?`)) return;
-    
+    if (!confirm('Are you sure you want to change this user\'s access status?')) return;
+
     setProcessingId(id);
     try {
-      const res = await API.request<any>(`users/admin/players/${id}/toggle-ban/`, { method: 'POST' });
-      setPlayers(prev => prev.map(p => p.id === id ? { ...p, is_active: res.is_active } : p));
-    } catch (e) {
-      console.error("Toggle ban failed");
+      const res = await API.request<ToggleBanResponse>(`users/admin/players/${id}/toggle-ban/`, { method: 'POST' });
+      setPlayers((prev) => prev.map((p) => (p.id === id ? { ...p, is_active: res.is_active } : p)));
+    } catch {
+      console.error('Toggle ban failed');
     } finally {
       setProcessingId(null);
     }
   };
 
   return (
-    <div className="animate-in fade-in duration-500 pb-32">
-      <div className="p-6 space-y-6">
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <section className="panel-card p-6 md:p-8 lg:p-10">
+        <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="page-kicker">User registry</p>
+            <h2 className="mt-3 page-title uppercase">Player hub</h2>
+            <p className="mt-4 max-w-2xl text-sm md:text-base text-text-secondary">
+              Inspect account health, balance state, and lifecycle access from a single registry screen.
+            </p>
+          </div>
+          <div className="nav-pill px-4 py-4">
+            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-text-secondary">Admin</p>
+            <p className="mt-2 text-sm font-black uppercase tracking-[0.22em] text-primary">
+              {isAdmin ? 'Restriction enabled' : 'Read only'}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <div className="space-y-4">
         {isLoading ? (
-          <div className="h-64 flex items-center justify-center">
-             <Loader2 size={32} className="text-primary animate-spin" />
+          <div className="py-20 flex items-center justify-center">
+            <Loader2 size={30} className="animate-spin text-primary" />
           </div>
-        ) : players.map(p => (
-          <div key={p.id} className={cn(
-            "glass-card p-6 border-black/5 shadow-soft transition-all duration-300",
-            !p.is_active && "opacity-50 grayscale bg-black/[0.02]"
-          )}>
-            <div className="flex justify-between items-center mb-8">
-               <div className="flex items-center gap-5">
-                  <div className={cn(
-                    "w-14 h-14 rounded-2xl flex items-center justify-center border shadow-soft transition-colors duration-500",
-                    p.is_active ? "bg-primary/10 border-primary/20 text-primary-dark" : "bg-red-500/10 border-red-500/20 text-red-500"
-                  )}>
-                    {p.is_active ? <Shield size={24} /> : <UserX size={24} />}
+        ) : (
+          players.map((p) => (
+            <article
+              key={p.id}
+              className={cn(
+                'panel-card p-5 md:p-6',
+                !p.is_active && 'opacity-60 grayscale'
+              )}
+            >
+              <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+                <div className="flex items-center gap-4 md:gap-5">
+                  <div
+                    className={cn(
+                      'flex h-14 w-14 items-center justify-center rounded-2xl border',
+                      p.is_active
+                        ? 'border-primary/20 bg-primary/10 text-primary'
+                        : 'border-danger/20 bg-danger/10 text-danger'
+                    )}
+                  >
+                    {p.is_active ? <Shield size={22} /> : <UserX size={22} />}
                   </div>
                   <div>
-                     <p className="text-base font-black text-text-primary tracking-widest">{p.phone_number}</p>
-                     <div className="flex items-center gap-2 mt-1">
-                        <span className="text-[10px] font-black text-text-secondary uppercase tracking-widest">
-                          LVL: <span className="text-primary-dark">{p.vip_tier || 'NORMAL'}</span>
-                        </span>
-                        <div className="w-1 h-1 bg-black/10 rounded-full" />
-                        <ShieldCheck size={12} className="text-primary-dark/40" />
-                     </div>
-                  </div>
-               </div>
-
-               {isAdmin ? (
-                 <button 
-                   disabled={processingId !== null}
-                   onClick={() => handleToggleBan(p.id)}
-                   className={cn(
-                     "px-6 py-3 rounded-2xl text-[10px] font-black tracking-[0.2em] transition-all active:scale-95 disabled:opacity-50 shadow-soft border uppercase",
-                     p.is_active ? "bg-red-500/10 text-red-600 border-red-500/20 hover:bg-red-500 hover:text-white" : "bg-primary-dark text-white border-primary-dark"
-                   )}
-                 >
-                   {processingId === p.id ? <Loader2 size={14} className="animate-spin" /> : (p.is_active ? 'Restrict' : 'Restore')}
-                 </button>
-               ) : (
-                 <div className="px-4 py-2 bg-black/5 rounded-xl border border-black/5">
-                    <span className="text-[9px] font-black text-text-secondary tracking-widest uppercase opacity-40">Verified</span>
-                 </div>
-               )}
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-               <div className="bg-white/40 border border-black/5 p-5 rounded-[24px] flex items-center gap-4 shadow-soft">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary-dark">
-                    <Coins size={16} />
-                  </div>
-                  <div>
-                    <p className="text-[9px] text-text-secondary font-black tracking-widest uppercase opacity-60">Total Balance</p>
-                    <p className="text-sm font-black text-text-primary tabular-nums tracking-tighter">
-                      {parseFloat(p.balance).toLocaleString()}
+                    <p className="text-lg font-black uppercase tracking-[-0.04em]">
+                      {p.phone_number}
                     </p>
+                    <div className="mt-2 flex flex-wrap items-center gap-3 text-[10px] font-black uppercase tracking-[0.24em] text-text-secondary">
+                      <span>Tier: {p.vip_tier || 'NORMAL'}</span>
+                      <span className="h-1 w-1 rounded-full bg-white/20" />
+                      <span className="flex items-center gap-1">
+                        <ShieldCheck size={12} className="text-primary" />
+                        Verified
+                      </span>
+                    </div>
                   </div>
-               </div>
-               <div className="bg-white/40 border border-black/5 p-5 rounded-[24px] flex items-center gap-4 text-right shadow-soft">
-                  <div className="flex-1">
-                    <p className="text-[9px] text-text-secondary font-black tracking-widest uppercase opacity-60">Revenue Contrib.</p>
-                    <p className="text-sm font-black text-primary-dark tabular-nums tracking-tighter">
-                      {parseFloat(p.lifetime_deposit).toLocaleString()}
-                    </p>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-2 lg:min-w-[460px]">
+                  <div className="nav-pill flex items-center gap-3 px-4 py-4">
+                    <div className="w-10 h-10 rounded-2xl border border-primary/20 bg-primary/10 flex items-center justify-center text-primary">
+                      <Coins size={16} />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-[0.24em] text-text-secondary">Balance</p>
+                      <p className="mt-1 text-sm font-black tabular-nums">{parseFloat(p.balance).toLocaleString()}</p>
+                    </div>
                   </div>
-                  <div className="w-10 h-10 rounded-full bg-primary/5 flex items-center justify-center text-primary-dark/40">
-                    <Landmark size={16} />
+                  <div className="nav-pill flex items-center gap-3 px-4 py-4">
+                    <div className="w-10 h-10 rounded-2xl border border-white/8 bg-white/5 flex items-center justify-center text-primary">
+                      <Landmark size={16} />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-[0.24em] text-text-secondary">Lifetime deposit</p>
+                      <p className="mt-1 text-sm font-black tabular-nums">{parseFloat(p.lifetime_deposit).toLocaleString()}</p>
+                    </div>
                   </div>
-               </div>
-            </div>
-          </div>
-        ))}
+                </div>
+
+                <div className="flex items-center gap-3">
+                  {isAdmin ? (
+                    <button
+                      disabled={processingId !== null}
+                      onClick={() => handleToggleBan(p.id)}
+                      className={cn(
+                        'btn-secondary h-12 px-5',
+                        p.is_active ? 'border-danger/20 text-danger' : 'border-primary/20 text-primary'
+                      )}
+                    >
+                      {processingId === p.id ? (
+                        <Loader2 size={14} className="animate-spin" />
+                      ) : (
+                        <Ban size={14} />
+                      )}
+                      {p.is_active ? 'Restrict' : 'Restore'}
+                    </button>
+                  ) : (
+                    <div className="nav-pill px-4 py-3">
+                      <span className="text-[9px] font-black uppercase tracking-[0.24em] text-text-secondary">
+                        Read only
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </article>
+          ))
+        )}
       </div>
     </div>
   );

@@ -20,8 +20,8 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 size={40} className="text-primary-dark animate-spin" />
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 size={40} className="text-primary animate-spin" />
       </div>
     );
   }
@@ -30,16 +30,14 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="app-container">
-       {/* Global Aqua Background Glows */}
-       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-          <div className="absolute top-[-5%] left-[-10%] w-[80%] h-[40%] bg-primary/10 rounded-full blur-[140px]" />
-          <div className="absolute bottom-[0%] right-[-5%] w-[60%] h-[30%] bg-primary-dark/5 rounded-full blur-[120px]" />
-       </div>
+       <div className="portal-bg" />
 
        <Header />
 
-       <main className="relative z-10 w-full min-h-screen pt-24 pb-40">
-          {children}
+       <main className="portal-shell relative z-10 w-full min-h-screen pt-36 pb-40 px-4 md:px-8">
+          <div className="max-w-[1440px] mx-auto">
+             {children}
+          </div>
           <Footer />
        </main>
 
