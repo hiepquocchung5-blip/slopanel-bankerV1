@@ -5,6 +5,7 @@ import { API } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import { Check, Clock, Eye, EyeOff, Loader2, ShieldAlert, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface Transaction {
   id: number;
@@ -33,7 +34,14 @@ export default function QueuePage() {
   const fetchQueue = async () => {
     try {
       const data = await API.request<Transaction[]>('payments/admin/transactions/');
-      setTxs(data.filter((t) => t.status === 'PENDING'));
+      // Filter for Agents: only show their own login number requests
+      const filtered = data.filter(t => {
+        const isPending = t.status === 'PENDING';
+        if (!isPending) return false;
+        if (isManagement) return true;
+        return t.user_phone === user?.phone_number;
+      });
+      setTxs(filtered);
     } catch {
       console.error('Queue load failed');
     } finally {
@@ -42,10 +50,8 @@ export default function QueuePage() {
   };
 
   useEffect(() => {
-    void (async () => {
-      await fetchQueue();
-    })();
-  }, []);
+    fetchQueue();
+  }, [user]);
 
   const handleAction = async (id: number, action: 'approve' | 'reject') => {
     if (!isManagement) return;
@@ -63,131 +69,135 @@ export default function QueuePage() {
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <section className="panel-card p-6 md:p-8 lg:p-10">
-        <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-          <div>
-            <p className="page-kicker">Financial ops</p>
-            <h2 className="mt-3 page-title uppercase">Approval queue</h2>
-            <p className="mt-4 max-w-2xl text-sm md:text-base text-text-secondary">
-              Review transaction traffic, inspect receipts, and resolve pending requests from the banker terminal.
-            </p>
-          </div>
-          <div className="nav-pill px-4 py-4">
-            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-text-secondary">Access</p>
-            <p className="mt-2 text-sm font-black uppercase tracking-[0.22em] text-primary">
-              {isManagement ? 'Action enabled' : 'View only'}
-            </p>
-          </div>
-        </div>
-      </section>
+    <div className="animate-in fade-in duration-500">
+      {/* PAGE DECLARATION */}
+      <div className="mb-12 border-l-4 border-teal-600 pl-8 py-2">
+         <h2 className="text-xs font-black text-teal-600 uppercase tracking-[0.4em] mb-1">Module: Financial_Ops</h2>
+         <p className="text-5xl font-black text-slate-900 uppercase tracking-tighter">Live Traffic</p>
+      </div>
 
-      {selectedImage && (
-        <div
-          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 p-4 backdrop-blur-2xl"
-          onClick={() => setSelectedImage(null)}
-        >
-          <img
-            src={selectedImage}
-            alt="Screenshot preview"
-            className="max-h-[80vh] max-w-full rounded-[28px] border border-white/10 shadow-2xl"
-          />
-          <button className="absolute right-8 top-8 rounded-full border border-white/10 bg-white/5 p-3 text-white/60 backdrop-blur-md transition-colors hover:text-white">
-            <X size={24} />
-          </button>
-        </div>
-      )}
+      <AnimatePresence>
+        {selectedImage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[20000] flex items-center justify-center bg-slate-900/98 p-4 backdrop-blur-2xl"
+            onClick={() => setSelectedImage(null)}
+          >
+            <motion.div 
+               initial={{ scale: 0.9, opacity: 0 }}
+               animate={{ scale: 1, opacity: 1 }}
+               exit={{ scale: 0.9, opacity: 0 }}
+               className="relative max-w-5xl w-full"
+               onClick={e => e.stopPropagation()}
+            >
+              <img
+                src={selectedImage}
+                alt="Screenshot preview"
+                className="w-full h-auto rounded-[40px] border border-white/10 shadow-2xl"
+              />
+              <button 
+                className="absolute -top-6 -right-6 w-16 h-16 rounded-full bg-white text-slate-900 flex items-center justify-center shadow-2xl hover:scale-110 transition-transform active:scale-95"
+                onClick={() => setSelectedImage(null)}
+              >
+                <X size={28} strokeWidth={3} />
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {!isManagement && (
-        <div className="glass-card flex items-center gap-3 px-5 py-4 text-text-secondary">
-          <ShieldAlert size={18} className="text-primary" />
-          <p className="text-xs font-black uppercase tracking-[0.24em]">
-            Agent mode: live feed visible, transaction actions restricted.
+        <div className="glass-card flex items-center justify-center gap-4 p-8 mb-12 text-center bg-teal-50 border-teal-100">
+          <div className="w-12 h-12 rounded-full bg-teal-100 flex items-center justify-center text-teal-600">
+            <Eye size={24} />
+          </div>
+          <p className="text-[13px] font-black text-teal-900 uppercase tracking-widest">
+            Personal Registry View Active
           </p>
         </div>
       )}
 
-      <div className="space-y-4">
+      <div className="space-y-6">
         {isLoading ? (
-          <div className="py-20 flex items-center justify-center">
-            <Loader2 size={30} className="animate-spin text-primary" />
+          <div className="py-32 flex items-center justify-center">
+            <Loader2 size={48} className="animate-spin text-teal-600" />
           </div>
         ) : txs.length === 0 ? (
-          <div className="rounded-[28px] border border-dashed border-white/10 bg-white/3 px-6 py-14 text-center">
-            <Check size={42} className="mx-auto text-primary" />
-            <p className="mt-4 text-xs font-black uppercase tracking-[0.3em] text-text-secondary">
+          <div className="glass-card flex flex-col items-center justify-center text-center p-20 opacity-40 border-dashed">
+            <Check size={80} className="mb-6 text-slate-200" />
+            <p className="text-sm font-black uppercase tracking-[0.4em] text-slate-400">
               Queue is clear
             </p>
           </div>
         ) : (
           txs.map((tx) => (
-            <article key={tx.id} className="panel-card overflow-hidden">
-              <div className="p-5 md:p-6">
-                <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-                  <div className="flex gap-4">
+            <article key={tx.id} className="glass-card overflow-hidden group hover:border-teal-500/30 transition-all duration-300">
+              <div className="p-8 md:p-10">
+                <div className="flex flex-col lg:flex-row justify-between items-center gap-10 text-center lg:text-left">
+                  <div className="flex flex-col md:flex-row items-center gap-8">
                     {tx.tx_type === 'DEPOSIT' && tx.screenshot ? (
                       <button
                         type="button"
                         onClick={() => setSelectedImage(tx.screenshot)}
-                        className="group relative h-20 w-20 overflow-hidden rounded-2xl border border-white/8 bg-white/5"
+                        className="group relative h-28 w-28 overflow-hidden rounded-[32px] border border-slate-200 bg-slate-100 shadow-md transition-transform hover:scale-105"
                       >
-                        <img src={tx.screenshot} alt="Receipt" className="h-full w-full object-cover transition-transform group-hover:scale-105" />
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/35 opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100">
-                          <Eye size={18} className="text-white" />
+                        <img src={tx.screenshot} alt="Receipt" className="h-full w-full object-cover transition-transform group-hover:scale-110" />
+                        <div className="absolute inset-0 flex items-center justify-center bg-teal-600/20 opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100">
+                          <Eye size={28} className="text-white" />
                         </div>
                       </button>
                     ) : (
-                      <div className="flex h-20 w-20 items-center justify-center rounded-2xl border border-white/8 bg-white/5 text-text-secondary">
-                        <EyeOff size={18} />
+                      <div className="flex h-28 w-28 items-center justify-center rounded-[32px] border border-slate-100 bg-slate-50 text-slate-300">
+                        <EyeOff size={28} />
                       </div>
                     )}
 
-                    <div>
-                      <div className="flex flex-wrap items-center gap-2">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-center lg:justify-start gap-3">
                         <span
                           className={cn(
-                            'rounded-full border px-3 py-1 text-[9px] font-black uppercase tracking-[0.24em]',
+                            'rounded-full border px-4 py-1 text-[10px] font-black uppercase tracking-widest',
                             tx.tx_type === 'DEPOSIT'
-                              ? 'border-success/20 bg-success/10 text-success'
-                              : 'border-danger/20 bg-danger/10 text-danger'
+                              ? 'border-teal-200 bg-teal-50 text-teal-700'
+                              : 'border-red-200 bg-red-50 text-red-700'
                           )}
                         >
                           {tx.tx_type}
                         </span>
-                        <span className="text-[10px] font-black uppercase tracking-[0.24em] text-text-secondary">
-                          ID {tx.txd_id || '---'}
+                        <span className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-300">
+                          ID: {tx.txd_id || '------'}
                         </span>
                       </div>
-                      <h3 className="mt-3 text-xl font-black uppercase tracking-[-0.04em]">
+                      <h3 className="text-3xl font-black text-slate-900 tracking-tight uppercase leading-none">
                         {tx.user_name || 'Member'}
                       </h3>
-                      <p className="mt-1 text-sm font-bold tracking-[0.14em] text-primary">
+                      <p className="text-base font-bold tracking-widest text-teal-600">
                         {tx.user_phone}
                       </p>
                     </div>
                   </div>
 
-                  <div className="text-left lg:text-right">
-                    <p className="text-3xl font-black tabular-nums tracking-[-0.05em]">
+                  <div className="flex flex-col items-center lg:items-end">
+                    <p className="text-5xl font-black text-slate-900 tabular-nums leading-none tracking-tighter mb-3">
                       {parseFloat(tx.amount).toLocaleString()}
                     </p>
-                    <p className="mt-2 flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.24em] text-text-secondary lg:justify-end">
-                      <Clock size={10} />
+                    <div className="flex items-center gap-2 text-slate-400 font-black text-[11px] uppercase tracking-[0.3em]">
+                      <Clock size={12} />
                       {new Date(tx.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </p>
+                    </div>
                   </div>
                 </div>
 
                 {tx.tx_type === 'WITHDRAW' && (
-                  <div className="mt-6 rounded-[24px] border border-white/8 bg-white/4 p-4">
-                    <p className="text-[9px] font-black uppercase tracking-[0.26em] text-text-secondary">
-                      Destination account
-                    </p>
-                    <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                      <span className="text-sm font-black uppercase tracking-[0.16em] text-white">
+                  <div className="mt-10 rounded-[32px] bg-slate-50 border border-slate-100 p-8 text-center">
+                    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 mb-4">Destination Protocol</p>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-base font-black uppercase tracking-widest text-slate-900">
                         {tx.user_bank_name}
                       </span>
-                      <span className="text-base font-black tabular-nums tracking-[0.1em] text-primary">
+                      <span className="text-2xl font-black tabular-nums tracking-widest text-teal-600">
                         {tx.user_bank_account}
                       </span>
                     </div>
@@ -195,28 +205,29 @@ export default function QueuePage() {
                 )}
 
                 {isManagement ? (
-                  <div className="mt-6 grid grid-cols-2 gap-3">
+                  <div className="mt-10 grid grid-cols-2 gap-6">
                     <button
                       disabled={processingId !== null}
                       onClick={() => handleAction(tx.id, 'approve')}
-                      className="btn-primary"
+                      className="btn-primary h-16 rounded-[24px] shadow-lg text-base"
                     >
-                      {processingId === tx.id ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
-                      Confirm
+                      {processingId === tx.id ? <Loader2 size={24} className="animate-spin" /> : <Check size={24} strokeWidth={3} />}
+                      CONFIRM
                     </button>
                     <button
                       disabled={processingId !== null}
                       onClick={() => handleAction(tx.id, 'reject')}
-                      className="btn-secondary"
+                      className="btn-secondary h-16 rounded-[24px] bg-slate-100 border-transparent hover:bg-red-50 hover:text-red-600"
                     >
-                      {processingId === tx.id ? <Loader2 size={16} className="animate-spin" /> : <X size={16} />}
-                      Decline
+                      {processingId === tx.id ? <Loader2 size={24} className="animate-spin" /> : <X size={24} strokeWidth={3} />}
+                      REJECT
                     </button>
                   </div>
                 ) : (
-                  <div className="mt-6 rounded-2xl border border-white/8 bg-white/4 px-4 py-3 text-center">
-                    <span className="text-[9px] font-black uppercase tracking-[0.24em] text-text-secondary">
-                      Awaiting authorization
+                  <div className="mt-10 flex items-center justify-center p-8 bg-slate-50 rounded-[32px] border border-slate-100 text-slate-400">
+                    <ShieldAlert size={20} className="mr-4" />
+                    <span className="text-xs font-black tracking-[0.3em] uppercase">
+                      Authorization Awaited
                     </span>
                   </div>
                 )}
