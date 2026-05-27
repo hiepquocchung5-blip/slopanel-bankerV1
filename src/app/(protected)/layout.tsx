@@ -4,7 +4,7 @@ import React, { useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import BottomNav from '@/components/ui/BottomNav';
-import BackButton from '@/components/ui/BackButton';
+import Header from '@/components/ui/Header';
 import Footer from '@/components/ui/Footer';
 import { Loader2 } from 'lucide-react';
 
@@ -36,7 +36,9 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
           <div className="absolute bottom-[0%] right-[-5%] w-[60%] h-[30%] bg-primary-dark/5 rounded-full blur-[120px]" />
        </div>
 
-       <main className="relative z-10 w-full min-h-screen pb-60">
+       <Header />
+
+       <main className="relative z-10 w-full min-h-screen pt-32 pb-60">
           {children}
           <Footer />
        </main>

@@ -1,54 +1,70 @@
 "use client";
 
 import React from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import { CONFIG } from '@/lib/config';
-import { ShieldCheck, LogOut } from 'lucide-react';
+import { LogOut, ChevronLeft, ShieldCheck, User } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 import { motion } from 'framer-motion';
 
-interface HeaderProps {
-  title: string;
-  subtitle: string;
-}
+export default function GlobalHeader() {
+  const pathname = usePathname();
+  const router = useRouter();
+  const { user, logout } = useAuth();
 
-export default function Header({ title, subtitle }: HeaderProps) {
+  if (!user) return null;
+
+  const navItems = [
+    { label: 'Dashboard', href: '/' },
+    { label: 'Payments', href: '/payments' },
+    { label: 'Queue', href: '/queue' },
+    { label: 'Players', href: '/players' },
+    { label: 'Analytics', href: '/analytics' },
+    { label: 'Settings', href: '/settings' },
+  ];
+
+  const currentItem = navItems.find(item => item.href === pathname);
+  const pageTitle = currentItem?.label || 'Banker Portal';
+
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: -10 }}
+    <motion.header 
+      initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="px-6 pt-10 pb-6 bg-white/60 backdrop-blur-3xl sticky top-0 z-50 flex justify-between items-end border-b border-black/5 shadow-soft"
+      className="fixed top-6 left-1/2 -translate-x-1/2 z-[10001] w-[calc(100%-32px)] max-w-[900px]"
     >
-      <div className="flex flex-col gap-1">
-        <div className="flex items-center gap-3">
-          <motion.div 
-            initial={{ height: 0 }}
-            animate={{ height: 32 }}
-            className="w-2 bg-primary-dark rounded-full shadow-[0_0_20px_rgba(79,209,197,0.4)]" 
-          />
-          <h1 className="text-2xl font-black text-text-primary tracking-tight uppercase">{title}</h1>
+      <div className="liquid-glass rounded-[32px] px-6 py-4 flex items-center justify-between shadow-[0_20px_50px_rgba(0,31,35,0.15)] border-white/60">
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={() => router.back()}
+            className="w-10 h-10 rounded-2xl bg-black/5 flex items-center justify-center text-text-primary hover:bg-primary/10 transition-colors"
+          >
+            <ChevronLeft size={20} />
+          </button>
+          
+          <div className="flex flex-col">
+            <h1 className="text-lg font-black text-text-primary tracking-tight uppercase leading-none">{pageTitle}</h1>
+            <div className="flex items-center gap-1.5 mt-1.5">
+               <div className="w-1.5 h-1.5 bg-primary-dark rounded-full animate-pulse shadow-[0_0_8px_#4fd1c5]" />
+               <span className="text-[9px] font-black text-text-secondary uppercase tracking-[0.2em] opacity-60">
+                 Secure Handshake Active
+               </span>
+            </div>
+          </div>
         </div>
-        <div className="flex items-center gap-2 ml-5">
-          <span className="w-2 h-2 bg-primary rounded-full animate-pulse shadow-[0_0_10px_#4fd1c5]" />
-          <p className="text-[11px] font-bold text-text-secondary uppercase tracking-[0.2em]">
-            {subtitle}
-          </p>
+
+        <div className="flex items-center gap-4">
+          <div className="hidden sm:flex flex-col items-end border-r border-black/5 pr-4 mr-1">
+             <span className="text-[11px] font-black text-text-primary uppercase tracking-wider">{user.username || 'Staff'}</span>
+             <span className="text-[9px] font-bold text-primary-dark uppercase tracking-widest opacity-70">
+               LVL: {user.is_staff ? 'ADMIN_SEC_4' : 'CASHIER_SEC_3'}
+             </span>
+          </div>
+          
+          <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary-dark shadow-soft">
+            <User size={20} />
+          </div>
         </div>
       </div>
-      
-      <div className="flex flex-col items-end gap-3">
-        <motion.div 
-          whileHover={{ scale: 1.05 }}
-          className="px-5 py-1.5 bg-primary/10 text-primary-dark text-[10px] border border-primary/20 rounded-full uppercase tracking-[0.3em] font-black shadow-soft cursor-default"
-        >
-          Registry v2.1
-        </motion.div>
-        <a 
-          href={CONFIG.MAIN_DOMAIN} 
-          className="btn-secondary h-10 px-5 text-[10px] shadow-soft group"
-        >
-          Exit System
-          <LogOut size={14} className="group-hover:translate-x-1 transition-transform" />
-        </a>
-      </div>
-    </motion.div>
+    </motion.header>
   );
 }
