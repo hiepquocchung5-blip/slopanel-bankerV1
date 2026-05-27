@@ -4,7 +4,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { API } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
-import { Check, Clock, Eye, EyeOff, Loader2, ShieldAlert, X } from 'lucide-react';
+import { Check, Clock, Eye, EyeOff, Loader2, ShieldAlert, X, Phone } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -154,7 +154,10 @@ export default function QueuePage() {
                       
                       <div className="flex flex-col items-center md:items-start">
                          <p className="text-2xl font-black text-slate-900 uppercase tracking-tight leading-none">{tx.user_name || 'Member'}</p>
-                         <p className="text-base font-bold text-teal-600 tracking-widest mt-1">{tx.user_phone}</p>
+                         <div className="flex items-center gap-2 mt-2 px-4 py-1.5 bg-teal-50 rounded-full border border-teal-100 shadow-sm">
+                            <Phone size={12} className="text-teal-600" strokeWidth={3} />
+                            <p className="text-sm font-black text-teal-700 tracking-[0.1em]">{tx.user_phone}</p>
+                         </div>
                       </div>
                     </div>
                   </div>
