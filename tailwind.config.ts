@@ -1,3 +1,4 @@
+import { heroui } from "@heroui/react";
 import type { Config } from "tailwindcss";
 
 const config: Config = {
@@ -5,6 +6,7 @@ const config: Config = {
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {
@@ -12,31 +14,15 @@ const config: Config = {
         background: "var(--background)",
         foreground: "var(--foreground)",
         primary: {
-          DEFAULT: "var(--primary)",
-          soft: "var(--primary-soft)",
-          dark: "var(--primary-dark)",
-        },
-        text: {
-          primary: "var(--text-primary)",
-          secondary: "var(--text-secondary)",
-          light: "var(--text-light)",
+          DEFAULT: "#0d9488",
+          foreground: "#ffffff",
         },
         gold: "#D4AF37",
         surface: "var(--surface)",
-        lavender: "#bba7ff",
-      },
-      borderRadius: {
-        xl: "var(--radius-xl)",
-        lg: "var(--radius-lg)",
-        md: "var(--radius-md)",
-      },
-      boxShadow: {
-        soft: "var(--shadow-soft)",
-        card: "var(--shadow-card)",
-        button: "var(--shadow-button)",
       },
     },
   },
-  plugins: [],
+  darkMode: "class",
+  plugins: [heroui()],
 };
 export default config;

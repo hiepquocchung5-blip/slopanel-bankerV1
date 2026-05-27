@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import { AuthProvider } from "@/context/AuthContext";
+import { Providers } from "./providers";
 
 export const metadata: Metadata = {
   title: "SLOPARA | Banker Portal",
@@ -23,11 +23,11 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="antialiased overflow-x-hidden bg-background" suppressHydrationWarning>
-        <AuthProvider>
+        <Providers>
           <div className="app-container">
             {children}
           </div>
-        </AuthProvider>
+        </Providers>
       </body>
     </html>
   );
