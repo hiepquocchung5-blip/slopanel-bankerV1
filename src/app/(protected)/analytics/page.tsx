@@ -1,11 +1,24 @@
 "use client";
 
 import React from 'react';
-import { BarChart3, ArrowDownRight, ArrowUpRight, TrendingUp, Users } from 'lucide-react';
+import { BarChart3, ArrowDownRight, ArrowUpRight, TrendingUp, Users, ShieldAlert } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/context/AuthContext';
 
 export default function AnalyticsPage() {
+  const { user } = useAuth();
+  const isManagement = user?.is_staff || user?.is_cashier;
   const bars = [40, 70, 45, 90, 65, 80, 55];
+
+  if (!isManagement) {
+    return (
+      <div className="py-32 text-center">
+         <ShieldAlert size={64} className="mx-auto text-red-500 mb-6" />
+         <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tighter">Access Restricted</h2>
+         <p className="text-slate-400 mt-2 font-bold uppercase tracking-widest text-xs">Level 3 Clearance Required</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">

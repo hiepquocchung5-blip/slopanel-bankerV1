@@ -3,7 +3,6 @@
 import React, { useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
-import TopNav from '@/components/ui/BottomNav';
 import Header from '@/components/ui/Header';
 import Footer from '@/components/ui/Footer';
 import { Loader2 } from 'lucide-react';
@@ -31,7 +30,6 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
   return (
     <div className="app-container">
        <Header />
-       <TopNav />
 
        <main className="w-full max-w-[1400px] mx-auto px-6 py-12 flex-1">
           {children}

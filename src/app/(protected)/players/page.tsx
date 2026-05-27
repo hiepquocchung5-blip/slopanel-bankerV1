@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { API } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
-import { Ban, Coins, Loader2, Landmark, Shield, ShieldCheck, UserX } from 'lucide-react';
+import { Ban, Coins, Loader2, Landmark, Shield, ShieldCheck, UserX, ShieldAlert } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Player {
@@ -26,6 +26,7 @@ export default function PlayersPage() {
   const [processingId, setProcessingId] = useState<number | null>(null);
 
   const isAdmin = user?.is_staff;
+  const isManagement = user?.is_staff || user?.is_cashier;
 
   const fetchPlayers = async () => {
     try {
@@ -58,6 +59,16 @@ export default function PlayersPage() {
       setProcessingId(null);
     }
   };
+
+  if (!isManagement) {
+    return (
+      <div className="py-32 text-center">
+         <ShieldAlert size={64} className="mx-auto text-red-500 mb-6" />
+         <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tighter">Access Restricted</h2>
+         <p className="text-slate-400 mt-2 font-bold uppercase tracking-widest text-xs">Level 3 Clearance Required</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
