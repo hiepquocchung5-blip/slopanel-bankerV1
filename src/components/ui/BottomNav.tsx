@@ -25,7 +25,7 @@ export default function BottomNav() {
   ];
 
   return (
-    <nav className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[9999] w-[calc(100%-40px)] max-w-[680px] liquid-glass rounded-[48px] p-2 flex items-center justify-between shadow-[0_30px_80px_rgba(0,31,35,0.3)] border border-white/80 h-[96px]">
+    <nav className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[10000] w-[calc(100%-48px)] max-w-[700px] liquid-glass rounded-[48px] p-3 flex items-center justify-between shadow-[0_40px_100px_rgba(0,31,35,0.4)] border border-white/80 h-[100px]">
         {navItems.map((item) => {
           if (item.managementOnly && !isManagement) return null;
           const isActive = pathname === item.href;
@@ -41,12 +41,12 @@ export default function BottomNav() {
             >
               <div className={cn(
                 "p-4 rounded-[32px] transition-all duration-500",
-                isActive ? "bg-primary-dark shadow-[0_15px_35px_rgba(49,151,149,0.6)] scale-110 -translate-y-4" : "group-hover:bg-primary/10"
+                isActive ? "bg-primary-dark shadow-[0_15px_35px_rgba(49,151,149,0.7)] scale-110 -translate-y-5" : "group-hover:bg-primary/10"
               )}>
-                <item.icon size={28} className={cn("transition-transform", isActive && "animate-float")} />
+                <item.icon size={30} className={cn("transition-transform", isActive && "animate-float")} />
               </div>
               <span className={cn(
-                "text-[11px] font-black tracking-widest uppercase mt-1 transition-all duration-500",
+                "text-[12px] font-black tracking-widest uppercase mt-1 transition-all duration-500",
                 isActive ? "opacity-100" : "opacity-0 group-hover:opacity-100"
               )}>
                 {item.label}
@@ -62,9 +62,9 @@ export default function BottomNav() {
           className="flex flex-col items-center justify-center p-4 text-red-500/80 hover:text-red-600 transition-all group"
         >
           <div className="p-4 rounded-[32px] group-hover:bg-red-500/10 transition-all">
-            <LogOut size={28} />
+            <LogOut size={30} />
           </div>
-          <span className="text-[11px] font-black tracking-widest uppercase mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <span className="text-[12px] font-black tracking-widest uppercase mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
             Exit
           </span>
         </button>

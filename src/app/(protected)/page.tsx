@@ -90,81 +90,91 @@ export default function Dashboard() {
       />
 
       {/* Hero Greeting Section */}
-      <div className="px-6 pt-8 flex justify-between items-end">
-        <div className="space-y-1">
-          <p className="text-[10px] font-black text-primary tracking-[0.3em] uppercase opacity-70">Authorized Access</p>
-          <h2 className="text-3xl font-black text-text-primary tracking-tight flex items-center gap-2">
+      <div className="px-6 pt-10 md:pt-14 flex justify-between items-end">
+        <div className="space-y-2">
+          <p className="text-[12px] font-black text-primary-dark tracking-[0.4em] uppercase opacity-60">Authorized Access</p>
+          <h2 className="text-4xl font-black text-text-primary tracking-tighter flex items-center gap-3">
             Welcome, {user.username || 'Staff'}
-            <ShieldCheck size={20} className="text-primary-dark" />
+            <ShieldCheck size={24} className="text-primary-dark" />
           </h2>
-          <div className="flex items-center gap-3">
-             <div className="flex items-center gap-1.5 text-text-secondary">
-                <Phone size={10} />
-                <span className="text-[11px] font-bold tracking-widest">{user.phone_number}</span>
+          <div className="flex items-center gap-4">
+             <div className="flex items-center gap-2 text-text-secondary">
+                <Phone size={12} />
+                <span className="text-[12px] font-bold tracking-widest">{user.phone_number}</span>
              </div>
-             <div className="w-1 h-1 bg-black/10 rounded-full" />
-             <span className="text-[10px] font-black text-primary-dark uppercase tracking-widest bg-primary/10 px-3 py-1 rounded-full border border-primary/20 shadow-soft">
+             <div className="w-1.5 h-1.5 bg-primary/20 rounded-full" />
+             <span className="text-[11px] font-black text-primary-dark uppercase tracking-widest bg-primary/10 px-4 py-1.5 rounded-full border border-primary/20 shadow-soft">
                {user.is_staff ? 'ADMIN_SEC_4' : user.is_cashier ? 'CASHIER_SEC_3' : 'AGENT_CORE'}
              </span>
           </div>
         </div>
-        <LiveClock />
+        <div className="hidden md:block">
+           <LiveClock />
+        </div>
       </div>
 
-      <div className="p-6 space-y-8">
+      <div className="p-6 md:p-10 space-y-10">
         {/* TOP STATS GRID */}
         {isManagement && houseStats ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="premium-card p-8 group">
-              <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-all duration-500">
-                 <TrendingUp size={64} className="text-primary-dark" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="premium-card p-10 group md:col-span-2">
+              <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-all duration-500">
+                 <TrendingUp size={80} className="text-primary-dark" />
               </div>
-              <p className="text-[11px] text-text-secondary font-black mb-2 tracking-[0.2em] uppercase">House Revenue</p>
-              <div className="flex items-baseline gap-2">
-                <p className="text-4xl font-black text-text-primary tabular-nums leading-none">
+              <p className="text-[12px] text-text-secondary font-black mb-3 tracking-[0.3em] uppercase">House Revenue</p>
+              <div className="flex items-baseline gap-3">
+                <p className="text-5xl font-black text-text-primary tabular-nums leading-none tracking-tighter">
                   {displayProfit.toLocaleString()}
                 </p>
-                <span className="text-[12px] text-text-secondary font-bold uppercase tracking-widest">MMK</span>
+                <span className="text-[14px] text-text-secondary font-bold uppercase tracking-widest">MMK</span>
               </div>
               {isCashier && (
-                <p className="text-[10px] text-primary-dark font-black mt-4 tracking-widest uppercase">Secured 90% Visibility</p>
+                <div className="flex items-center gap-2 mt-6">
+                   <div className="w-1.5 h-1.5 bg-primary-dark rounded-full animate-pulse" />
+                   <p className="text-[11px] text-primary-dark font-black tracking-widest uppercase">Secured 90% Visibility</p>
+                </div>
               )}
             </div>
 
-            <div className="glass-card p-8 group">
-              <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-all duration-500">
-                 <BarChart3 size={64} className="text-primary-dark" />
+            <div className="glass-card p-10 group md:col-span-2">
+              <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-all duration-500">
+                 <BarChart3 size={80} className="text-primary-dark" />
               </div>
-              <p className="text-[11px] text-text-secondary font-black mb-2 tracking-[0.2em] uppercase">Global RTP</p>
-              <p className={cn(
-                "text-4xl font-black tabular-nums leading-none",
-                houseStats.global.rtp_percentage > 100 ? 'text-red-500' : 'text-primary-dark'
-              )}>
-                {houseStats.global.rtp_percentage}%
-              </p>
+              <p className="text-[12px] text-text-secondary font-black mb-3 tracking-[0.3em] uppercase">Global Performance</p>
+              <div className="flex items-baseline gap-2">
+                <p className={cn(
+                  "text-5xl font-black tabular-nums leading-none tracking-tighter",
+                  houseStats.global.rtp_percentage > 100 ? 'text-red-500' : 'text-primary-dark'
+                )}>
+                  {houseStats.global.rtp_percentage}%
+                </p>
+                <span className="text-[14px] text-text-secondary font-bold uppercase tracking-widest">RTP</span>
+              </div>
             </div>
           </div>
         ) : refStats ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-             <div className="glass-card p-8 flex flex-col items-center text-center group hover:scale-[1.02] transition-all">
-                <div className="w-14 h-14 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-4 shadow-soft">
-                  <Users size={24} className="text-primary-dark" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+             <div className="glass-card p-10 flex flex-col items-center text-center group hover:scale-[1.03] transition-all">
+                <div className="w-20 h-20 rounded-[32px] bg-primary/10 border border-primary/20 flex items-center justify-center mb-6 shadow-soft transition-transform group-hover:rotate-6">
+                  <Users size={32} className="text-primary-dark" />
                 </div>
-                <p className="text-[11px] text-text-secondary font-black tracking-widest mb-1 uppercase opacity-60">Downline</p>
-                <p className="text-3xl font-black text-text-primary tabular-nums leading-none">{refStats.total_referrals}</p>
+                <p className="text-[12px] text-text-secondary font-black tracking-[0.3em] mb-2 uppercase opacity-60">Network Size</p>
+                <p className="text-4xl font-black text-text-primary tabular-nums leading-none">{refStats.total_referrals}</p>
              </div>
 
-             <div className="premium-card p-8 flex flex-col items-center text-center group hover:scale-[1.02] transition-all">
-                <div className="w-14 h-14 rounded-2xl bg-primary/5 border border-primary/20 flex items-center justify-center mb-4 shadow-soft">
-                  <Wallet size={24} className="text-primary-dark" />
+             <div className="premium-card p-10 flex flex-col items-center text-center group hover:scale-[1.03] transition-all">
+                <div className="w-20 h-20 rounded-[32px] bg-primary/5 border border-primary/20 flex items-center justify-center mb-6 shadow-soft transition-transform group-hover:-rotate-6">
+                  <Wallet size={32} className="text-primary-dark" />
                 </div>
-                <p className="text-[11px] text-text-secondary font-black tracking-widest mb-1 uppercase opacity-60">Earnings</p>
+                <p className="text-[12px] text-text-secondary font-black tracking-[0.3em] mb-2 uppercase opacity-60">Total Earnings</p>
                 <div className="flex flex-col items-center">
-                  <p className="text-3xl font-black text-text-primary tabular-nums leading-none">
+                  <p className="text-4xl font-black text-text-primary tabular-nums leading-none">
                     {parseFloat(refStats.total_commission_earned).toLocaleString()}
                   </p>
                   {isAgent && (
-                    <p className="text-[9px] text-primary-dark font-black mt-2 tracking-widest uppercase">Includes 10% System Commission</p>
+                    <div className="bg-primary/10 px-4 py-1.5 rounded-full mt-4 border border-primary/10">
+                       <p className="text-[10px] text-primary-dark font-black tracking-widest uppercase">Includes 10% System Commission</p>
+                    </div>
                   )}
                 </div>
              </div>
