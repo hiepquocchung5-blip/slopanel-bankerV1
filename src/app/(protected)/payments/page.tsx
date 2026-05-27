@@ -176,38 +176,50 @@ export default function PaymentsPage() {
            ) : (
              methods.map(m => (
                <div key={m.id} className={cn(
-                 "bg-white border border-slate-200 p-8 rounded-[32px] flex flex-col md:flex-row justify-between items-center text-center md:text-left gap-8 shadow-sm transition-all duration-500 hover:border-teal-500/30",
-                 !m.is_active && "opacity-50 grayscale"
+                 "bg-white border-2 p-8 rounded-[40px] flex flex-col md:flex-row justify-between items-center text-center md:text-left gap-10 shadow-sm transition-all duration-500",
+                 m.is_active ? "border-teal-500/20" : "border-slate-100 opacity-60 grayscale-[0.5]"
                )}>
                   <div className="flex flex-col items-center md:items-start flex-1">
-                     <div className="flex items-center gap-3 mb-4">
-                        <span className="text-[11px] font-black text-teal-600 tracking-[0.3em] uppercase">{m.bank_name}</span>
-                        <ShieldCheck size={14} className="text-teal-600/50" />
+                     <div className="flex items-center gap-4 mb-5">
+                        <div className={cn(
+                          "w-3 h-3 rounded-full shadow-lg",
+                          m.is_active ? "bg-green-500 animate-pulse" : "bg-slate-300"
+                        )} />
+                        <span className="text-[12px] font-black text-teal-600 tracking-[0.4em] uppercase">{m.bank_name}</span>
                      </div>
-                     <p className="text-4xl font-black text-slate-900 tracking-tighter tabular-nums leading-none mb-2">{m.bank_account}</p>
-                     <p className="text-[12px] font-bold text-slate-400 uppercase tracking-widest">{m.account_name}</p>
+                     <p className="text-5xl font-black text-slate-900 tracking-tighter tabular-nums leading-none mb-3">{m.bank_account}</p>
+                     <div className="flex items-center gap-2">
+                        <User size={14} className="text-slate-400" />
+                        <p className="text-sm font-bold text-slate-500 uppercase tracking-widest">{m.account_name}</p>
+                     </div>
                   </div>
                   
-                  <div className="flex flex-col items-center md:items-end gap-6">
-                     <span className={cn(
-                       "text-[10px] font-black tracking-widest uppercase px-4 py-1.5 rounded-full border shadow-sm",
-                       m.is_active ? "bg-green-50 text-green-700 border-green-200" : "bg-red-50 text-red-700 border-red-200"
+                  <div className="flex flex-col items-center md:items-end gap-8">
+                     <div className={cn(
+                       "text-[11px] font-black tracking-[0.2em] uppercase px-6 py-2 rounded-full border-2 shadow-sm transition-all duration-500",
+                       m.is_active 
+                         ? "bg-green-50 text-green-700 border-green-200" 
+                         : "bg-slate-50 text-slate-400 border-slate-200"
                      )}>
-                        {m.is_active ? 'Online' : 'Offline'}
-                     </span>
-                     <button 
-                       disabled={processingId !== null}
-                       onClick={() => handleToggle(m.id, m.is_active)}
-                       className="p-2 hover:scale-110 active:scale-90 transition-all disabled:opacity-50"
-                     >
-                        {processingId === m.id ? (
-                          <Loader2 size={40} className="animate-spin text-teal-600" />
-                        ) : m.is_active ? (
-                          <ToggleRight size={56} className="text-teal-600" />
-                        ) : (
-                          <ToggleLeft size={56} className="text-slate-300" />
-                        )}
-                     </button>
+                        {m.is_active ? 'Registry_Online' : 'Node_Offline'}
+                     </div>
+                     
+                     <div className="flex items-center gap-4">
+                        <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Toggle Status</span>
+                        <button 
+                          disabled={processingId !== null}
+                          onClick={() => handleToggle(m.id, m.is_active)}
+                          className="p-1 hover:scale-105 active:scale-90 transition-all disabled:opacity-50"
+                        >
+                           {processingId === m.id ? (
+                             <Loader2 size={44} className="animate-spin text-teal-600" />
+                           ) : m.is_active ? (
+                             <ToggleRight size={64} className="text-teal-600 drop-shadow-md" />
+                           ) : (
+                             <ToggleLeft size={64} className="text-slate-200" />
+                           )}
+                        </button>
+                     </div>
                   </div>
                </div>
              ))
