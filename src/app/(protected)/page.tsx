@@ -8,6 +8,7 @@ import LiveClock from '@/components/ui/LiveClock';
 import { Users, Wallet, TrendingUp, BarChart3, Fingerprint, QrCode, Zap, User as UserIcon, Phone, ShieldCheck, ArrowRight, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 
 interface HouseStats {
   global: {
@@ -117,7 +118,12 @@ export default function Dashboard() {
         {/* TOP STATS GRID */}
         {isManagement && houseStats ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="premium-card p-10 group md:col-span-2">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              whileHover={{ scale: 1.01, translateY: -5 }}
+              className="premium-card p-10 group md:col-span-2 depth-shadow transition-shadow hover:shadow-2xl"
+            >
               <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-all duration-500">
                  <TrendingUp size={80} className="text-primary-dark" />
               </div>
@@ -134,9 +140,15 @@ export default function Dashboard() {
                    <p className="text-[11px] text-primary-dark font-black tracking-widest uppercase">Secured 90% Visibility</p>
                 </div>
               )}
-            </div>
+            </motion.div>
 
-            <div className="glass-card p-10 group md:col-span-2">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              whileHover={{ scale: 1.01, translateY: -5 }}
+              className="glass-card p-10 group md:col-span-2 depth-shadow transition-shadow hover:shadow-2xl"
+            >
               <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-all duration-500">
                  <BarChart3 size={80} className="text-primary-dark" />
               </div>
@@ -150,19 +162,30 @@ export default function Dashboard() {
                 </p>
                 <span className="text-[14px] text-text-secondary font-bold uppercase tracking-widest">RTP</span>
               </div>
-            </div>
+            </motion.div>
           </div>
         ) : refStats ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-             <div className="glass-card p-10 flex flex-col items-center text-center group hover:scale-[1.03] transition-all">
+             <motion.div 
+               initial={{ opacity: 0, scale: 0.95 }}
+               animate={{ opacity: 1, scale: 1 }}
+               whileHover={{ scale: 1.02 }}
+               className="glass-card p-10 flex flex-col items-center text-center group transition-all depth-shadow"
+             >
                 <div className="w-20 h-20 rounded-[32px] bg-primary/10 border border-primary/20 flex items-center justify-center mb-6 shadow-soft transition-transform group-hover:rotate-6">
                   <Users size={32} className="text-primary-dark" />
                 </div>
                 <p className="text-[12px] text-text-secondary font-black tracking-[0.3em] mb-2 uppercase opacity-60">Network Size</p>
                 <p className="text-4xl font-black text-text-primary tabular-nums leading-none">{refStats.total_referrals}</p>
-             </div>
+             </motion.div>
 
-             <div className="premium-card p-10 flex flex-col items-center text-center group hover:scale-[1.03] transition-all">
+             <motion.div 
+               initial={{ opacity: 0, scale: 0.95 }}
+               animate={{ opacity: 1, scale: 1 }}
+               transition={{ delay: 0.1 }}
+               whileHover={{ scale: 1.02 }}
+               className="premium-card p-10 flex flex-col items-center text-center group transition-all depth-shadow"
+             >
                 <div className="w-20 h-20 rounded-[32px] bg-primary/5 border border-primary/20 flex items-center justify-center mb-6 shadow-soft transition-transform group-hover:-rotate-6">
                   <Wallet size={32} className="text-primary-dark" />
                 </div>
@@ -177,7 +200,7 @@ export default function Dashboard() {
                     </div>
                   )}
                 </div>
-             </div>
+             </motion.div>
           </div>
         ) : null}
 
