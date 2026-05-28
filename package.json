@@ -6,7 +6,7 @@
     "dev": "node scripts/dev.mjs",
     "build": "next build --webpack",
     "prestart": "npm run build",
-    "start": "next start -p 6936",
+    "start": "node scripts/start.mjs",
     "lint": "eslint"
   },
   "dependencies": {
