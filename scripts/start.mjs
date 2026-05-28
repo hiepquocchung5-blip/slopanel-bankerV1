@@ -2,7 +2,7 @@
 
 import { spawn, execSync } from 'node:child_process';
 
-const port = String(process.env.PORT || 6936);
+const port = String(process.env.PORT || 6937);
 const host = process.env.HOST || '0.0.0.0';
 
 /**
