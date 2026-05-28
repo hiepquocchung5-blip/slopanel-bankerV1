@@ -3,7 +3,7 @@ import "./globals.css";
 import { Providers } from "./providers";
 
 export const metadata: Metadata = {
-  title: "SLOPARA | Banker Portal",
+  title: "SLOPARA | Banker Portal v1.0.0",
   description: "Operator and banker control console",
 };
 
@@ -22,11 +22,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="antialiased overflow-x-hidden bg-background" suppressHydrationWarning>
+      <body
+        className="min-h-screen overflow-x-hidden bg-background text-foreground antialiased"
+        suppressHydrationWarning
+      >
         <Providers>
-          <div className="app-container">
-            {children}
-          </div>
+          {children}
         </Providers>
       </body>
     </html>

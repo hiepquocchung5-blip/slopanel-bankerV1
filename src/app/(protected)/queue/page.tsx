@@ -2,7 +2,9 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 
 import React, { useCallback, useEffect, useState } from 'react';
+import Image from 'next/image';
 import { API } from '@/lib/api';
+import { CONFIG } from '@/lib/config';
 import { useAuth } from '@/context/AuthContext';
 import { Check, Clock, Eye, EyeOff, Loader2, ShieldAlert, X, Phone } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -27,15 +29,38 @@ export default function QueuePage() {
   const { user } = useAuth();
   const [txs, setTxs] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [processingId, setProcessingId] = useState<number | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [lastSyncedAt, setLastSyncedAt] = useState<Date | null>(null);
 
   const isManagement = user?.is_staff || user?.is_cashier;
 
-  const fetchQueue = useCallback(async () => {
-    setIsLoading(true);
+  const resolveReceiptUrl = useCallback((url: string | null) => {
+    if (!url) return null;
+    if (/^https?:\/\//i.test(url)) return url;
+
+    const cleanPath = url.replace(/^\/+/, '');
+    if (cleanPath.startsWith('media/receipts/')) {
+      return `https://api.suropara.com/${cleanPath}`;
+    }
+
+    if (cleanPath.startsWith('receipts/')) {
+      return `${CONFIG.MEDIA_BASE}${cleanPath.replace(/^receipts\//, '')}`;
+    }
+
+    return `${CONFIG.MEDIA_BASE}${cleanPath}`;
+  }, []);
+
+  const fetchQueue = useCallback(async (silent = false) => {
+    if (silent) {
+      setIsRefreshing(true);
+    } else {
+      setIsLoading(true);
+    }
+
     try {
-      const data = await API.request<Transaction[]>('payments/admin/transactions/');
+      const data = await API.request<Transaction[]>('payments/admin/transactions/?_ts=' + Date.now());
       const filtered = data.filter(t => {
         const isPending = t.status === 'PENDING';
         if (!isPending) return false;
@@ -43,15 +68,36 @@ export default function QueuePage() {
         return t.user_phone === user?.phone_number;
       });
       setTxs(filtered);
+      setLastSyncedAt(new Date());
     } catch {
       console.error('Queue load failed');
     } finally {
       setIsLoading(false);
+      setIsRefreshing(false);
     }
   }, [isManagement, user?.phone_number]);
 
   useEffect(() => {
     void fetchQueue();
+  }, [fetchQueue]);
+
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      void fetchQueue(true);
+    }, 8000);
+
+    const handleFocus = () => {
+      void fetchQueue(true);
+    };
+
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleFocus);
+
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleFocus);
+    };
   }, [fetchQueue]);
 
   const handleAction = async (id: number, action: 'approve' | 'reject') => {
@@ -61,7 +107,7 @@ export default function QueuePage() {
     setProcessingId(id);
     try {
       await API.request(`payments/admin/transactions/${id}/${action}/`, { method: 'POST' });
-      setTxs((prev) => prev.filter((t) => t.id !== id));
+      await fetchQueue(true);
     } catch {
       console.error('Action failed');
     } finally {
@@ -73,8 +119,17 @@ export default function QueuePage() {
     <div className="space-y-12 animate-in fade-in duration-500">
       {/* PAGE SIGNATURE */}
       <div className="flex flex-col items-center text-center">
-         <span className="text-[11px] font-black text-teal-600 uppercase tracking-[0.4em] mb-3">Registry :: Module_02</span>
-         <h2 className="text-5xl font-black text-slate-900 uppercase tracking-tighter">Live Traffic</h2>
+        <span className="text-[11px] font-black text-teal-600 uppercase tracking-[0.4em] mb-3">Registry :: Module_02</span>
+        <h2 className="text-5xl font-black text-slate-900 uppercase tracking-tighter">Live Traffic</h2>
+        <div className="mt-4 flex items-center gap-3 rounded-full border border-slate-200 bg-white/80 px-4 py-2 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 shadow-sm">
+          <span className={cn("h-2 w-2 rounded-full", isRefreshing ? "bg-amber-400 animate-pulse" : "bg-teal-500")} />
+          <span>{isRefreshing ? 'Syncing live feed' : 'Live sync enabled'}</span>
+          {lastSyncedAt && (
+            <span className="text-slate-500">
+              Last update {lastSyncedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+            </span>
+          )}
+        </div>
       </div>
 
       <AnimatePresence>
@@ -93,10 +148,13 @@ export default function QueuePage() {
                className="relative max-w-4xl"
                onClick={e => e.stopPropagation()}
             >
-              <img
+              <Image
                 src={selectedImage}
                 alt="Receipt"
-                className="w-full h-auto rounded-[32px] border border-white/10 shadow-2xl"
+                width={1200}
+                height={900}
+                unoptimized
+                className="h-auto w-full rounded-[32px] border border-white/10 shadow-2xl"
               />
               <button 
                 className="absolute -top-4 -right-4 w-12 h-12 rounded-full bg-white text-slate-900 flex items-center justify-center shadow-xl hover:scale-110 transition-transform"
@@ -125,11 +183,17 @@ export default function QueuePage() {
                 <div className="flex flex-col lg:flex-row justify-between items-center gap-10">
                   <div className="flex flex-col md:flex-row items-center gap-8 text-center md:text-left">
                     {tx.tx_type === 'DEPOSIT' && tx.screenshot ? (
-                      <div className="relative cursor-pointer" onClick={() => setSelectedImage(tx.screenshot)}>
-                        <img
-                          src={tx.screenshot}
+                      <div
+                        className="relative cursor-pointer"
+                        onClick={() => setSelectedImage(resolveReceiptUrl(tx.screenshot))}
+                      >
+                        <Image
+                          src={resolveReceiptUrl(tx.screenshot) || ''}
                           alt="Receipt"
-                          className="w-28 h-28 rounded-[28px] object-cover border border-slate-100 shadow-sm transition-transform hover:scale-105"
+                          width={112}
+                          height={112}
+                          unoptimized
+                          className="h-28 w-28 rounded-[28px] border border-slate-100 object-cover shadow-sm transition-transform hover:scale-105"
                         />
                         <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 hover:opacity-100 transition-opacity rounded-[28px]">
                            <Eye size={24} className="text-white" />

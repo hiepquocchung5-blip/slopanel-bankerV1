@@ -3,6 +3,7 @@ import { CONFIG } from './config';
 export const API = {
   async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const token = typeof window !== 'undefined' ? localStorage.getItem('banker_token') : null;
+    const method = (options.method || 'GET').toUpperCase();
     
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
@@ -15,7 +16,11 @@ export const API = {
     }
 
     try {
-      const res = await fetch(`${CONFIG.API_BASE}${endpoint}`, { ...options, headers });
+      const res = await fetch(`${CONFIG.API_BASE}${endpoint}`, {
+        ...options,
+        cache: options.cache ?? (method === 'GET' ? 'no-store' : options.cache),
+        headers,
+      });
 
       if (res.status === 401 || res.status === 403) {
         if (typeof window !== 'undefined') {

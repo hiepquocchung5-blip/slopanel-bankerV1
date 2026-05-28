@@ -24,6 +24,8 @@
   --radius-xl: 32px;
   --radius-lg: 24px;
   --radius-md: 16px;
+  --header-height: 10.5rem;
+  --footer-height: 4.25rem;
 }
 
 html,
@@ -37,6 +39,12 @@ body {
   padding: 0;
   min-height: 100vh;
   width: 100%;
+}
+
+body {
+  background-image:
+    radial-gradient(circle at top, rgba(13, 148, 136, 0.08), transparent 30%),
+    linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
 }
 
 @layer components {
@@ -86,12 +94,13 @@ body {
   }
 
   .nav-pill {
-    background-color: #f8fafc;
-    border: 1px solid #e2e8f0;
+    background-color: rgba(248, 250, 252, 0.8);
+    border: 1px solid rgba(226, 232, 240, 0.9);
     border-radius: 20px;
     transition-property: all;
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     transition-duration: 150ms;
+    backdrop-filter: blur(12px);
   }
 
   /* BUTTONS */
@@ -194,4 +203,11 @@ body {
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+.surface-shell {
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(20px);
 }

@@ -8,32 +8,37 @@ export default function GlobalFooter() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="fixed bottom-0 left-0 right-0 z-[10001] bg-white border-t border-slate-200 py-3 shadow-[0_-2px_10px_rgba(0,0,0,0.02)]">
-      <div className="max-w-[1400px] mx-auto px-6 flex items-center justify-between">
-        <div className="flex items-center gap-6">
+    <footer className="fixed inset-x-0 bottom-0 z-[10001] border-t border-slate-200/70 bg-white/85 py-3 shadow-[0_-12px_40px_rgba(15,23,42,0.06)] backdrop-blur-xl">
+      <div className="mx-auto flex w-full max-w-[1500px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+        <div className="flex min-w-0 items-center gap-3 sm:gap-6">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-lg bg-teal-600 flex items-center justify-center text-white">
+            <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-teal-600 text-white">
               <Zap size={14} fill="white" />
             </div>
-            <span className="text-[11px] font-black text-slate-900 tracking-widest uppercase">Slopara Banker</span>
+            <span className="text-[11px] font-black uppercase tracking-widest text-slate-900">
+              Slopara Banker
+            </span>
           </div>
-          <div className="hidden sm:flex items-center gap-4 text-[9px] font-bold text-slate-400 uppercase tracking-widest border-l border-slate-100 pl-4">
-            <span>v2.2 Stable</span>
-            <span className="text-teal-600 flex items-center gap-1"><ShieldCheck size={10} /> Verified</span>
+          <div className="hidden items-center gap-4 border-l border-slate-200 pl-4 text-[9px] font-bold uppercase tracking-widest text-slate-400 sm:flex">
+            <span>v1.0.0 Release</span>
+            <span className="flex items-center gap-1 text-teal-600">
+              <ShieldCheck size={10} />
+              Verified
+            </span>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
-          <a 
+          <a
             href={CONFIG.MAIN_DOMAIN}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 h-8 rounded-lg text-[10px] font-black uppercase tracking-widest bg-slate-50 border border-slate-200 text-slate-600 hover:bg-slate-100 transition-colors"
+            className="flex h-8 items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-4 text-[10px] font-black uppercase tracking-widest text-slate-600 transition-colors hover:bg-slate-100"
           >
             <Globe size={12} />
             Main_Hub
           </a>
-          <p className="hidden md:block text-[9px] font-bold text-slate-400 uppercase tracking-widest ml-4">
+          <p className="ml-4 hidden text-[9px] font-bold uppercase tracking-widest text-slate-400 md:block">
             &copy; {currentYear} SLOPARA ENT.
           </p>
         </div>

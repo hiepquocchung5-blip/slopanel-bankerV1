@@ -48,7 +48,7 @@ export default function LoginPage() {
           </motion.div>
           
           <h2 className="text-4xl font-black text-slate-900 tracking-tighter mb-3 uppercase relative z-10">Security Auth</h2>
-          <p className="text-[12px] text-slate-400 font-black tracking-[0.4em] mb-14 uppercase relative z-10">Management Terminal v2.2</p>
+          <p className="text-[12px] text-slate-400 font-black tracking-[0.4em] mb-14 uppercase relative z-10">Management Terminal v1.0.0</p>
           
           <form onSubmit={handleSubmit} className="space-y-5 mb-12 relative z-10 text-center">
             <div className="relative group">

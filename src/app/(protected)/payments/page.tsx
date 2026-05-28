@@ -4,7 +4,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { API } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
-import { AlertCircle, CreditCard, Landmark, Loader2, Minus, Plus, ShieldCheck, ToggleLeft, ToggleRight, User } from 'lucide-react';
+import { AlertCircle, CreditCard, Landmark, Loader2, Minus, Plus, ToggleLeft, ToggleRight, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface PaymentMethod {
