@@ -3,7 +3,7 @@
 import { spawn, execSync } from 'node:child_process';
 
 const port = String(process.env.PORT || 6937);
-const host = process.env.HOST || '0.0.0.0';
+const host = process.env.HOST || '127.0.0.1';
 
 /**
  * PRO-ACTIVE PORT CLEARANCE
