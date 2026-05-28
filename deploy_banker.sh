@@ -6,6 +6,10 @@
 
 echo ">>> Starting Banker Portal Deployment..."
 
+echo "[0/3] Cleaning up existing processes on port 6936..."
+# Kill any process using port 6936 to prevent EADDRINUSE error
+lsof -ti:6936 | xargs kill -9 2>/dev/null || true
+
 echo "[1/3] Installing dependencies..."
 npm install
 
