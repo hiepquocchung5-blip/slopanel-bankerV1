@@ -5,6 +5,12 @@
 
 echo ">>> Starting Professional Repair for slopanel-banker..."
 
+# 0. Stop PM2
+echo "[0/4] Stopping PM2..."
+if command -v pm2 &> /dev/null; then
+    pm2 stop slopanel-banker 2>/dev/null || true
+fi
+
 # 1. Clear Port 6936
 echo "[1/4] Clearing port 6936..."
 PID=$(lsof -t -i:6936)

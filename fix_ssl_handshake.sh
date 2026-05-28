@@ -5,23 +5,26 @@
 
 echo ">>> Fixing Nginx Protocol Conflicts & SSL Handshake..."
 
-# 1. Identify the config file causing the warning
-TARGET_CONF="/www/server/panel/vhost/nginx/suropara.com.conf"
+# 1. Identify the config files causing warnings
+TARGET_FILES=(
+    "/www/server/panel/vhost/nginx/suropara.com.conf"
+    "/www/server/panel/vhost/nginx/slofinace.website.conf"
+    "/www/server/panel/vhost/nginx/slopara.com.conf"
+)
 
-if [ -f "$TARGET_CONF" ]; then
-    echo "[1/3] Fixing Protocol Warning in $TARGET_CONF..."
-    # Replace 'listen 443 ssl http2;' with 'listen 443 ssl;' to stop protocol redefined warning
-    # Modern Nginx versions (which aaPanel uses) prefer 'http2 on;' inside the server block
-    sed -i 's/listen 443 ssl http2;/listen 443 ssl;/g' "$TARGET_CONF"
-    
-    # Check if 'http2 on;' is already there, if not, add it after 'server_name'
-    if ! grep -q "http2 on;" "$TARGET_CONF"; then
-        sed -i '/server_name/a \    http2 on;' "$TARGET_CONF"
+for TARGET_CONF in "${TARGET_FILES[@]}"; do
+    if [ -f "$TARGET_CONF" ]; then
+        echo "[1/3] Fixing Protocol Warning in $TARGET_CONF..."
+        # Replace 'listen 443 ssl http2;' with 'listen 443 ssl;' to stop protocol redefined warning
+        sed -i 's/listen 443 ssl http2;/listen 443 ssl;/g' "$TARGET_CONF"
+        
+        # Check if 'http2 on;' is already there, if not, add it after 'server_name'
+        if ! grep -q "http2 on;" "$TARGET_CONF"; then
+            sed -i '/server_name/a \    http2 on;' "$TARGET_CONF"
+        fi
+        echo "Done fixing $TARGET_CONF."
     fi
-    echo "Done."
-else
-    echo "WARNING: $TARGET_CONF not found. Skipping sed fix."
-fi
+done
 
 # 2. Optimize SSL Session Settings (Fixes "Secure Handshake" hanging)
 echo "[2/3] Optimizing SSL Session parameters..."
