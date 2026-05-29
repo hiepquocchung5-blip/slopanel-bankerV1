@@ -11,7 +11,7 @@ interface Player {
   phone_number: string;
   is_active: boolean;
   vip_tier: string;
-  balance: string;
+  slopara_coins: string;
   lifetime_deposit: string;
 }
 
