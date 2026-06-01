@@ -5,7 +5,7 @@ import { API } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import { 
   Ban, Coins, Loader2, Landmark, Shield, 
-  ShieldCheck, UserX, ShieldAlert, X, ChevronRight, 
+  ShieldCheck, User, UserX, ShieldAlert, X, ChevronRight, 
   Delete, RotateCcw, CheckCircle2, LayoutDashboard, Users, CreditCard
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
