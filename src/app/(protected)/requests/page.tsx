@@ -34,7 +34,33 @@ export default function AuditQueuePage() {
   const fetchTxs = async () => {
     try {
       const res = await apiClient.get(API_ENDPOINTS.BANKER.TRANSACTIONS) as any;
-      setTxs(res.data?.results || res.data || []);
+      const newTxs = res.data?.results || res.data || [];
+      
+      // V2: Detect new pending transactions for alerting
+      const currentPendingIds = new Set(txs.filter(t => t.status === 'PENDING').map(t => t.id));
+      const hasNewPending = newTxs.some((t: any) => t.status === 'PENDING' && !currentPendingIds.has(t.id));
+
+      if (hasNewPending && txs.length > 0) {
+        toast.success('NEW PENDING REQUEST DETECTED!', {
+          icon: '🔔',
+          duration: 6000,
+          style: {
+            borderRadius: '10px',
+            background: '#333',
+            color: '#fff',
+            fontWeight: 'bold',
+            border: '1px solid #fbbf24'
+          },
+        });
+        
+        // Play notification sound if browser allows
+        try {
+          const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+          audio.play().catch(() => {}); 
+        } catch (e) {}
+      }
+
+      setTxs(newTxs);
     } catch (e) {
       toast.error('Failed to sync transaction queue');
     } finally {
@@ -88,18 +114,20 @@ export default function AuditQueuePage() {
           <p className="text-neutral-500 text-sm font-medium uppercase tracking-widest mt-1">Real-time Financial Ledger</p>
         </div>
 
-        <div className="flex bg-neutral-900/50 p-1 rounded-xl border border-white/5">
+        <div className="flex bg-neutral-900/50 p-1 rounded-xl border border-white/5 backdrop-blur-md">
           <button 
             onClick={() => setActiveTab('DEPOSIT')}
-            className={`px-6 py-2 rounded-lg text-xs font-black transition-all ${activeTab === 'DEPOSIT' ? 'bg-amber-500 text-black shadow-lg' : 'text-neutral-500 hover:text-white'}`}
+            className={`relative px-6 py-2 rounded-lg text-xs font-black transition-all duration-300 ease-out ${activeTab === 'DEPOSIT' ? 'bg-amber-500 text-black shadow-[0_0_20px_rgba(245,158,11,0.4)] scale-105 z-10' : 'text-neutral-500 hover:text-white hover:bg-white/5'}`}
           >
             DEPOSITS
+            {activeTab === 'DEPOSIT' && <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-black rounded-full" />}
           </button>
           <button 
             onClick={() => setActiveTab('WITHDRAW')}
-            className={`px-6 py-2 rounded-lg text-xs font-black transition-all ${activeTab === 'WITHDRAW' ? 'bg-amber-500 text-black shadow-lg' : 'text-neutral-500 hover:text-white'}`}
+            className={`relative px-6 py-2 rounded-lg text-xs font-black transition-all duration-300 ease-out ${activeTab === 'WITHDRAW' ? 'bg-amber-500 text-black shadow-[0_0_20px_rgba(245,158,11,0.4)] scale-105 z-10' : 'text-neutral-500 hover:text-white hover:bg-white/5'}`}
           >
             WITHDRAWALS
+            {activeTab === 'WITHDRAW' && <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-black rounded-full" />}
           </button>
         </div>
       </div>
