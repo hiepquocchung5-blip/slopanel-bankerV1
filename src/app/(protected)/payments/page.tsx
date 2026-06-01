@@ -13,7 +13,8 @@ interface PaymentMethod {
   bank_account: string;
   account_name: string;
   is_active: boolean;
-  created_by: number;
+  created_by: number | null;
+  created_by_name: string;
 }
 
 export default function PaymentsPage() {
@@ -29,6 +30,7 @@ export default function PaymentsPage() {
   const [newName, setNewName] = useState('');
 
   const isManagement = user?.is_staff || user?.is_cashier;
+  const isAdmin = user?.is_staff;
   const canManage = isManagement || user?.user_type === 'AGENT' || user?.user_type === 'VIP';
 
   const fetchMethods = useCallback(async () => {
@@ -231,62 +233,73 @@ export default function PaymentsPage() {
                 <p className="text-sm font-black tracking-[0.4em] uppercase text-slate-400">No Active Protocols</p>
              </div>
            ) : (
-             methods.map(m => (
-               <div key={m.id} className={cn(
-                 "bg-white border-2 p-8 rounded-[40px] flex flex-col lg:flex-row justify-between items-center text-center lg:text-left gap-10 shadow-sm transition-all duration-500",
-                 m.is_active ? "border-teal-500/20" : "border-slate-100 opacity-60 grayscale-[0.5]"
-               )}>
-                  <div className="flex flex-col items-center lg:items-start flex-1">
-                     <div className="flex items-center gap-4 mb-5">
-                        <div className={cn(
-                          "w-3 h-3 rounded-full shadow-lg",
-                          m.is_active ? "bg-green-500 animate-pulse" : "bg-slate-300"
-                        )} />
-                        <span className="text-[12px] font-black text-teal-600 tracking-[0.4em] uppercase">{m.bank_name}</span>
-                     </div>
-                     <p className="text-4xl lg:text-5xl font-black text-slate-900 tracking-tighter tabular-nums leading-none mb-3">{m.bank_account}</p>
-                     <div className="flex items-center gap-2">
-                        <User size={14} className="text-slate-400" />
-                        <p className="text-sm font-bold text-slate-500 uppercase tracking-widest">{m.account_name}</p>
-                     </div>
-                  </div>
-                  
-                  <div className="flex flex-col items-center lg:items-end gap-6">
-                     <div className="flex items-center gap-2">
-                        <button 
-                          onClick={() => startEdit(m)}
-                          className="px-4 py-2 bg-slate-900 text-white text-[10px] font-black tracking-widest uppercase rounded-xl hover:bg-black transition-all"
-                        >
-                          Edit
-                        </button>
-                        <button 
-                          onClick={() => handleDelete(m.id)}
-                          disabled={processingId === m.id}
-                          className="px-4 py-2 bg-red-600 text-white text-[10px] font-black tracking-widest uppercase rounded-xl hover:bg-red-700 transition-all"
-                        >
-                          Delete
-                        </button>
-                     </div>
+             methods.map(m => {
+               const isOwner = m.created_by === user?.id;
+               const canEdit = isAdmin || isOwner;
 
-                     <div className="flex items-center gap-4 border-t border-slate-100 pt-6 lg:border-none lg:pt-0">
-                        <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Status</span>
-                        <button 
-                          disabled={processingId !== null}
-                          onClick={() => handleToggle(m.id, m.is_active)}
-                          className="p-1 hover:scale-105 active:scale-90 transition-all disabled:opacity-50"
-                        >
-                           {processingId === m.id ? (
-                             <Loader2 size={32} className="animate-spin text-teal-600" />
-                           ) : m.is_active ? (
-                             <ToggleRight size={48} className="text-teal-600" />
-                           ) : (
-                             <ToggleLeft size={48} className="text-slate-200" />
-                           )}
-                        </button>
-                     </div>
-                  </div>
-               </div>
-             ))
+               return (
+                 <div key={m.id} className={cn(
+                   "bg-white border-2 p-8 rounded-[40px] flex flex-col lg:flex-row justify-between items-center text-center lg:text-left gap-10 shadow-sm transition-all duration-500",
+                   m.is_active ? "border-teal-500/20" : "border-slate-100 opacity-60 grayscale-[0.5]"
+                 )}>
+                    <div className="flex flex-col items-center lg:items-start flex-1">
+                       <div className="flex items-center gap-4 mb-5">
+                          <div className={cn(
+                            "w-3 h-3 rounded-full shadow-lg",
+                            m.is_active ? "bg-green-500 animate-pulse" : "bg-slate-300"
+                          )} />
+                          <span className="text-[12px] font-black text-teal-600 tracking-[0.4em] uppercase">{m.bank_name}</span>
+                          <span className="text-[9px] font-black bg-slate-100 text-slate-400 px-2 py-0.5 rounded uppercase tracking-tighter">Owner: {m.created_by_name}</span>
+                       </div>
+                       <p className="text-4xl lg:text-5xl font-black text-slate-900 tracking-tighter tabular-nums leading-none mb-3">{m.bank_account}</p>
+                       <div className="flex items-center gap-2">
+                          <User size={14} className="text-slate-400" />
+                          <p className="text-sm font-bold text-slate-500 uppercase tracking-widest">{m.account_name}</p>
+                       </div>
+                    </div>
+                    
+                    <div className="flex flex-col items-center lg:items-end gap-6">
+                       {canEdit && (
+                         <div className="flex items-center gap-2">
+                            <button 
+                              onClick={() => startEdit(m)}
+                              className="px-4 py-2 bg-slate-900 text-white text-[10px] font-black tracking-widest uppercase rounded-xl hover:bg-black transition-all"
+                            >
+                              Edit
+                            </button>
+                            <button 
+                              onClick={() => handleDelete(m.id)}
+                              disabled={processingId === m.id}
+                              className="px-4 py-2 bg-red-600 text-white text-[10px] font-black tracking-widest uppercase rounded-xl hover:bg-red-700 transition-all"
+                            >
+                              Delete
+                            </button>
+                         </div>
+                       )}
+
+                       <div className="flex items-center gap-4 border-t border-slate-100 pt-6 lg:border-none lg:pt-0">
+                          <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Status</span>
+                          <button 
+                            disabled={processingId !== null || !canEdit}
+                            onClick={() => handleToggle(m.id, m.is_active)}
+                            className={cn(
+                              "p-1 hover:scale-105 active:scale-90 transition-all disabled:opacity-50",
+                              !canEdit && "cursor-not-allowed opacity-30"
+                            )}
+                          >
+                             {processingId === m.id ? (
+                               <Loader2 size={32} className="animate-spin text-teal-600" />
+                             ) : m.is_active ? (
+                               <ToggleRight size={48} className="text-teal-600" />
+                             ) : (
+                               <ToggleLeft size={48} className="text-slate-200" />
+                             )}
+                          </button>
+                       </div>
+                    </div>
+                 </div>
+               );
+             })
            )}
         </div>
       </div>

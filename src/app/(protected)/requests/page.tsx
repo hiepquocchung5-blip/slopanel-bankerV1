@@ -21,6 +21,12 @@ interface Transaction {
   bank_info: string;
   created_at: string;
   screenshot: string | null;
+  payment_method_details?: {
+    bank_name: string;
+    bank_account: string;
+    account_name: string;
+    created_by_name: string;
+  };
 }
 
 export default function AuditQueuePage() {
@@ -203,7 +209,16 @@ export default function AuditQueuePage() {
                     </div>
                   </td>
                   <td className="p-4 font-black">{tx.tx_type}</td>
-                  <td className="p-4 font-black text-amber-500">{Number(tx.amount).toLocaleString()}</td>
+                  <td className="p-4">
+                    <div className="flex flex-col gap-1">
+                      <span className="font-black text-amber-500">{Number(tx.amount).toLocaleString()}</span>
+                      {tx.payment_method_details && (
+                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">
+                          via {tx.payment_method_details.bank_name} ({tx.payment_method_details.account_name})
+                        </span>
+                      )}
+                    </div>
+                  </td>
                   <td className="p-4">
                     <div className="flex flex-col gap-1">
                        <span className="font-bold text-neutral-400">{tx.txd_id || '-'}</span>
