@@ -5,6 +5,11 @@ export const API = {
     const token = typeof window !== 'undefined' ? localStorage.getItem('banker_token') : null;
     const method = (options.method || 'GET').toUpperCase();
     
+    // Normalize URL to prevent double slashes
+    const baseUrl = CONFIG.API_BASE.replace(/\/$/, '');
+    const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    const url = `${baseUrl}${cleanEndpoint}`;
+
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       'X-Suro-App-Sign': 'Suropara_Stealth_V2_2026!',
@@ -16,36 +21,35 @@ export const API = {
     }
 
     try {
-      const res = await fetch(`${CONFIG.API_BASE}${endpoint}`, {
+      const res = await fetch(url, {
         ...options,
         cache: options.cache ?? (method === 'GET' ? 'no-store' : options.cache),
         headers,
       });
 
       if (res.status === 401 || res.status === 403) {
-        if (typeof window !== 'undefined') {
+        if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
           localStorage.removeItem('banker_token');
           window.location.href = '/login';
         }
-        throw new Error("Session Expired or Unauthorized");
+        throw { message: "Session Expired or Unauthorized", status: res.status };
       }
 
       const isJson = res.headers.get('content-type')?.includes('application/json');
       const data = isJson ? await res.json() : null;
 
       if (!res.ok) {
-        throw new Error(data?.error || data?.detail || "API Request Failed");
+        console.error(`[API ERROR] ${res.status} ${cleanEndpoint}:`, data);
+        throw { message: data?.error || data?.detail || "API Request Failed", status: res.status, data };
       }
 
       return data as T;
-    } catch (error: unknown) {
-      const err = error as { name?: string; message?: string };
-      if (err.name === 'TypeError' && err.message === 'Failed to fetch') {
-        console.error(`[NETWORK ERROR] Could not connect to ${CONFIG.API_BASE}${endpoint}. Check CORS settings or server status.`);
-      } else {
-        console.error(`[API ERROR] ${endpoint}:`, err.message || 'Unknown error');
-      }
-      throw error;
+    } catch (error: any) {
+      if (error.status) throw error;
+
+      const errMessage = error.message || 'Unknown network error';
+      console.error(`[NETWORK ERROR] ${cleanEndpoint}:`, errMessage);
+      throw { message: errMessage };
     }
   },
 
