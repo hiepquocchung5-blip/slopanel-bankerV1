@@ -16,15 +16,12 @@ interface PaymentMethod {
   created_by: number;
 }
 
-interface ToggleMethodResponse {
-  is_active: boolean;
-}
-
 export default function PaymentsPage() {
   const { user } = useAuth();
   const [methods, setMethods] = useState<PaymentMethod[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
   const [processingId, setProcessingId] = useState<number | null>(null);
 
   const [newBank, setNewBank] = useState('');
@@ -32,6 +29,7 @@ export default function PaymentsPage() {
   const [newName, setNewName] = useState('');
 
   const isManagement = user?.is_staff || user?.is_cashier;
+  const canManage = isManagement || user?.user_type === 'AGENT' || user?.user_type === 'VIP';
 
   const fetchMethods = useCallback(async () => {
     setIsLoading(true);
@@ -54,7 +52,7 @@ export default function PaymentsPage() {
     setProcessingId(id);
     try {
       const endpoint = isManagement ? `payments/admin/methods/${id}/` : `payments/agent/methods/${id}/`;
-      const res = await API.request<ToggleMethodResponse>(endpoint, {
+      const res = await API.request<any>(endpoint, {
         method: 'PATCH',
         body: JSON.stringify({ is_active: !currentStatus }),
       });
@@ -77,15 +75,71 @@ export default function PaymentsPage() {
       });
       setMethods((prev) => [res, ...prev]);
       setIsAdding(false);
-      setNewBank('');
-      setNewAcc('');
-      setNewName('');
+      resetForm();
     } catch {
       console.error('Add failed');
     } finally {
       setProcessingId(null);
     }
   };
+
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingId) return;
+    setProcessingId(editingId);
+    try {
+      const endpoint = isManagement ? `payments/admin/methods/${editingId}/` : `payments/agent/methods/${editingId}/`;
+      const res = await API.request<PaymentMethod>(endpoint, {
+        method: 'PATCH',
+        body: JSON.stringify({ bank_name: newBank, bank_account: newAcc, account_name: newName }),
+      });
+      setMethods((prev) => prev.map(m => m.id === editingId ? res : m));
+      setEditingId(null);
+      resetForm();
+    } catch {
+      console.error('Update failed');
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!confirm('Permanently delete this payment method?')) return;
+    setProcessingId(id);
+    try {
+      const endpoint = isManagement ? `payments/admin/methods/${id}/` : `payments/agent/methods/${id}/`;
+      await API.request(endpoint, { method: 'DELETE' });
+      setMethods((prev) => prev.filter(m => m.id !== id));
+    } catch {
+      console.error('Delete failed');
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
+  const resetForm = () => {
+    setNewBank('');
+    setNewAcc('');
+    setNewName('');
+  };
+
+  const startEdit = (m: PaymentMethod) => {
+    setEditingId(m.id);
+    setNewBank(m.bank_name);
+    setNewAcc(m.bank_account);
+    setNewName(m.account_name);
+    setIsAdding(true);
+  };
+
+  if (!canManage) {
+    return (
+      <div className="py-40 text-center">
+         <AlertCircle size={64} className="mx-auto text-red-500 mb-6 opacity-20" />
+         <h2 className="text-2xl font-black text-slate-400 uppercase tracking-widest">Unauthorized Access</h2>
+         <p className="text-slate-500 mt-2 font-bold uppercase text-[10px] tracking-widest">Clearance Level AGENT or Higher Required</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-12 animate-in fade-in duration-500">
@@ -97,7 +151,10 @@ export default function PaymentsPage() {
 
       <div className="space-y-8">
         <button 
-          onClick={() => setIsAdding(!isAdding)}
+          onClick={() => {
+            if (isAdding) { setEditingId(null); resetForm(); }
+            setIsAdding(!isAdding);
+          }}
           className={cn(
             "w-full h-16 rounded-[24px] font-black text-base tracking-widest uppercase transition-all flex items-center justify-center gap-3 shadow-sm",
             isAdding ? "bg-slate-100 text-slate-500 border border-slate-200" : "btn-primary"
@@ -109,7 +166,7 @@ export default function PaymentsPage() {
 
         {isAdding && (
           <div className="bg-white border border-teal-200 p-10 rounded-[32px] animate-in slide-in-from-top duration-300 shadow-lg text-center">
-             <form onSubmit={handleAdd} className="space-y-6">
+             <form onSubmit={editingId ? handleUpdate : handleAdd} className="space-y-6">
                 <div className="space-y-3">
                    <p className="text-[11px] font-black text-slate-400 tracking-[0.2em] uppercase">Financial Institution</p>
                    <div className="relative">
@@ -153,11 +210,11 @@ export default function PaymentsPage() {
                 </div>
 
                 <button 
-                  disabled={processingId === -1}
+                  disabled={processingId !== null}
                   className="w-full btn-primary h-16 rounded-[24px] mt-8 text-base shadow-md"
                 >
-                  {processingId === -1 && <Loader2 size={24} className="animate-spin" />}
-                  COMMIT TO REGISTRY
+                  {processingId !== null && processingId === (editingId || -1) && <Loader2 size={24} className="animate-spin mr-2" />}
+                  {editingId ? 'UPDATE GATEWAY' : 'COMMIT TO REGISTRY'}
                 </button>
              </form>
           </div>
@@ -176,10 +233,10 @@ export default function PaymentsPage() {
            ) : (
              methods.map(m => (
                <div key={m.id} className={cn(
-                 "bg-white border-2 p-8 rounded-[40px] flex flex-col md:flex-row justify-between items-center text-center md:text-left gap-10 shadow-sm transition-all duration-500",
+                 "bg-white border-2 p-8 rounded-[40px] flex flex-col lg:flex-row justify-between items-center text-center lg:text-left gap-10 shadow-sm transition-all duration-500",
                  m.is_active ? "border-teal-500/20" : "border-slate-100 opacity-60 grayscale-[0.5]"
                )}>
-                  <div className="flex flex-col items-center md:items-start flex-1">
+                  <div className="flex flex-col items-center lg:items-start flex-1">
                      <div className="flex items-center gap-4 mb-5">
                         <div className={cn(
                           "w-3 h-3 rounded-full shadow-lg",
@@ -187,36 +244,43 @@ export default function PaymentsPage() {
                         )} />
                         <span className="text-[12px] font-black text-teal-600 tracking-[0.4em] uppercase">{m.bank_name}</span>
                      </div>
-                     <p className="text-5xl font-black text-slate-900 tracking-tighter tabular-nums leading-none mb-3">{m.bank_account}</p>
+                     <p className="text-4xl lg:text-5xl font-black text-slate-900 tracking-tighter tabular-nums leading-none mb-3">{m.bank_account}</p>
                      <div className="flex items-center gap-2">
                         <User size={14} className="text-slate-400" />
                         <p className="text-sm font-bold text-slate-500 uppercase tracking-widest">{m.account_name}</p>
                      </div>
                   </div>
                   
-                  <div className="flex flex-col items-center md:items-end gap-8">
-                     <div className={cn(
-                       "text-[11px] font-black tracking-[0.2em] uppercase px-6 py-2 rounded-full border-2 shadow-sm transition-all duration-500",
-                       m.is_active 
-                         ? "bg-green-50 text-green-700 border-green-200" 
-                         : "bg-slate-50 text-slate-400 border-slate-200"
-                     )}>
-                        {m.is_active ? 'Registry_Online' : 'Node_Offline'}
+                  <div className="flex flex-col items-center lg:items-end gap-6">
+                     <div className="flex items-center gap-2">
+                        <button 
+                          onClick={() => startEdit(m)}
+                          className="px-4 py-2 bg-slate-900 text-white text-[10px] font-black tracking-widest uppercase rounded-xl hover:bg-black transition-all"
+                        >
+                          Edit
+                        </button>
+                        <button 
+                          onClick={() => handleDelete(m.id)}
+                          disabled={processingId === m.id}
+                          className="px-4 py-2 bg-red-600 text-white text-[10px] font-black tracking-widest uppercase rounded-xl hover:bg-red-700 transition-all"
+                        >
+                          Delete
+                        </button>
                      </div>
-                     
-                     <div className="flex items-center gap-4">
-                        <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Toggle Status</span>
+
+                     <div className="flex items-center gap-4 border-t border-slate-100 pt-6 lg:border-none lg:pt-0">
+                        <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Status</span>
                         <button 
                           disabled={processingId !== null}
                           onClick={() => handleToggle(m.id, m.is_active)}
                           className="p-1 hover:scale-105 active:scale-90 transition-all disabled:opacity-50"
                         >
                            {processingId === m.id ? (
-                             <Loader2 size={44} className="animate-spin text-teal-600" />
+                             <Loader2 size={32} className="animate-spin text-teal-600" />
                            ) : m.is_active ? (
-                             <ToggleRight size={64} className="text-teal-600 drop-shadow-md" />
+                             <ToggleRight size={48} className="text-teal-600" />
                            ) : (
-                             <ToggleLeft size={64} className="text-slate-200" />
+                             <ToggleLeft size={48} className="text-slate-200" />
                            )}
                         </button>
                      </div>

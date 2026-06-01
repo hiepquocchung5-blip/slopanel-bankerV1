@@ -232,15 +232,17 @@ export default function PlayersPage() {
 
               <div className="flex items-center gap-3">
                 {isAdmin && (
+                  <button
+                    onClick={() => setActiveRolePlayer(p)}
+                    className="h-16 px-6 rounded-2xl bg-white border border-slate-200 text-slate-900 font-black uppercase tracking-widest text-[11px] flex items-center gap-3 hover:bg-slate-50 transition-all active:scale-95 shadow-sm"
+                  >
+                    <Shield size={18} className="text-teal-500" />
+                    Role
+                  </button>
+                )}
+
+                {isManagement && (
                   <>
-                    <button
-                      onClick={() => setActiveRolePlayer(p)}
-                      className="h-16 px-6 rounded-2xl bg-white border border-slate-200 text-slate-900 font-black uppercase tracking-widest text-[11px] flex items-center gap-3 hover:bg-slate-50 transition-all active:scale-95 shadow-sm"
-                    >
-                      <Shield size={18} className="text-teal-500" />
-                      Role
-                    </button>
-                    
                     <button
                       onClick={() => setActiveTopupPlayer(p)}
                       className="h-16 px-8 rounded-2xl bg-slate-900 text-white font-black uppercase tracking-widest text-[11px] flex items-center gap-3 hover:bg-black transition-all active:scale-95 shadow-lg"
