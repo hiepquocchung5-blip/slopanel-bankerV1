@@ -38,8 +38,33 @@ export default function GlobalHeader() {
   const currentItem = navItems.find(item => item.href === pathname);
   const pageTitle = currentItem?.label || 'Terminal';
 
+  const isImpersonating = typeof window !== 'undefined' && !!sessionStorage.getItem('original_banker_token');
+
+  const handleSwitchBack = () => {
+    const originalToken = sessionStorage.getItem('original_banker_token');
+    if (originalToken) {
+      localStorage.setItem('banker_token', originalToken);
+      sessionStorage.removeItem('original_banker_token');
+      window.location.href = '/';
+    }
+  };
+
   return (
     <header className="fixed inset-x-0 top-0 z-[10001] border-b border-white/20 bg-white/70 backdrop-blur-2xl shadow-[0_8px_32px_0_rgba(15,23,42,0.08)]">
+      {isImpersonating && (
+        <div className="bg-slate-900 text-white px-4 py-2 flex items-center justify-between animate-in slide-in-from-top duration-500 border-b border-white/10">
+           <div className="flex items-center gap-2">
+              <ShieldAlert size={14} className="text-amber-500" />
+              <span className="text-[10px] font-black uppercase tracking-widest">Support Mode: Impersonating {user.phone_number}</span>
+           </div>
+           <button 
+             onClick={handleSwitchBack}
+             className="bg-amber-500 text-black px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-tighter hover:bg-amber-400 transition-colors"
+           >
+              Return to Admin
+           </button>
+        </div>
+      )}
       <div className="mx-auto w-full max-w-[1500px] px-4 sm:px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between gap-4">
           <div className="flex min-w-0 items-center gap-4 sm:gap-8">

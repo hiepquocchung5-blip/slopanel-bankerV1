@@ -41,9 +41,8 @@ export default function PlayersPage() {
   const isAdmin = user?.is_staff;
   const isManagement = user?.is_staff || user?.is_cashier;
 
-  const handleSearch = async (e?: React.FormEvent) => {
+  const handleSearch = useCallback(async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!searchQuery.trim()) return;
     
     setIsLoading(true);
     try {
@@ -54,7 +53,11 @@ export default function PlayersPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [searchQuery]);
+
+  useEffect(() => {
+    handleSearch();
+  }, []);
 
   const handleToggleBan = async (id: number) => {
     if (!isAdmin) return;
@@ -66,6 +69,37 @@ export default function PlayersPage() {
       setPlayers((prev) => prev.map((p) => (p.id === id ? { ...p, is_active: res.is_active } : p)));
     } catch {
       console.error('Toggle ban failed');
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
+  const handleClearSession = async (id: number) => {
+    if (!confirm('This will force the player out of all machines. Proceed?')) return;
+    setProcessingId(id);
+    try {
+      await API.request(`users/admin/players/${id}/clear-session/`, { method: 'POST' });
+      alert('Active sessions cleared successfully.');
+    } catch {
+      alert('Failed to clear sessions.');
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
+  const handleImpersonate = async (id: number) => {
+    if (!confirm('Login as this user for support? Your current session will be saved in memory.')) return;
+    setProcessingId(id);
+    try {
+      const res = await API.request<{ access: string }>(`users/admin/players/${id}/impersonate/`, { method: 'POST' });
+      // Save current token in session storage to allow "Switch Back" (Future Feature)
+      const currentToken = localStorage.getItem('banker_token');
+      if (currentToken) sessionStorage.setItem('original_banker_token', currentToken);
+      
+      localStorage.setItem('banker_token', res.access);
+      window.location.href = '/'; // Reload to apply new identity
+    } catch {
+      alert('Impersonation Failed. Root clearance required.');
     } finally {
       setProcessingId(null);
     }
@@ -143,13 +177,24 @@ export default function PlayersPage() {
         </div>
 
         <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-4">
-          <input 
-            type="text" 
-            placeholder="Input Phone or Username..." 
-            className="flex-1 bg-white/5 border border-white/10 rounded-2xl px-8 py-5 text-white text-lg placeholder:text-slate-600 focus:outline-none focus:border-amber-500/50 transition-all focus:ring-4 focus:ring-amber-500/5"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+          <div className="flex-1 relative">
+            <input 
+              type="text" 
+              placeholder="Input Phone or Username..." 
+              className="w-full bg-white/5 border border-white/10 rounded-2xl px-8 py-5 text-white text-lg placeholder:text-slate-600 focus:outline-none focus:border-amber-500/50 transition-all focus:ring-4 focus:ring-amber-500/5"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            {searchQuery && (
+              <button 
+                type="button"
+                onClick={() => { setSearchQuery(''); setPlayers([]); handleSearch(); }}
+                className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors"
+              >
+                <X size={20} />
+              </button>
+            )}
+          </div>
           <button 
             type="submit" 
             disabled={isLoading}
@@ -230,7 +275,29 @@ export default function PlayersPage() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-3">
+                {isManagement && (
+                  <button
+                    disabled={processingId === p.id}
+                    onClick={() => handleClearSession(p.id)}
+                    className="h-16 px-5 rounded-2xl bg-white border border-slate-200 text-slate-400 hover:text-red-500 hover:border-red-100 transition-all active:scale-95 shadow-sm group"
+                    title="Force Exit Session"
+                  >
+                    {processingId === p.id ? <Loader2 size={18} className="animate-spin" /> : <RotateCcw size={18} />}
+                  </button>
+                )}
+
+                {user?.is_staff && (
+                  <button
+                    disabled={processingId === p.id}
+                    onClick={() => handleImpersonate(p.id)}
+                    className="h-16 px-5 rounded-2xl bg-white border border-slate-200 text-slate-400 hover:text-teal-500 hover:border-teal-100 transition-all active:scale-95 shadow-sm"
+                    title="Login As User"
+                  >
+                    {processingId === p.id ? <Loader2 size={18} className="animate-spin" /> : <User size={18} />}
+                  </button>
+                )}
+
                 {isAdmin && (
                   <button
                     onClick={() => setActiveRolePlayer(p)}
