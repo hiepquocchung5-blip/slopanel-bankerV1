@@ -164,7 +164,7 @@ export default function AgentNetworkPage() {
                             <button 
                               key={link.id}
                               onClick={() => {
-                                navigator.clipboard.writeText(`refslopara.online/${link.slug}`);
+                                navigator.clipboard.writeText(`tinyslo.site/${link.slug}`);
                                 toast.success(`Link copied: ${link.slug}`);
                               }}
                               className="px-3 py-1 rounded-lg bg-slate-100 text-slate-600 text-[10px] font-black uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all border border-slate-200"
@@ -231,7 +231,7 @@ export default function AgentNetworkPage() {
                    <div className="space-y-2">
                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Custom Slug</label>
                       <div className="relative">
-                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 font-bold text-xs uppercase tracking-widest">refslopara.online/</span>
+                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 font-bold text-xs uppercase tracking-widest">tinyslo.site/</span>
                          <input 
                            type="text" 
                            placeholder="PRO_AGENT"
