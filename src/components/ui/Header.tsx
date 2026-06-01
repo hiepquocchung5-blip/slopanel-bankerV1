@@ -20,8 +20,9 @@ export default function GlobalHeader() {
   const navItems = [
     { label: 'Dash', icon: LayoutDashboard, href: '/' },
     { label: 'Payments', icon: CreditCard, href: '/payments' },
+    { label: 'Requests', icon: Zap, href: '/requests', managementOnly: true },
+    { label: 'Agents', icon: ShieldAlert, href: '/agents', managementOnly: true },
     { label: 'Players', icon: Users, href: '/players', managementOnly: true },
-    { label: 'Roles', icon: ShieldAlert, href: '/roles', adminOnly: true },
     { label: 'Stats', icon: BarChart2, href: '/analytics', managementOnly: true },
     { label: 'Configs', icon: Settings, href: '/settings' },
   ];

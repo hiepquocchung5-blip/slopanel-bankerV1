@@ -15,7 +15,9 @@ interface Player {
   id: number;
   phone_number: string;
   is_active: boolean;
-  vip_tier: string;
+  user_type: string;
+  is_staff: boolean;
+  is_cashier: boolean;
   slopara_coins: number;
   lifetime_deposit: string;
 }
@@ -31,8 +33,9 @@ export default function PlayersPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [processingId, setProcessingId] = useState<number | null>(null);
   
-  // Topup States
+  // States
   const [activeTopupPlayer, setActiveTopupPlayer] = useState<Player | null>(null);
+  const [activeRolePlayer, setActiveRolePlayer] = useState<Player | null>(null);
   const [coinAmount, setCoinAmount] = useState<string>('');
 
   const isAdmin = user?.is_staff;
@@ -63,6 +66,23 @@ export default function PlayersPage() {
       setPlayers((prev) => prev.map((p) => (p.id === id ? { ...p, is_active: res.is_active } : p)));
     } catch {
       console.error('Toggle ban failed');
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
+  const handleUpdateRole = async (id: number, role: string) => {
+    if (!isAdmin) return;
+    setProcessingId(id);
+    try {
+      await API.request(`users/admin/players/${id}/update-role/`, { 
+        method: 'POST',
+        body: JSON.stringify({ role })
+      });
+      setActiveRolePlayer(null);
+      handleSearch(); // Refresh list
+    } catch {
+      alert('Role Update Failed');
     } finally {
       setProcessingId(null);
     }
@@ -175,7 +195,12 @@ export default function PlayersPage() {
                     {p.phone_number}
                   </p>
                   <div className="mt-2 flex items-center gap-3">
-                    <span className="bg-slate-900 text-amber-500 px-3 py-1 rounded-lg text-[10px] font-black tracking-widest">{p.vip_tier || 'NORMAL'}</span>
+                    <span className={cn(
+                      "px-3 py-1 rounded-lg text-[10px] font-black tracking-widest uppercase",
+                      p.is_staff ? "bg-red-600 text-white" : p.is_cashier ? "bg-teal-600 text-white" : p.user_type === 'AGENT' ? "bg-blue-600 text-white" : "bg-slate-900 text-amber-500"
+                    )}>
+                      {p.is_staff ? 'ADMIN' : p.is_cashier ? 'CASHIER' : p.user_type}
+                    </span>
                     <div className="h-1 w-1 rounded-full bg-slate-200" />
                     <span className="flex items-center gap-1.5 text-[10px] font-black text-slate-400 tracking-widest uppercase">
                        ID_{p.id.toString().padStart(6, '0')}
@@ -208,6 +233,14 @@ export default function PlayersPage() {
               <div className="flex items-center gap-3">
                 {isAdmin && (
                   <>
+                    <button
+                      onClick={() => setActiveRolePlayer(p)}
+                      className="h-16 px-6 rounded-2xl bg-white border border-slate-200 text-slate-900 font-black uppercase tracking-widest text-[11px] flex items-center gap-3 hover:bg-slate-50 transition-all active:scale-95 shadow-sm"
+                    >
+                      <Shield size={18} className="text-teal-500" />
+                      Role
+                    </button>
+                    
                     <button
                       onClick={() => setActiveTopupPlayer(p)}
                       className="h-16 px-8 rounded-2xl bg-slate-900 text-white font-black uppercase tracking-widest text-[11px] flex items-center gap-3 hover:bg-black transition-all active:scale-95 shadow-lg"
@@ -335,6 +368,75 @@ export default function PlayersPage() {
                           Finalize Top-Up
                         </>
                      )}
+                   </button>
+                </div>
+             </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* --- ROLE MANAGEMENT MODAL --- */}
+      <AnimatePresence>
+        {activeRolePlayer && (
+          <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
+             <motion.div 
+               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+               onClick={() => setActiveRolePlayer(null)}
+               className="absolute inset-0 bg-slate-950/80 backdrop-blur-xl" 
+             />
+             
+             <motion.div 
+               initial={{ opacity: 0, scale: 0.9, y: 20 }}
+               animate={{ opacity: 1, scale: 1, y: 0 }}
+               exit={{ opacity: 0, scale: 0.9, y: 20 }}
+               className="relative w-full max-w-[450px] bg-white rounded-[50px] shadow-2xl overflow-hidden"
+             >
+                <div className="p-8 md:p-10">
+                   <div className="flex justify-between items-center mb-8">
+                      <div className="bg-teal-500/10 border border-teal-500/20 px-5 py-2 rounded-full flex items-center gap-2">
+                         <ShieldCheck size={16} className="text-teal-600" />
+                         <span className="text-[10px] font-black text-teal-600 uppercase tracking-widest">Role Authorization</span>
+                      </div>
+                      <button onClick={() => setActiveRolePlayer(null)} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
+                         <X size={24} className="text-slate-400" />
+                      </button>
+                   </div>
+
+                   <div className="text-center mb-10">
+                      <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 text-center">Account ID</p>
+                      <h3 className="text-3xl font-black text-slate-900 text-center">{activeRolePlayer.phone_number}</h3>
+                   </div>
+
+                   <div className="grid grid-cols-1 gap-3 mb-8">
+                      {[
+                        { id: 'PLAYER', label: 'NORMAL PLAYER', desc: 'Standard user access', icon: LayoutDashboard },
+                        { id: 'AGENT', label: 'OFFICIAL AGENT', desc: 'Recruitment & Referral access', icon: Users },
+                        { id: 'CASHIER', label: 'FINANCE CASHIER', desc: 'Approve deposits/withdraws', icon: CreditCard },
+                        { id: 'ADMIN', label: 'SYSTEM ADMIN', desc: 'Full core access level 4', icon: ShieldAlert },
+                      ].map(role => (
+                        <button 
+                          key={role.id}
+                          onClick={() => handleUpdateRole(activeRolePlayer.id, role.id)}
+                          disabled={processingId !== null}
+                          className="p-5 bg-slate-50 border border-slate-200 rounded-2xl flex items-center gap-5 hover:bg-teal-50 hover:border-teal-500/30 transition-all group"
+                        >
+                           <div className="w-12 h-12 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-slate-400 group-hover:text-teal-600 shadow-sm transition-colors">
+                              <role.icon size={20} />
+                           </div>
+                           <div className="flex-1 text-left">
+                              <p className="text-xs font-black text-slate-900 uppercase tracking-widest">{role.label}</p>
+                              <p className="text-[10px] font-bold text-slate-400 uppercase mt-0.5">{role.desc}</p>
+                           </div>
+                           <ChevronRight size={16} className="text-slate-200 group-hover:text-teal-300" />
+                        </button>
+                      ))}
+                   </div>
+
+                   <button 
+                     onClick={() => setActiveRolePlayer(null)}
+                     className="w-full h-16 bg-slate-100 text-slate-500 font-black uppercase tracking-widest text-[10px] rounded-2xl hover:bg-slate-200 transition-all"
+                   >
+                     Cancel Authorization
                    </button>
                 </div>
              </motion.div>
