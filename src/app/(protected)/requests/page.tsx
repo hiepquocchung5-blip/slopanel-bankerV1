@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '@/lib/auth';
+import { useAuth } from '@/context/AuthContext';
 import { apiClient } from '@/lib/api';
 import { API_ENDPOINTS } from '@/lib/endpoints';
 import { toast } from 'react-hot-toast';
