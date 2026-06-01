@@ -31,6 +31,7 @@ export default function AuditQueuePage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [processingId, setProcessingId] = useState<number | null>(null);
+  const [expandedImage, setExpandedImage] = useState<string | null>(null);
 
   const fetchTxs = async () => {
     try {
@@ -207,14 +208,12 @@ export default function AuditQueuePage() {
                     <div className="flex flex-col gap-1">
                        <span className="font-bold text-neutral-400">{tx.txd_id || '-'}</span>
                        {tx.screenshot && (
-                         <a 
-                           href={tx.screenshot.startsWith('http') ? tx.screenshot : `https://api.suropara.com${tx.screenshot}`} 
-                           target="_blank" 
-                           rel="noopener noreferrer"
-                           className="text-[9px] text-amber-500 hover:underline flex items-center gap-1 font-black uppercase"
+                         <button 
+                           onClick={() => setExpandedImage(tx.screenshot?.startsWith('http') ? tx.screenshot : `https://api.suropara.com${tx.screenshot}`)}
+                           className="text-[9px] text-amber-500 hover:text-amber-400 flex items-center gap-1 font-black uppercase transition-colors"
                          >
                            <ImageIcon size={10} /> View Receipt
-                         </a>
+                         </button>
                        )}
                     </div>
                   </td>
@@ -228,18 +227,23 @@ export default function AuditQueuePage() {
                     </span>
                   </td>
                   <td className="p-4 text-xs font-bold text-neutral-500">
-                    {new Date(tx.created_at).toLocaleString('en-US', { 
-                      month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true 
-                    })}
+                    <span className="hidden lg:inline">
+                      {new Date(tx.created_at).toLocaleString('en-US', { 
+                        month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true 
+                      })}
+                    </span>
+                    <span className="lg:hidden">
+                      {new Date(tx.created_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
+                    </span>
                   </td>
                   <td className="p-4">
-                    <div className="flex justify-center gap-3">
+                    <div className="flex justify-center gap-2 lg:gap-3">
                       {tx.status === 'PENDING' && (
                         <>
                           <button 
                             onClick={() => handleAction(tx.id, 'approve')}
                             disabled={processingId === tx.id}
-                            className="flex h-10 w-10 items-center justify-center bg-green-500 text-black rounded-xl hover:bg-green-400 transition-all shadow-lg shadow-green-500/20 active:scale-90"
+                            className="flex h-10 w-10 lg:h-12 lg:w-12 items-center justify-center bg-green-500 text-black rounded-xl lg:rounded-2xl hover:bg-green-400 transition-all shadow-lg shadow-green-500/20 active:scale-90"
                             title="Authorize"
                           >
                             <CheckCircle2 size={18} strokeWidth={3} />
@@ -247,7 +251,7 @@ export default function AuditQueuePage() {
                           <button 
                             onClick={() => handleAction(tx.id, 'reject')}
                             disabled={processingId === tx.id}
-                            className="flex h-10 w-10 items-center justify-center bg-red-600 text-white rounded-xl hover:bg-red-500 transition-all shadow-lg shadow-red-500/20 active:scale-90"
+                            className="flex h-10 w-10 lg:h-12 lg:w-12 items-center justify-center bg-red-600 text-white rounded-xl lg:rounded-2xl hover:bg-red-500 transition-all shadow-lg shadow-red-500/20 active:scale-90"
                             title="Reject"
                           >
                             <XCircle size={18} strokeWidth={3} />
@@ -255,7 +259,7 @@ export default function AuditQueuePage() {
                         </>
                       )}
                       {tx.status !== 'PENDING' && (
-                        <div className="w-10 h-10 flex items-center justify-center opacity-30">
+                        <div className="w-10 h-10 lg:w-12 lg:h-12 flex items-center justify-center opacity-30">
                           {tx.status === 'APPROVED' ? <CheckCircle2 size={20} className="text-green-500" /> : <XCircle size={20} className="text-red-500" />}
                         </div>
                       )}
@@ -267,6 +271,29 @@ export default function AuditQueuePage() {
           </tbody>
         </table>
       </div>
+
+      {/* IMAGE EXPAND MODAL */}
+      {expandedImage && (
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-4 backdrop-blur-xl animate-in fade-in zoom-in duration-300"
+          onClick={() => setExpandedImage(null)}
+        >
+          <div className="relative max-w-4xl w-full max-h-[90vh] flex flex-col items-center">
+            <button 
+              className="absolute -top-12 right-0 text-white/50 hover:text-white flex items-center gap-2 font-black text-xs tracking-widest uppercase transition-colors"
+              onClick={() => setExpandedImage(null)}
+            >
+              Close <XCircle size={24} />
+            </button>
+            <img 
+              src={expandedImage} 
+              alt="Receipt" 
+              className="max-w-full max-h-full object-contain rounded-2xl border border-white/10 shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
