@@ -178,30 +178,30 @@ export default function AuditQueuePage() {
                     })}
                   </td>
                   <td className="p-4">
-                    <div className="flex justify-center gap-2">
+                    <div className="flex justify-center gap-3">
                       {tx.status === 'PENDING' && (
                         <>
                           <button 
                             onClick={() => handleAction(tx.id, 'approve')}
                             disabled={processingId === tx.id}
-                            className="p-2 bg-green-600 hover:bg-green-500 text-black rounded-lg transition-all"
-                            title="Approve"
+                            className="flex h-10 w-10 items-center justify-center bg-green-500 text-black rounded-xl hover:bg-green-400 transition-all shadow-lg shadow-green-500/20 active:scale-90"
+                            title="Authorize"
                           >
-                            <CheckCircle2 size={16} />
+                            <CheckCircle2 size={18} strokeWidth={3} />
                           </button>
                           <button 
                             onClick={() => handleAction(tx.id, 'reject')}
                             disabled={processingId === tx.id}
-                            className="p-2 bg-red-600 hover:bg-red-500 text-white rounded-lg transition-all"
+                            className="flex h-10 w-10 items-center justify-center bg-red-600 text-white rounded-xl hover:bg-red-500 transition-all shadow-lg shadow-red-500/20 active:scale-90"
                             title="Reject"
                           >
-                            <XCircle size={16} />
+                            <XCircle size={18} strokeWidth={3} />
                           </button>
                         </>
                       )}
                       {tx.status !== 'PENDING' && (
-                        <div className="w-8 h-8 flex items-center justify-center opacity-20">
-                          {tx.status === 'APPROVED' ? <CheckCircle2 size={16} className="text-green-500" /> : <XCircle size={16} className="text-red-500" />}
+                        <div className="w-10 h-10 flex items-center justify-center opacity-30">
+                          {tx.status === 'APPROVED' ? <CheckCircle2 size={20} className="text-green-500" /> : <XCircle size={20} className="text-red-500" />}
                         </div>
                       )}
                     </div>

@@ -10,6 +10,14 @@ import {
 import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
 
+interface NavItem {
+  label: string;
+  icon: any;
+  href: string;
+  managementOnly?: boolean;
+  adminOnly?: boolean;
+}
+
 export default function GlobalHeader() {
   const pathname = usePathname();
   const router = useRouter();
@@ -17,11 +25,11 @@ export default function GlobalHeader() {
 
   if (!user) return null;
 
-  const navItems = [
+  const navItems: NavItem[] = [
     { label: 'Dash', icon: LayoutDashboard, href: '/' },
     { label: 'Payments', icon: CreditCard, href: '/payments' },
     { label: 'Requests', icon: Zap, href: '/requests', managementOnly: true },
-    { label: 'Agents', icon: ShieldAlert, href: '/agents', managementOnly: true },
+    { label: 'Agents', icon: ShieldAlert, href: '/agents', adminOnly: true },
     { label: 'Players', icon: Users, href: '/players', managementOnly: true },
     { label: 'Stats', icon: BarChart2, href: '/analytics', managementOnly: true },
     { label: 'Configs', icon: Settings, href: '/settings' },

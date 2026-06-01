@@ -167,30 +167,31 @@ export default function AgentNetworkPage() {
                                 navigator.clipboard.writeText(`tinyslo.site/${link.slug}`);
                                 toast.success(`Link copied: ${link.slug}`);
                               }}
-                              className="px-3 py-1 rounded-lg bg-slate-100 text-slate-600 text-[10px] font-black uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all border border-slate-200"
+                              className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-[11px] font-black uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all border border-slate-200 active:scale-95"
                             >
-                               {link.slug} ({link.click_count})
+                               {link.slug} <span className="ml-1 opacity-50">[{link.click_count}]</span>
                             </button>
                           ))}
                           <button 
                             onClick={() => setActiveAgent(agent)}
-                            className="w-8 h-8 rounded-lg bg-teal-500 text-white flex items-center justify-center hover:bg-teal-600 transition-all active:scale-90 shadow-md shadow-teal-500/20"
+                            className="w-10 h-10 rounded-xl bg-teal-500 text-white flex items-center justify-center hover:bg-teal-600 transition-all active:scale-90 shadow-lg shadow-teal-500/20"
+                            title="Generate New Link"
                           >
-                             <Plus size={16} />
+                             <Plus size={20} strokeWidth={3} />
                           </button>
                        </div>
                     </td>
                     <td className="p-6">
-                       <p className="text-sm font-black text-slate-900 tabular-nums">
+                       <p className="text-base font-black text-slate-900 tabular-nums tracking-tight">
                           {parseFloat(agent.total_commission_earned).toLocaleString()} <span className="text-[10px] text-slate-400 font-bold ml-1 uppercase">Coins</span>
                        </p>
                     </td>
                     <td className="p-6">
                        <div className="flex justify-center gap-3">
-                          <button className="p-2.5 rounded-xl bg-slate-50 text-slate-400 hover:bg-slate-900 hover:text-white transition-all">
+                          <button className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-400 hover:bg-slate-900 hover:text-white transition-all active:scale-90">
                              <BarChart3 size={18} />
                           </button>
-                          <button className="p-2.5 rounded-xl bg-slate-50 text-slate-400 hover:bg-slate-900 hover:text-white transition-all">
+                          <button className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-400 hover:bg-slate-900 hover:text-white transition-all active:scale-90">
                              <Zap size={18} />
                           </button>
                        </div>
