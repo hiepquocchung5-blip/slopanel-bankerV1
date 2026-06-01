@@ -1,2 +1,1 @@
-/* Webpushr Service Worker */
-importScripts('https://cdn.webpushr.com/sw-v2.js');
+importScripts('https://cdn.webpushr.com/sw-server.min.js');
