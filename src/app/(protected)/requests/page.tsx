@@ -33,7 +33,7 @@ export default function AuditQueuePage() {
 
   const fetchTxs = async () => {
     try {
-      const res = await apiClient.get(API_ENDPOINTS.BANKER.TRANSACTIONS);
+      const res = await apiClient.get(API_ENDPOINTS.BANKER.TRANSACTIONS) as any;
       setTxs(res.data?.results || res.data || []);
     } catch (e) {
       toast.error('Failed to sync transaction queue');
