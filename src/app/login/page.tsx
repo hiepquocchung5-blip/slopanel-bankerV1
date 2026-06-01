@@ -12,6 +12,12 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const { login } = useAuth();
 
+  // Load saved username on mount
+  React.useEffect(() => {
+    const saved = localStorage.getItem('remembered_operator');
+    if (saved) setPhone(saved);
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!phone || !password) return;
@@ -20,6 +26,8 @@ export default function LoginPage() {
     setError(null);
     try {
       await login(phone, password);
+      // Save for next session
+      localStorage.setItem('remembered_operator', phone);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Authentication failed.");
       setIsSubmitting(false);
