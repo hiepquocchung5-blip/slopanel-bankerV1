@@ -20,6 +20,7 @@ interface Transaction {
   status: 'PENDING' | 'APPROVED' | 'REJECTED';
   bank_info: string;
   created_at: string;
+  screenshot: string | null;
 }
 
 export default function AuditQueuePage() {
@@ -34,7 +35,8 @@ export default function AuditQueuePage() {
   const fetchTxs = async () => {
     try {
       const res = await apiClient.get(API_ENDPOINTS.BANKER.TRANSACTIONS) as any;
-      const newTxs = res.data?.results || res.data || [];
+      // V2: slopanel-banker use fetch wrapper which returns data directly
+      const newTxs = Array.isArray(res) ? res : (res?.results || []);
       
       // V2: Detect new pending transactions for alerting
       const currentPendingIds = new Set(txs.filter(t => t.status === 'PENDING').map(t => t.id));
@@ -89,11 +91,22 @@ export default function AuditQueuePage() {
     }
   };
 
-  const filteredTxs = txs.filter(t => 
-    t.tx_type === activeTab && 
-    (statusFilter === 'ALL' || t.status === statusFilter) &&
-    (t.user_phone.includes(search) || t.id.toString() === search || (t.txd_id && t.txd_id.includes(search)))
-  );
+  const filteredTxs = txs.filter(t => {
+    const matchesTab = t.tx_type === activeTab;
+    const matchesStatus = statusFilter === 'ALL' || t.status === statusFilter;
+    
+    const searchLower = search.toLowerCase();
+    const phone = (t.user_phone || "").toLowerCase();
+    const txd = (t.txd_id || "").toLowerCase();
+    const idStr = (t.id || "").toString();
+
+    const matchesSearch = 
+      phone.includes(searchLower) || 
+      idStr.includes(searchLower) || 
+      txd.includes(searchLower);
+
+    return matchesTab && matchesStatus && matchesSearch;
+  });
 
   const pendingCount = txs.filter(t => t.status === 'PENDING').length;
 
@@ -190,7 +203,21 @@ export default function AuditQueuePage() {
                   </td>
                   <td className="p-4 font-black">{tx.tx_type}</td>
                   <td className="p-4 font-black text-amber-500">{Number(tx.amount).toLocaleString()}</td>
-                  <td className="p-4 font-bold text-neutral-400">{tx.txd_id || '-'}</td>
+                  <td className="p-4">
+                    <div className="flex flex-col gap-1">
+                       <span className="font-bold text-neutral-400">{tx.txd_id || '-'}</span>
+                       {tx.screenshot && (
+                         <a 
+                           href={tx.screenshot.startsWith('http') ? tx.screenshot : `https://api.suropara.com${tx.screenshot}`} 
+                           target="_blank" 
+                           rel="noopener noreferrer"
+                           className="text-[9px] text-amber-500 hover:underline flex items-center gap-1 font-black uppercase"
+                         >
+                           <ImageIcon size={10} /> View Receipt
+                         </a>
+                       )}
+                    </div>
+                  </td>
                   <td className="p-4">
                     <span className={`px-2 py-1 rounded-md text-[10px] font-black tracking-widest uppercase ${
                       tx.status === 'PENDING' ? 'bg-amber-500/10 text-amber-500 animate-pulse' :
