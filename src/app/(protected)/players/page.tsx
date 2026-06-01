@@ -271,54 +271,56 @@ export default function PlayersPage() {
                    </div>
 
                    {/* AMOUNT DISPLAY */}
-                   <div className="bg-slate-50 border-2 border-slate-100 rounded-3xl p-8 mb-8 flex flex-col items-center">
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 text-center">Coin Amount</span>
-                      <div className="flex items-end gap-3 justify-center">
-                         <span className="text-5xl font-black text-slate-900 tabular-nums">
+                   <div className="bg-slate-900 border-2 border-amber-500/20 rounded-[32px] p-10 mb-10 flex flex-col items-center shadow-xl">
+                      <span className="text-[10px] font-black text-amber-500 uppercase tracking-[0.3em] mb-4 text-center">Allocation Value</span>
+                      <div className="flex items-baseline gap-4 justify-center">
+                         <span className="text-6xl font-black text-white tabular-nums tracking-tighter">
                             {coinAmount ? Number(coinAmount).toLocaleString() : '0'}
                          </span>
-                         <span className="text-amber-500 font-black text-sm mb-2 uppercase text-center">Coins</span>
+                         <span className="text-amber-500 font-black text-lg uppercase text-center">Coins</span>
                       </div>
                       {coinAmount && (
-                         <p className="mt-4 text-[10px] font-black text-slate-300 uppercase tracking-widest text-center">
-                           Equivalent: {Number(coinAmount) * 100} MMK
-                         </p>
+                         <div className="mt-6 px-4 py-1.5 rounded-full bg-white/5 border border-white/10">
+                           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">
+                             Est. Value: {Number(coinAmount) * 100} MMK
+                           </p>
+                         </div>
                       )}
                    </div>
 
                    {/* QUICK PRESETS */}
-                   <div className="grid grid-cols-4 gap-3 mb-10">
+                   <div className="grid grid-cols-4 gap-4 mb-10">
                       {[10, 50, 100, 1000].map(val => (
                         <button 
                           key={val}
                           onClick={() => setCoinAmount(val.toString())}
-                          className="bg-white border-2 border-slate-100 h-14 rounded-2xl flex flex-col items-center justify-center hover:border-amber-500/40 hover:bg-amber-50/50 transition-all"
+                          className="bg-slate-50 border border-slate-200 h-16 rounded-2xl flex flex-col items-center justify-center hover:border-amber-500/40 hover:bg-amber-50 transition-all group active:scale-95"
                         >
-                           <span className="text-sm font-black text-slate-900 text-center">{val}</span>
-                           <span className="text-[7px] font-black text-slate-400 uppercase text-center">{val * 100} MMK</span>
+                           <span className="text-base font-black text-slate-900 text-center group-hover:text-amber-600">{val}</span>
+                           <span className="text-[8px] font-black text-slate-400 uppercase text-center">{val * 100} MMK</span>
                         </button>
                       ))}
                    </div>
 
                    {/* CUSTOM KEYPAD */}
-                   <div className="grid grid-cols-3 gap-4 mb-10">
-                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map(n => (
+                   <div className="grid grid-cols-3 gap-5 mb-12">
+                      {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => (
                         <button 
                           key={n}
                           onClick={() => handleKeyPress(n.toString())}
-                          className={cn(
-                            "h-16 rounded-2xl bg-white border border-slate-100 flex items-center justify-center text-xl font-black text-slate-800 hover:bg-slate-50 active:scale-95 transition-all shadow-sm",
-                            n === 0 && "col-span-1"
-                          )}
+                          className="h-20 rounded-[24px] bg-white border border-slate-200 flex items-center justify-center text-2xl font-black text-slate-800 hover:bg-slate-50 hover:border-amber-500/30 active:scale-90 transition-all shadow-sm"
                         >
                           {n}
                         </button>
                       ))}
-                      <button onClick={handleDelete} className="h-16 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-red-50 hover:text-red-500 transition-all">
-                        <Delete size={24} />
-                      </button>
-                      <button onClick={handleClear} className="h-16 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-slate-200 hover:text-slate-900 transition-all">
+                      <button onClick={handleClear} className="h-20 rounded-[24px] bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-all active:scale-90">
                         <RotateCcw size={24} />
+                      </button>
+                      <button onClick={() => handleKeyPress('0')} className="h-20 rounded-[24px] bg-white border border-slate-200 flex items-center justify-center text-2xl font-black text-slate-800 hover:bg-slate-50 active:scale-90 transition-all shadow-sm">
+                        0
+                      </button>
+                      <button onClick={handleDelete} className="h-20 rounded-[24px] bg-red-50 border border-red-100 flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-all active:scale-90 shadow-sm">
+                        <Delete size={24} />
                       </button>
                    </div>
 

@@ -98,33 +98,35 @@ export default function Dashboard() {
   if (!user) return null;
 
   return (
-    <div className="space-y-12 animate-in fade-in duration-700">
+    <div className="space-y-16 animate-in fade-in duration-1000">
       {/* PAGE DECLARATION */}
-      <div className="flex flex-col items-center text-center">
-         <span className="text-[11px] font-black text-amber-500 uppercase tracking-[0.4em] mb-3">Slopara Ecosystem :: Command_V4</span>
-         <h2 className="text-5xl font-black text-slate-900 uppercase tracking-tighter">Command Center</h2>
+      <div className="flex flex-col items-center text-center pt-8">
+         <span className="text-[12px] font-black text-amber-500 uppercase tracking-[0.5em] mb-4">Command_Node :: V4_ACTIVE</span>
+         <h2 className="text-6xl font-black text-slate-900 uppercase tracking-tight">System Monitor</h2>
       </div>
 
       {/* HERO SECTION */}
-      <div className="bg-slate-900 border border-amber-500/20 rounded-[40px] p-12 flex flex-col items-center text-center shadow-2xl relative overflow-hidden">
-           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-amber-500 to-transparent opacity-50" />
-           <div className="w-24 h-24 bg-amber-500/10 rounded-[32px] flex items-center justify-center mb-8 border border-amber-500/30">
-              <ShieldCheck size={48} className="text-amber-500" />
+      <div className="bg-slate-950 border border-amber-500/20 rounded-[50px] p-14 flex flex-col items-center text-center shadow-2xl relative overflow-hidden">
+           <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-transparent via-amber-500 to-transparent opacity-40" />
+           <div className="w-28 h-28 bg-amber-500/10 rounded-[35px] flex items-center justify-center mb-10 border border-amber-500/20 shadow-inner">
+              <ShieldCheck size={56} className="text-amber-500" />
            </div>
-           <h2 className="text-4xl font-black text-white tracking-tight mb-3 uppercase">Identity Secure</h2>
            
-           <div className="flex flex-col items-center">
-              <p className="text-lg font-black text-amber-500 uppercase">{user.username || 'Operator'}</p>
-              <p className="text-sm font-bold text-slate-500 tracking-widest">{user.phone_number}</p>
+           <div className="space-y-4">
+              <h2 className="text-5xl font-black text-white tracking-tighter uppercase">Clearance Verified</h2>
+              <div className="flex flex-col items-center gap-2">
+                 <p className="text-xl font-black text-amber-500 uppercase tracking-widest">{user.username || 'OPERATOR'}</p>
+                 <p className="text-sm font-bold text-slate-600 tracking-[0.2em]">{user.phone_number}</p>
+              </div>
            </div>
 
-           <div className="mt-8 px-8 py-2.5 rounded-full bg-amber-500 text-black text-[11px] font-black tracking-widest uppercase shadow-[0_0_20px_rgba(245,158,11,0.3)]">
-             {user.is_staff ? 'Full Authorization' : user.is_cashier ? 'Cashier Mode' : 'Agent Access'}
+           <div className="mt-12 px-10 py-3 rounded-2xl bg-amber-500 text-black text-[12px] font-black tracking-widest uppercase shadow-[0_0_40px_rgba(245,158,11,0.25)]">
+             {user.is_staff ? 'UNRESTRICTED_ACCESS' : user.is_cashier ? 'TRANSACTION_MODE' : 'CORE_AGENT_LINK'}
            </div>
       </div>
 
       {/* STATS GRID */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
         {isManagement && houseStats ? (
           <>
             <div className="bg-white border border-slate-200 p-8 flex flex-col items-center text-center rounded-[32px] shadow-sm hover:border-amber-500/50 transition-colors">
