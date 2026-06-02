@@ -5,6 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { apiClient } from '@/lib/api';
 import { API_ENDPOINTS } from '@/lib/endpoints';
 import { toast } from 'react-hot-toast';
+import { playSound } from '@/lib/sound';
 import { 
   CheckCircle2, XCircle, Search, Filter, 
   ArrowUpRight, ArrowDownLeft, Clock, History, AlertTriangle, Image as ImageIcon
@@ -50,6 +51,7 @@ export default function AuditQueuePage() {
       const hasNewPending = newTxs.some((t: any) => t.status === 'PENDING' && !currentPendingIds.has(t.id));
 
       if (hasNewPending && txs.length > 0) {
+        playSound('alert');
         toast.success('NEW PENDING REQUEST DETECTED!', {
           icon: '🔔',
           duration: 8000,
@@ -63,17 +65,11 @@ export default function AuditQueuePage() {
             boxShadow: '0 20px 50px rgba(0,0,0,0.5)'
           },
         });
-        
-        // Play notification sound if browser allows
-        try {
-          const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
-          audio.volume = 0.5;
-          audio.play().catch(() => {}); 
-        } catch (e) {}
       }
 
       setTxs(newTxs);
     } catch (e) {
+      playSound('error');
       toast.error('Failed to sync transaction queue');
     } finally {
       setLoading(false);
@@ -92,9 +88,11 @@ export default function AuditQueuePage() {
     setProcessingId(id);
     try {
       await apiClient.post(API_ENDPOINTS.BANKER.TRANSACTION_ACTION(id, action));
+      playSound('success');
       toast.success(`Transaction #${id} ${action}ed successfully`);
       setTxs(prev => prev.map(t => t.id === id ? { ...t, status: action === 'approve' ? 'APPROVED' : 'REJECTED' } : t));
     } catch (e: any) {
+      playSound('error');
       toast.error(e.response?.data?.error || 'Action failed');
     } finally {
       setProcessingId(null);

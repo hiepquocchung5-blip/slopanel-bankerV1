@@ -9,6 +9,7 @@ import {
   Search, ExternalLink, ShieldCheck, Zap, TrendingUp, Copy, Plus, X, Loader2
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { playSound } from '@/lib/sound';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -44,6 +45,7 @@ export default function AgentNetworkPage() {
       const data = Array.isArray(res) ? res : (res?.results || []);
       setAgents(data);
     } catch (e) {
+      playSound('error');
       toast.error('Failed to load agent network');
     } finally {
       setLoading(false);
@@ -59,11 +61,13 @@ export default function AgentNetworkPage() {
     setIsCreating(true);
     try {
       await apiClient.post(API_ENDPOINTS.BANKER.AGENT_LINKS(activeAgent.id), { slug: newSlug });
+      playSound('success');
       toast.success('Recruitment link activated');
       setNewSlug('');
       fetchAgents(); // Refresh data
       setActiveAgent(null);
     } catch (e: any) {
+      playSound('error');
       toast.error(e.message || 'Slug already taken');
     } finally {
       setIsCreating(false);
@@ -167,6 +171,7 @@ export default function AgentNetworkPage() {
                                 key={link.id}
                                 onClick={() => {
                                   navigator.clipboard.writeText(`https://tinyslo.site/${link.slug}`);
+                                  playSound('success');
                                   toast.success(`Link copied: tinyslo.site/${link.slug}`);
                                 }}
                                 className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-[11px] font-black uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all border border-slate-200 active:scale-95"

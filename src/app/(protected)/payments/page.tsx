@@ -4,8 +4,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { API } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
-import { AlertCircle, CreditCard, Landmark, Loader2, Minus, Plus, ToggleLeft, ToggleRight, User } from 'lucide-react';
+import { AlertCircle, Plus, Minus, Landmark, CreditCard, User, ToggleLeft, ToggleRight, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { toast } from 'react-hot-toast';
+import { playSound } from '@/lib/sound';
 
 interface PaymentMethod {
   id: number;
@@ -58,8 +60,12 @@ export default function PaymentsPage() {
         method: 'PATCH',
         body: JSON.stringify({ is_active: !currentStatus }),
       });
+      playSound('success');
+      toast.success(currentStatus ? 'Gateway disabled' : 'Gateway activated');
       setMethods((prev) => prev.map((m) => (m.id === id ? { ...m, is_active: res.is_active } : m)));
     } catch {
+      playSound('error');
+      toast.error('Toggle failed');
       console.error('Toggle failed');
     } finally {
       setProcessingId(null);
@@ -75,10 +81,14 @@ export default function PaymentsPage() {
         method: 'POST',
         body: JSON.stringify({ bank_name: newBank, bank_account: newAcc, account_name: newName, is_active: true }),
       });
+      playSound('success');
+      toast.success('Gateway added');
       setMethods((prev) => [res, ...prev]);
       setIsAdding(false);
       resetForm();
     } catch {
+      playSound('error');
+      toast.error('Add failed');
       console.error('Add failed');
     } finally {
       setProcessingId(null);
@@ -95,10 +105,14 @@ export default function PaymentsPage() {
         method: 'PATCH',
         body: JSON.stringify({ bank_name: newBank, bank_account: newAcc, account_name: newName }),
       });
+      playSound('success');
+      toast.success('Gateway updated');
       setMethods((prev) => prev.map(m => m.id === editingId ? res : m));
       setEditingId(null);
       resetForm();
     } catch {
+      playSound('error');
+      toast.error('Update failed');
       console.error('Update failed');
     } finally {
       setProcessingId(null);
@@ -111,8 +125,12 @@ export default function PaymentsPage() {
     try {
       const endpoint = isManagement ? `payments/admin/methods/${id}/` : `payments/agent/methods/${id}/`;
       await API.request(endpoint, { method: 'DELETE' });
+      playSound('success');
+      toast.success('Gateway deleted');
       setMethods((prev) => prev.filter(m => m.id !== id));
     } catch {
+      playSound('error');
+      toast.error('Delete failed');
       console.error('Delete failed');
     } finally {
       setProcessingId(null);

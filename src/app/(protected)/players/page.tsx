@@ -10,6 +10,8 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'react-hot-toast';
+import { playSound } from '@/lib/sound';
 
 interface Player {
   id: number;
@@ -49,6 +51,8 @@ export default function PlayersPage() {
       const data = await API.request<Player[]>(`users/admin/players/?search=${searchQuery}`);
       setPlayers(data);
     } catch {
+      playSound('error');
+      toast.error('Players search failed');
       console.error('Players search failed');
     } finally {
       setIsLoading(false);
@@ -66,8 +70,12 @@ export default function PlayersPage() {
     setProcessingId(id);
     try {
       const res = await API.request<ToggleBanResponse>(`users/admin/players/${id}/toggle-ban/`, { method: 'POST' });
+      playSound('success');
+      toast.success(res.is_active ? 'User activated' : 'User banned');
       setPlayers((prev) => prev.map((p) => (p.id === id ? { ...p, is_active: res.is_active } : p)));
     } catch {
+      playSound('error');
+      toast.error('Toggle ban failed');
       console.error('Toggle ban failed');
     } finally {
       setProcessingId(null);
@@ -79,9 +87,11 @@ export default function PlayersPage() {
     setProcessingId(id);
     try {
       await API.request(`users/admin/players/${id}/clear-session/`, { method: 'POST' });
-      alert('Active sessions cleared successfully.');
+      playSound('success');
+      toast.success('Active sessions cleared successfully.');
     } catch {
-      alert('Failed to clear sessions.');
+      playSound('error');
+      toast.error('Failed to clear sessions.');
     } finally {
       setProcessingId(null);
     }
@@ -99,7 +109,8 @@ export default function PlayersPage() {
       localStorage.setItem('banker_token', res.access);
       window.location.href = '/'; // Reload to apply new identity
     } catch {
-      alert('Impersonation Failed. Root clearance required.');
+      playSound('error');
+      toast.error('Impersonation Failed. Root clearance required.');
     } finally {
       setProcessingId(null);
     }
@@ -113,10 +124,13 @@ export default function PlayersPage() {
         method: 'POST',
         body: JSON.stringify({ role })
       });
+      playSound('success');
+      toast.success('Role updated successfully');
       setActiveRolePlayer(null);
       handleSearch(); // Refresh list
     } catch {
-      alert('Role Update Failed');
+      playSound('error');
+      toast.error('Role Update Failed');
     } finally {
       setProcessingId(null);
     }
@@ -131,12 +145,15 @@ export default function PlayersPage() {
         method: 'POST',
         body: JSON.stringify({ amount: coinAmount })
       });
+      playSound('success');
+      toast.success('Assets transferred successfully');
       setCoinAmount('');
       setActiveTopupPlayer(null);
       // Refresh current player list
       handleSearch();
     } catch {
-      alert('Transaction Failed. Check secure node connection.');
+      playSound('error');
+      toast.error('Transaction Failed. Check secure node connection.');
     } finally {
       setProcessingId(null);
     }
