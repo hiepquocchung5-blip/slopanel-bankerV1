@@ -32,7 +32,7 @@ interface Transaction {
 
 export default function AuditQueuePage() {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'DEPOSIT' | 'WITHDRAW'>('DEPOSIT');
+  const [activeTab] = useState<'DEPOSIT'>('DEPOSIT');
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED'>('ALL');
   const [txs, setTxs] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
@@ -100,7 +100,7 @@ export default function AuditQueuePage() {
   };
 
   const filteredTxs = txs.filter(t => {
-    const matchesTab = t.tx_type === activeTab;
+    const matchesTab = t.tx_type === 'DEPOSIT';
     const matchesStatus = statusFilter === 'ALL' || t.status === statusFilter;
     
     const searchLower = search.toLowerCase();
@@ -116,7 +116,7 @@ export default function AuditQueuePage() {
     return matchesTab && matchesStatus && matchesSearch;
   });
 
-  const pendingCount = txs.filter(t => t.status === 'PENDING').length;
+  const pendingCount = txs.filter(t => t.tx_type === 'DEPOSIT' && t.status === 'PENDING').length;
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -125,31 +125,14 @@ export default function AuditQueuePage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-black tracking-tighter text-white flex items-center gap-3">
-            AUDIT QUEUE
+            DEPOSIT QUEUE
             {pendingCount > 0 && (
-              <span className="bg-red-600 text-white text-xs px-3 py-1 rounded-full animate-pulse border border-red-400">
+              <span className="bg-amber-500 text-black text-xs px-3 py-1 rounded-full animate-pulse border border-amber-400">
                 {pendingCount} PENDING
               </span>
             )}
           </h1>
-          <p className="text-neutral-500 text-sm font-medium uppercase tracking-widest mt-1">Real-time Financial Ledger</p>
-        </div>
-
-        <div className="flex bg-neutral-900/50 p-1 rounded-xl border border-white/5 backdrop-blur-md">
-          <button 
-            onClick={() => setActiveTab('DEPOSIT')}
-            className={`relative px-6 py-2 rounded-lg text-xs font-black transition-all duration-300 ease-out ${activeTab === 'DEPOSIT' ? 'bg-amber-500 text-black shadow-[0_0_20px_rgba(245,158,11,0.4)] scale-105 z-10' : 'text-neutral-500 hover:text-white hover:bg-white/5'}`}
-          >
-            DEPOSITS
-            {activeTab === 'DEPOSIT' && <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-black rounded-full" />}
-          </button>
-          <button 
-            onClick={() => setActiveTab('WITHDRAW')}
-            className={`relative px-6 py-2 rounded-lg text-xs font-black transition-all duration-300 ease-out ${activeTab === 'WITHDRAW' ? 'bg-amber-500 text-black shadow-[0_0_20px_rgba(245,158,11,0.4)] scale-105 z-10' : 'text-neutral-500 hover:text-white hover:bg-white/5'}`}
-          >
-            WITHDRAWALS
-            {activeTab === 'WITHDRAW' && <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-black rounded-full" />}
-          </button>
+          <p className="text-neutral-500 text-sm font-medium uppercase tracking-widest mt-1">Real-time Asset Verification</p>
         </div>
       </div>
 

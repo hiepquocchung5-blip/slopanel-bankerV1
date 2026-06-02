@@ -16,6 +16,8 @@ interface NavItem {
   href: string;
   managementOnly?: boolean;
   adminOnly?: boolean;
+  isDepositOnly?: boolean;
+  isWithdrawOnly?: boolean;
 }
 
 export default function GlobalHeader() {
@@ -28,8 +30,9 @@ export default function GlobalHeader() {
   const navItems: NavItem[] = [
     { label: 'Dash', icon: LayoutDashboard, href: '/' },
     { label: 'Payments', icon: CreditCard, href: '/payments' },
-    { label: 'Requests', icon: Zap, href: '/requests', managementOnly: true },
-    { label: 'Agents', icon: ShieldAlert, href: '/agents' }, // Opened to agents to see their own links
+    { label: 'Deposits', icon: Zap, href: '/deposits', isDepositOnly: true },
+    { label: 'Withdraws', icon: Zap, href: '/withdrawals', isWithdrawOnly: true },
+    { label: 'Agents', icon: ShieldAlert, href: '/agents' },
     { label: 'Players', icon: Users, href: '/players', adminOnly: true },
     { label: 'Stats', icon: BarChart2, href: '/analytics', adminOnly: true },
     { label: 'Configs', icon: Settings, href: '/settings' },
@@ -116,9 +119,17 @@ export default function GlobalHeader() {
         <nav className="no-scrollbar -mx-2 mb-3 flex items-center justify-between gap-6 overflow-x-auto pb-1 px-2">
           <div className="flex items-center gap-1.5">
             {navItems.map((item) => {
-              const isAgent = !user.is_staff && !user.is_cashier;
-              if (item.managementOnly && isAgent) return null;
-              if (item.adminOnly && !user.is_staff) return null;
+              const isAgent = user.user_type === 'AGENT' || user.user_type === 'VIP';
+              const isPureCashier = user.is_cashier && !isAgent;
+              const isStaff = user.is_staff;
+              
+              if (item.managementOnly && !isStaff && !user.is_cashier) return null;
+              if (item.adminOnly && !isStaff) return null;
+              
+              // V3 Isolation Logic
+              if (item.isDepositOnly && !(isStaff || (isAgent && user.is_cashier))) return null;
+              if (item.isWithdrawOnly && !(isStaff || isPureCashier)) return null;
+
               const isActive = pathname === item.href;
 
               return (
