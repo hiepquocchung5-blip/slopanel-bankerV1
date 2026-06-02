@@ -29,7 +29,7 @@ export default function GlobalHeader() {
     { label: 'Dash', icon: LayoutDashboard, href: '/' },
     { label: 'Payments', icon: CreditCard, href: '/payments' },
     { label: 'Requests', icon: Zap, href: '/requests', managementOnly: true },
-    { label: 'Agents', icon: ShieldAlert, href: '/agents', adminOnly: true },
+    { label: 'Agents', icon: ShieldAlert, href: '/agents' }, // Opened to agents to see their own links
     { label: 'Players', icon: Users, href: '/players', adminOnly: true },
     { label: 'Stats', icon: BarChart2, href: '/analytics', adminOnly: true },
     { label: 'Configs', icon: Settings, href: '/settings' },

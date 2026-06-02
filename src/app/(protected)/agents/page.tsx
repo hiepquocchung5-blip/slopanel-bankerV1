@@ -40,7 +40,8 @@ export default function AgentNetworkPage() {
 
   const fetchAgents = async () => {
     try {
-      const data = await apiClient.get<Agent[]>(API_ENDPOINTS.BANKER.AGENTS);
+      const res = await apiClient.get<any>(API_ENDPOINTS.BANKER.AGENTS);
+      const data = Array.isArray(res) ? res : (res?.results || []);
       setAgents(data);
     } catch (e) {
       toast.error('Failed to load agent network');
@@ -160,18 +161,23 @@ export default function AgentNetworkPage() {
                     </td>
                     <td className="p-6 text-center">
                        <div className="flex flex-wrap justify-center gap-2">
-                          {agent.invite_links.map(link => (
-                            <button 
-                              key={link.id}
-                              onClick={() => {
-                                navigator.clipboard.writeText(`tinyslo.site/${link.slug}`);
-                                toast.success(`Link copied: ${link.slug}`);
-                              }}
-                              className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-[11px] font-black uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all border border-slate-200 active:scale-95"
-                            >
-                               {link.slug} <span className="ml-1 opacity-50">[{link.click_count}]</span>
-                            </button>
-                          ))}
+                          {agent.invite_links.length > 0 ? (
+                            agent.invite_links.map(link => (
+                              <button 
+                                key={link.id}
+                                onClick={() => {
+                                  navigator.clipboard.writeText(`https://tinyslo.site/${link.slug}`);
+                                  toast.success(`Link copied: tinyslo.site/${link.slug}`);
+                                }}
+                                className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-[11px] font-black uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all border border-slate-200 active:scale-95"
+                                title="Copy to clipboard"
+                              >
+                                 tinyslo.site/{link.slug} <span className="ml-1 opacity-50">[{link.click_count} clicks]</span>
+                              </button>
+                            ))
+                          ) : (
+                             <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">No Active Links</span>
+                          )}
                           <button 
                             onClick={() => setActiveAgent(agent)}
                             className="w-10 h-10 rounded-xl bg-teal-500 text-white flex items-center justify-center hover:bg-teal-600 transition-all active:scale-90 shadow-lg shadow-teal-500/20"
