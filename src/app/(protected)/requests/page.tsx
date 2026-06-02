@@ -52,19 +52,22 @@ export default function AuditQueuePage() {
       if (hasNewPending && txs.length > 0) {
         toast.success('NEW PENDING REQUEST DETECTED!', {
           icon: '🔔',
-          duration: 6000,
+          duration: 8000,
           style: {
-            borderRadius: '10px',
-            background: '#333',
+            borderRadius: '12px',
+            background: '#18181b',
             color: '#fff',
-            fontWeight: 'bold',
-            border: '1px solid #fbbf24'
+            fontWeight: 'black',
+            border: '2px solid #fbbf24',
+            padding: '16px',
+            boxShadow: '0 20px 50px rgba(0,0,0,0.5)'
           },
         });
         
         // Play notification sound if browser allows
         try {
           const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+          audio.volume = 0.5;
           audio.play().catch(() => {}); 
         } catch (e) {}
       }

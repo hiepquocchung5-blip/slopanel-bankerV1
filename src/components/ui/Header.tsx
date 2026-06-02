@@ -30,8 +30,8 @@ export default function GlobalHeader() {
     { label: 'Payments', icon: CreditCard, href: '/payments' },
     { label: 'Requests', icon: Zap, href: '/requests', managementOnly: true },
     { label: 'Agents', icon: ShieldAlert, href: '/agents', adminOnly: true },
-    { label: 'Players', icon: Users, href: '/players', managementOnly: true },
-    { label: 'Stats', icon: BarChart2, href: '/analytics', managementOnly: true },
+    { label: 'Players', icon: Users, href: '/players', adminOnly: true },
+    { label: 'Stats', icon: BarChart2, href: '/analytics', adminOnly: true },
     { label: 'Configs', icon: Settings, href: '/settings' },
   ];
 
