@@ -6,7 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 import { 
   Ban, Coins, Loader2, Landmark, Shield, 
   ShieldCheck, User, UserX, ShieldAlert, X, ChevronRight, 
-  Delete, RotateCcw, CheckCircle2, LayoutDashboard, Users, CreditCard
+  Delete, RotateCcw, CheckCircle2, LayoutDashboard, Users, CreditCard, Zap
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
