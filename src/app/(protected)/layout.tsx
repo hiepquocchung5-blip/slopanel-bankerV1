@@ -5,6 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/ui/Header';
 import Footer from '@/components/ui/Footer';
+import NotificationCenter from '@/components/ui/NotificationCenter';
 import { Loader2 } from 'lucide-react';
 
 export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
@@ -31,6 +32,7 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
   return (
     <div className="relative flex min-h-screen flex-col overflow-x-hidden bg-[radial-gradient(circle_at_top,_rgba(13,148,136,0.10),_transparent_32%),linear-gradient(180deg,#f8fafc_0%,#f1f5f9_100%)]">
       <Header />
+      <NotificationCenter />
 
       <main
         className="mx-auto flex w-full max-w-[1500px] flex-1 flex-col px-4 sm:px-6 lg:px-8"
