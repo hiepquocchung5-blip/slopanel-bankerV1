@@ -1,3 +1,21 @@
+const CACHE_NAME = 'slo-banker-cache-v1';
+
+// V4: Essential listeners for PWA Installability
+self.addEventListener('install', (event) => {
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(clients.claim());
+});
+
+// MANDATORY: Fetch listener is required for the browser to trigger "Install" prompt
+self.addEventListener('fetch', (event) => {
+  // Simple network-first or pass-through strategy
+  event.respondWith(fetch(event.request));
+});
+
+// PUSH NOTIFICATIONS
 self.addEventListener('push', function(event) {
   if (event.data) {
     const payload = event.data.json();
@@ -15,7 +33,7 @@ self.addEventListener('push', function(event) {
 
     event.waitUntil(
       self.registration.showNotification(title, options).then(() => {
-        // Optional: Send message to all clients to play sound if website is open
+        // Send message to all clients to play sound if website is open
         self.clients.matchAll().then(clients => {
           clients.forEach(client => {
             client.postMessage({
