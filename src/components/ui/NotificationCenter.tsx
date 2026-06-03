@@ -43,20 +43,40 @@ export default function NotificationCenter() {
 
     const playNotifySound = () => {
       if (audioRef.current) {
-        audioRef.current.play().catch(() => {});
+        audioRef.current.currentTime = 0;
+        audioRef.current.play().catch(() => {
+           console.warn("Sound blocked by browser policy. Interaction needed.");
+        });
       }
     };
 
+    // V4: Service Worker Push Listener
+    const handlePushMessage = (event: MessageEvent) => {
+       if (event.data?.type === 'PUSH_RECEIVED') {
+          playNotifySound();
+          fetchStats(); // Update stats immediately
+       }
+    };
+
+    if ('serviceWorker' in navigator) {
+       navigator.serviceWorker.addEventListener('message', handlePushMessage);
+    }
+
     fetchStats();
     const interval = setInterval(fetchStats, 30000); // Poll every 30s
-    return () => clearInterval(interval);
+    return () => {
+       clearInterval(interval);
+       if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.removeEventListener('message', handlePushMessage);
+       }
+    };
   }, [isManagement, lastTotal]);
 
   if (!isManagement) return null;
 
   return (
     <>
-      <audio ref={audioRef} src="/sounds/notification.mp3" preload="auto" />
+      <audio ref={audioRef} src="/sounds/tint_u_have_customer.mp3" preload="auto" />
       
       {/* FLOAT INDICATOR */}
       <div className="fixed bottom-10 right-10 z-[100] flex flex-col items-end gap-4 pointer-events-none">

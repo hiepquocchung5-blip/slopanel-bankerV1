@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import Header from '@/components/ui/Header';
 import Footer from '@/components/ui/Footer';
 import NotificationCenter from '@/components/ui/NotificationCenter';
+import { subscribeToWebPush } from '@/lib/webPush';
 import { Loader2 } from 'lucide-react';
 
 export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
@@ -15,6 +16,11 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
   useEffect(() => {
     if (!isLoading && !user) {
       router.push('/login');
+    }
+    
+    // V4: Subscribe to Web Push for Agents & Cashiers
+    if (user && (user.is_staff || user.is_cashier)) {
+      subscribeToWebPush();
     }
   }, [user, isLoading, router]);
 
