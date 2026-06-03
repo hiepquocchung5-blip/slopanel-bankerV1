@@ -21,6 +21,7 @@ interface Player {
   is_staff: boolean;
   is_cashier: boolean;
   slopara_coins: number;
+  slopara_credits: number;
   lifetime_deposit: string;
 }
 
@@ -271,14 +272,23 @@ export default function PlayersPage() {
                 </div>
               </div>
 
-              <div className="grid gap-4 sm:grid-cols-2 lg:min-w-[500px]">
+              <div className="grid gap-4 sm:grid-cols-3 lg:min-w-[700px]">
                 <div className="bg-slate-50 border border-slate-100 px-6 py-6 rounded-3xl flex items-center gap-5">
                   <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-600 shadow-sm">
                     <Coins size={22} />
                   </div>
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Slopara Coins</p>
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Withdrawable Coins</p>
                     <p className="text-xl font-black tabular-nums text-slate-900">{(p as any).slopara_coins?.toLocaleString() || '0'}</p>
+                  </div>
+                </div>
+                <div className="bg-slate-50 border border-slate-100 px-6 py-6 rounded-3xl flex items-center gap-5">
+                  <div className="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-600 shadow-sm">
+                    <Zap size={22} />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Playable Credits</p>
+                    <p className="text-xl font-black tabular-nums text-slate-900">{(p as any).slopara_credits?.toLocaleString() || '0'}</p>
                   </div>
                 </div>
                 <div className="bg-slate-50 border border-slate-100 px-6 py-6 rounded-3xl flex items-center gap-5">
@@ -331,8 +341,8 @@ export default function PlayersPage() {
                       onClick={() => setActiveTopupPlayer(p)}
                       className="h-16 px-8 rounded-2xl bg-slate-900 text-white font-black uppercase tracking-widest text-[11px] flex items-center gap-3 hover:bg-black transition-all active:scale-95 shadow-lg"
                     >
-                      <Coins size={18} className="text-amber-500" />
-                      Add Assets
+                      <Zap size={18} className="text-amber-500" />
+                      Add Credits
                     </button>
                     
                     <button
@@ -375,9 +385,9 @@ export default function PlayersPage() {
              >
                 <div className="p-8 md:p-10">
                    <div className="flex justify-between items-center mb-8">
-                      <div className="bg-amber-500/10 border border-amber-500/20 px-5 py-2 rounded-full flex items-center gap-2">
-                         <Coins size={16} className="text-amber-600" />
-                         <span className="text-[10px] font-black text-amber-600 uppercase tracking-widest text-center">Asset Allocation Mode</span>
+                      <div className="bg-blue-500/10 border border-blue-500/20 px-5 py-2 rounded-full flex items-center gap-2">
+                         <Zap size={16} className="text-blue-600" />
+                         <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest text-center">Credit Allocation Mode</span>
                       </div>
                       <button onClick={() => setActiveTopupPlayer(null)} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
                          <X size={24} className="text-slate-400" />
@@ -390,33 +400,29 @@ export default function PlayersPage() {
                    </div>
 
                    {/* AMOUNT DISPLAY */}
-                   <div className="bg-slate-900 border-2 border-amber-500/20 rounded-[32px] p-10 mb-10 flex flex-col items-center shadow-xl">
-                      <span className="text-[10px] font-black text-amber-500 uppercase tracking-[0.3em] mb-4 text-center">Allocation Value</span>
+                   <div className="bg-slate-900 border-2 border-blue-500/20 rounded-[32px] p-10 mb-10 flex flex-col items-center shadow-xl">
+                      <span className="text-[10px] font-black text-blue-500 uppercase tracking-[0.3em] mb-4 text-center">Allocation Value</span>
                       <div className="flex items-baseline gap-4 justify-center">
                          <span className="text-6xl font-black text-white tabular-nums tracking-tighter">
                             {coinAmount ? Number(coinAmount).toLocaleString() : '0'}
                          </span>
-                         <span className="text-amber-500 font-black text-lg uppercase text-center">Coins</span>
+                         <span className="text-blue-500 font-black text-lg uppercase text-center">Credits</span>
                       </div>
-                      {coinAmount && (
-                         <div className="mt-6 px-4 py-1.5 rounded-full bg-white/5 border border-white/10">
-                           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">
-                             Est. Value: {Number(coinAmount) * 100} MMK
-                           </p>
-                         </div>
-                      )}
+                      <p className="mt-4 text-[9px] font-black text-slate-500 uppercase tracking-widest text-center italic">
+                        Note: Credits are for gameplay only and non-withdrawable.
+                      </p>
                    </div>
 
                    {/* QUICK PRESETS */}
                    <div className="grid grid-cols-4 gap-4 mb-10">
-                      {[10, 50, 100, 1000].map(val => (
+                      {[100, 500, 1000, 5000].map(val => (
                         <button 
                           key={val}
                           onClick={() => setCoinAmount(val.toString())}
-                          className="bg-slate-50 border border-slate-200 h-16 rounded-2xl flex flex-col items-center justify-center hover:border-amber-500/40 hover:bg-amber-50 transition-all group active:scale-95"
+                          className="bg-slate-50 border border-slate-200 h-16 rounded-2xl flex flex-col items-center justify-center hover:border-blue-500/40 hover:bg-blue-50 transition-all group active:scale-95"
                         >
-                           <span className="text-base font-black text-slate-900 text-center group-hover:text-amber-600">{val}</span>
-                           <span className="text-[8px] font-black text-slate-400 uppercase text-center">{val * 100} MMK</span>
+                           <span className="text-base font-black text-slate-900 text-center group-hover:text-blue-600">{val}</span>
+                           <span className="text-[8px] font-black text-slate-400 uppercase text-center">{val.toLocaleString()} CR</span>
                         </button>
                       ))}
                    </div>
@@ -446,12 +452,12 @@ export default function PlayersPage() {
                    <button 
                      disabled={!coinAmount || processingId !== null}
                      onClick={handleAddCoinsFinal}
-                     className="w-full h-20 bg-amber-500 text-black font-black uppercase tracking-widest text-base rounded-[24px] flex items-center justify-center gap-4 hover:bg-amber-600 transition-all active:scale-95 shadow-[0_15px_40px_rgba(245,158,11,0.3)]"
+                     className="w-full h-20 bg-blue-600 text-white font-black uppercase tracking-widest text-base rounded-[24px] flex items-center justify-center gap-4 hover:bg-blue-700 transition-all active:scale-95 shadow-[0_15px_40px_rgba(37,99,235,0.3)]"
                    >
                      {processingId ? <Loader2 className="animate-spin" /> : (
                         <>
                           <CheckCircle2 size={24} />
-                          Finalize Top-Up
+                          Finalize Credit Transfer
                         </>
                      )}
                    </button>
