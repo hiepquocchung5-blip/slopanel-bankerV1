@@ -142,7 +142,7 @@ export default function AuditQueuePage() {
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-600" size={18} />
           <input 
             type="text" 
-            placeholder="SEARCH BY PHONE, ID, OR TXD_ID..."
+            placeholder="SEARCH BY PHONE, ID, OR BANK INFO..."
             className="w-full bg-black/50 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-sm font-bold tracking-widest outline-none transition-all placeholder:text-neutral-700"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -168,9 +168,8 @@ export default function AuditQueuePage() {
           <thead>
             <tr className="bg-black/40 border-bottom border-white/5">
               <th className="p-4 text-[10px] font-black tracking-widest text-neutral-500 uppercase">User Identity</th>
-              <th className="p-4 text-[10px] font-black tracking-widest text-neutral-500 uppercase">Tx Type</th>
               <th className="p-4 text-[10px] font-black tracking-widest text-neutral-500 uppercase">Amount</th>
-              <th className="p-4 text-[10px] font-black tracking-widest text-neutral-500 uppercase">TXD ID</th>
+              <th className="p-4 text-[10px] font-black tracking-widest text-neutral-500 uppercase">Payout Destination</th>
               <th className="p-4 text-[10px] font-black tracking-widest text-neutral-500 uppercase">Status</th>
               <th className="p-4 text-[10px] font-black tracking-widest text-neutral-500 uppercase">Created At</th>
               <th className="p-4 text-[10px] font-black tracking-widest text-neutral-500 uppercase text-center">Actions</th>
@@ -192,27 +191,19 @@ export default function AuditQueuePage() {
                       <span className="font-bold tracking-tighter">{tx.user_phone}</span>
                     </div>
                   </td>
-                  <td className="p-4 font-black">{tx.tx_type}</td>
-                  <td className="p-4">
+                  <td className="p-4 font-black">
                     <div className="flex flex-col gap-1">
-                      <span className="font-black text-amber-500">{Number(tx.amount).toLocaleString()}</span>
-                      {tx.payment_method_details && (
-                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">
-                          via {tx.payment_method_details.bank_name} ({tx.payment_method_details.account_name})
-                        </span>
-                      )}
+                      <span className="font-black text-amber-500">{Number(tx.amount).toLocaleString()} Ks</span>
+                      <span className="text-[10px] font-black text-amber-600/50 uppercase">COINS</span>
                     </div>
                   </td>
                   <td className="p-4">
                     <div className="flex flex-col gap-1">
-                       <span className="font-bold text-neutral-400">{tx.txd_id || '-'}</span>
-                       {tx.screenshot && (
-                         <button 
-                           onClick={() => setExpandedImage(tx.screenshot?.startsWith('http') ? tx.screenshot : `https://api.suropara.com${tx.screenshot}`)}
-                           className="text-[9px] text-amber-500 hover:text-amber-400 flex items-center gap-1 font-black uppercase transition-colors"
-                         >
-                           <ImageIcon size={10} /> View Receipt
-                         </button>
+                       <span className="font-bold text-white text-xs tracking-tight">{tx.bank_info || 'Processing...'}</span>
+                       {tx.payment_method_details && (
+                         <span className="text-[9px] font-black text-slate-500 uppercase">
+                           AUTOMATED SYSTEM PAYOUT
+                         </span>
                        )}
                     </div>
                   </td>

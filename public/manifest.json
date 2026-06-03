@@ -1,0 +1,16 @@
+{
+  "name": "Slopara Banker Panel",
+  "short_name": "SloBanker",
+  "description": "Secure financial management for Slopara Agency & Cashier team.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050508",
+  "theme_color": "#D4AF37",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ]
+}

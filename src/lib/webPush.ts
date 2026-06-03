@@ -24,6 +24,12 @@ export async function subscribeToWebPush() {
       scope: '/'
     });
 
+    // V4 Fix: Unsubscribe existing to avoid applicationServerKey mismatch error
+    const existingSubscription = await registration.pushManager.getSubscription();
+    if (existingSubscription) {
+      await existingSubscription.unsubscribe();
+    }
+
     const permission = await Notification.requestPermission();
     if (permission !== 'granted') {
       console.warn('Notification permission denied');

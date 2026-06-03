@@ -6,6 +6,15 @@ import Script from "next/script";
 export const metadata: Metadata = {
   title: "SLOPARA | Banker Portal v1.0.0",
   description: "Operator and banker control console",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "SloBanker",
+  },
+  icons: {
+    apple: "/favicon.ico",
+  }
 };
 
 export const viewport: Viewport = {
