@@ -46,7 +46,13 @@ export default function RootLayout({
               js.src = "https://cdn.webpushr.com/app.min.js";
               fjs.parentNode.insertBefore(js, fjs);
             }(window,document, 'script', 'webpushr-jssdk'));
-            webpushr('init','BPLFlV_sxRAcFm_FPyitoyXgBG6ayH5LcwUj9y_O0z1_L4LAZ1CK5ubDRdckPzdliOctK0sYREwT9b8P-OxJeqA');
+            
+            // V4: Secure Init
+            window.addEventListener('load', function() {
+              if (window.webpushr) {
+                webpushr('init','BPLFlV_sxRAcFm_FPyitoyXgBG6ayH5LcwUj9y_O0z1_L4LAZ1CK5ubDRdckPzdliOctK0sYREwT9b8P-OxJeqA');
+              }
+            });
           `}
         </Script>
         <Providers>

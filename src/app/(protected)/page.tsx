@@ -201,7 +201,9 @@ export default function Dashboard() {
                     </div>
                     <div className="flex flex-col items-end">
                        <span className="text-base font-black tabular-nums text-slate-900">{Math.floor(parseFloat(tx.amount)).toLocaleString()}</span>
-                       <span className="text-[9px] font-black text-amber-600 uppercase">COINS</span>
+                       <span className="text-[9px] font-black text-amber-600 uppercase">
+                         {tx.tx_type === 'WITHDRAW' ? (tx as any).user_bank_name || 'COINS' : 'COINS'}
+                       </span>
                     </div>
                  </div>
                ))

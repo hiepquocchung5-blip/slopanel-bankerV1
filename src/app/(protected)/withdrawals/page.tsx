@@ -20,6 +20,9 @@ interface Transaction {
   txd_id: string;
   status: 'PENDING' | 'APPROVED' | 'REJECTED';
   bank_info: string;
+  user_bank_name: string;
+  user_bank_account: string;
+  user_account_name: string;
   created_at: string;
   screenshot: string | null;
   payment_method_details?: {
@@ -199,12 +202,12 @@ export default function AuditQueuePage() {
                   </td>
                   <td className="p-4">
                     <div className="flex flex-col gap-1">
-                       <span className="font-bold text-white text-xs tracking-tight">{tx.bank_info || 'Processing...'}</span>
-                       {tx.payment_method_details && (
-                         <span className="text-[9px] font-black text-slate-500 uppercase">
-                           AUTOMATED SYSTEM PAYOUT
-                         </span>
-                       )}
+                       <span className="font-bold text-white text-xs tracking-tight">
+                         {tx.user_bank_name} - {tx.user_bank_account}
+                       </span>
+                       <span className="text-[10px] font-black text-amber-500 uppercase">
+                         {tx.user_account_name || 'Verification Needed'}
+                       </span>
                     </div>
                   </td>
                   <td className="p-4">
