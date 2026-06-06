@@ -23,6 +23,10 @@ interface Player {
   slopara_coins: number;
   slopara_credits: number;
   lifetime_deposit: string;
+  referral_stats: {
+    total_referrals: number;
+  };
+  can_withdraw: boolean;
 }
 
 interface ToggleBanResponse {
@@ -268,11 +272,18 @@ export default function PlayersPage() {
                     <span className="flex items-center gap-1.5 text-[10px] font-black text-slate-400 tracking-widest uppercase">
                        ID_{p.id.toString().padStart(6, '0')}
                     </span>
+                    <div className="h-1 w-1 rounded-full bg-slate-200" />
+                    <span className={cn(
+                      "px-2 py-0.5 rounded text-[9px] font-black tracking-widest uppercase",
+                      p.can_withdraw ? "bg-emerald-500/10 text-emerald-600" : "bg-red-500/10 text-red-600"
+                    )}>
+                      {p.can_withdraw ? 'Withdraw: Verified' : 'Withdraw: Locked'}
+                    </span>
                   </div>
                 </div>
               </div>
 
-              <div className="grid gap-4 sm:grid-cols-3 lg:min-w-[700px]">
+              <div className="grid gap-4 sm:grid-cols-4 lg:min-w-[850px]">
                 <div className="bg-slate-50 border border-slate-100 px-6 py-6 rounded-3xl flex items-center gap-5">
                   <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-600 shadow-sm">
                     <Coins size={22} />
@@ -289,6 +300,15 @@ export default function PlayersPage() {
                   <div>
                     <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Playable Credits</p>
                     <p className="text-xl font-black tabular-nums text-slate-900">{(p as any).slopara_credits?.toLocaleString() || '0'}</p>
+                  </div>
+                </div>
+                <div className="bg-slate-50 border border-slate-100 px-6 py-6 rounded-3xl flex items-center gap-5">
+                  <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-600 shadow-sm">
+                    <Users size={22} />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Referrals</p>
+                    <p className="text-xl font-black tabular-nums text-slate-900">{p.referral_stats?.total_referrals || 0}</p>
                   </div>
                 </div>
                 <div className="bg-slate-50 border border-slate-100 px-6 py-6 rounded-3xl flex items-center gap-5">
