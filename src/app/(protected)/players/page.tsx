@@ -46,7 +46,10 @@ export default function PlayersPage() {
   const [coinAmount, setCoinAmount] = useState<string>('');
 
   const isAdmin = user?.is_staff;
-  const isManagement = user?.is_staff || user?.is_cashier;
+  const isAgent = user?.is_agent || user?.user_type === 'AGENT' || user?.user_type === 'VIP';
+  const isCashier = user?.is_cashier && !isAgent;
+  const isStaff = user?.is_staff;
+  const isManagement = isStaff || isCashier || isAgent;
 
   const handleSearch = useCallback(async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -69,7 +72,7 @@ export default function PlayersPage() {
   }, []);
 
   const handleToggleBan = async (id: number) => {
-    if (!isAdmin) return;
+    if (!isStaff) return;
     if (!confirm('Are you sure you want to change this user\'s access status?')) return;
 
     setProcessingId(id);
@@ -88,6 +91,7 @@ export default function PlayersPage() {
   };
 
   const handleClearSession = async (id: number) => {
+    if (!isStaff && !isCashier) return;
     if (!confirm('This will force the player out of all machines. Proceed?')) return;
     setProcessingId(id);
     try {
@@ -103,6 +107,7 @@ export default function PlayersPage() {
   };
 
   const handleImpersonate = async (id: number) => {
+    if (!isStaff) return;
     if (!confirm('Login as this user for support? Your current session will be saved in memory.')) return;
     setProcessingId(id);
     try {
@@ -122,7 +127,7 @@ export default function PlayersPage() {
   };
 
   const handleUpdateRole = async (id: number, role: string) => {
-    if (!isAdmin) return;
+    if (!isStaff) return;
     setProcessingId(id);
     try {
       await API.request(`users/admin/players/${id}/update-role/`, { 
@@ -142,7 +147,7 @@ export default function PlayersPage() {
   };
 
   const handleAddCoinsFinal = async () => {
-    if (!isAdmin || !coinAmount || !activeTopupPlayer) return;
+    if ((!isStaff && !isCashier) || !coinAmount || !activeTopupPlayer) return;
     
     setProcessingId(activeTopupPlayer.id);
     try {
@@ -323,7 +328,7 @@ export default function PlayersPage() {
               </div>
 
               <div className="flex flex-wrap items-center gap-3">
-                {isManagement && (
+                {(isStaff || isCashier) && (
                   <button
                     disabled={processingId === p.id}
                     onClick={() => handleClearSession(p.id)}
@@ -334,7 +339,7 @@ export default function PlayersPage() {
                   </button>
                 )}
 
-                {user?.is_staff && (
+                {isStaff && (
                   <button
                     disabled={processingId === p.id}
                     onClick={() => handleImpersonate(p.id)}
@@ -345,7 +350,7 @@ export default function PlayersPage() {
                   </button>
                 )}
 
-                {isAdmin && (
+                {isStaff && (
                   <button
                     onClick={() => setActiveRolePlayer(p)}
                     className="h-16 px-6 rounded-2xl bg-white border border-slate-200 text-slate-900 font-black uppercase tracking-widest text-[11px] flex items-center gap-3 hover:bg-slate-50 transition-all active:scale-95 shadow-sm"
@@ -355,7 +360,7 @@ export default function PlayersPage() {
                   </button>
                 )}
 
-                {isManagement && (
+                {(isStaff || isCashier) && (
                   <>
                     <button
                       onClick={() => setActiveTopupPlayer(p)}

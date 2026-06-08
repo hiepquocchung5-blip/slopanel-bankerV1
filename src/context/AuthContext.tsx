@@ -11,6 +11,7 @@ export interface User {
   user_type: 'NORMAL' | 'AGENT' | 'VIP';
   is_staff: boolean;
   is_cashier: boolean;
+  is_agent: boolean;
   slopara_coins: number;
   referral_code: string;
 }

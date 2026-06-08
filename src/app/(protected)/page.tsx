@@ -54,8 +54,10 @@ export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [copiedKey, setCopiedKey] = useState(false);
 
-  const isManagement = user?.is_staff || user?.is_cashier;
-  const isCashier = user?.is_cashier;
+  const isAgent = user?.is_agent || user?.user_type === 'AGENT' || user?.user_type === 'VIP';
+  const isStaff = user?.is_staff;
+  const isPureCashier = user?.is_cashier && !isAgent;
+  const isManagement = isStaff || isPureCashier;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -72,6 +74,7 @@ export default function Dashboard() {
           const trafficData = (traffic as any)?.results || traffic;
           setRecentTraffic(Array.isArray(trafficData) ? trafficData.slice(0, 5) : []);
         } else {
+          // Agents and Players see referral stats
           const [referrals, traffic] = await Promise.all([
             apiClient.get<ReferralStats>('users/referrals/stats/'),
             apiClient.get(API_ENDPOINTS.BANKER.TRANSACTIONS),
@@ -91,13 +94,13 @@ export default function Dashboard() {
   }, [isManagement]);
 
   const displayProfit = houseStats
-    ? isCashier
+    ? isPureCashier
       ? parseFloat(houseStats.global.house_profit) * 0.9
       : parseFloat(houseStats.global.house_profit)
     : 0;
 
   const displayWagered = houseStats
-    ? isCashier
+    ? isPureCashier
       ? parseFloat(houseStats.global.total_wagered) * 0.9
       : parseFloat(houseStats.global.total_wagered)
     : 0;
@@ -139,7 +142,7 @@ export default function Dashboard() {
            </div>
 
            <div className="mt-12 px-10 py-3 rounded-2xl bg-amber-500 text-black text-[12px] font-black tracking-widest uppercase shadow-[0_0_40px_rgba(245,158,11,0.25)]">
-             {user.is_staff ? 'UNRESTRICTED_ACCESS' : user.is_cashier ? 'TRANSACTION_MODE' : 'CORE_AGENT_LINK'}
+             {isStaff ? 'UNRESTRICTED_ACCESS' : isPureCashier ? 'TRANSACTION_MODE' : 'CORE_AGENT_LINK'}
            </div>
       </div>
 
@@ -163,7 +166,7 @@ export default function Dashboard() {
               <TrendingUp size={32} className="text-amber-500 mb-4" />
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Net Profit (Coins)</p>
               <p className="text-2xl font-black text-slate-900 tabular-nums">{Math.floor(displayProfit).toLocaleString()}</p>
-              {isCashier && <span className="text-[9px] font-black text-amber-600 mt-2">ADJUSTED 90%</span>}
+              {isPureCashier && <span className="text-[9px] font-black text-amber-600 mt-2">ADJUSTED 90%</span>}
             </div>
             <div className="bg-white border border-slate-200 p-8 flex flex-col items-center text-center rounded-[32px] shadow-sm hover:border-amber-500/50 transition-colors">
               <BarChart3 size={32} className="text-amber-500 mb-4" />
@@ -203,9 +206,11 @@ export default function Dashboard() {
         <div className="bg-white border border-slate-200 p-10 rounded-[40px] shadow-sm">
            <div className="flex justify-between items-center mb-10 text-center">
               <h3 className="text-lg font-black text-slate-900 uppercase tracking-widest flex-1">Recent Flow</h3>
-              <Link href="/payments" className="bg-slate-900 text-amber-500 font-black text-[10px] tracking-widest uppercase px-6 py-2.5 rounded-xl border border-amber-500/20 hover:bg-black transition-colors">
-                Audit History
-              </Link>
+              {isStaff && (
+                <Link href="/payments" className="bg-slate-900 text-amber-500 font-black text-[10px] tracking-widest uppercase px-6 py-2.5 rounded-xl border border-amber-500/20 hover:bg-black transition-colors">
+                  Audit History
+                </Link>
+              )}
            </div>
            <div className="space-y-4">
               {isLoading ? <Loader2 size={24} className="animate-spin mx-auto text-amber-500" /> : 
