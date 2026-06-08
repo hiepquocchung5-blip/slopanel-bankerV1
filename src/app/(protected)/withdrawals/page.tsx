@@ -121,21 +121,33 @@ export default function AuditQueuePage() {
 
   const pendingCount = txs.filter(t => t.tx_type === 'WITHDRAW' && t.status === 'PENDING').length;
 
+  const isStaff = user?.is_staff || user?.is_superuser;
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       
       {/* HEADER */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-black tracking-tighter text-white flex items-center gap-3">
-            WITHDRAWAL QUEUE
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <span className="bg-red-600 text-[10px] font-black px-2 py-0.5 rounded text-white tracking-widest uppercase">Live_Payouts</span>
+            {!isStaff && (
+              <span className="bg-amber-500 text-[10px] font-black px-2 py-0.5 rounded text-black tracking-widest uppercase flex items-center gap-1">
+                <Lock size={10} /> Owned_Only
+              </span>
+            )}
+          </div>
+          <h1 className="text-3xl md:text-4xl font-black tracking-tighter text-white flex items-center gap-3">
+            {isStaff ? 'GLOBAL WITHDRAWAL QUEUE' : 'MY WITHDRAWAL QUEUE'}
             {pendingCount > 0 && (
-              <span className="bg-red-500 text-white text-xs px-3 py-1 rounded-full animate-pulse border border-red-400">
+              <span className="bg-red-500 text-white text-[10px] px-3 py-1 rounded-full animate-pulse border border-red-400 font-black">
                 {pendingCount} PENDING
               </span>
             )}
           </h1>
-          <p className="text-neutral-500 text-sm font-medium uppercase tracking-widest mt-1">Real-time Payout Ledger</p>
+          <p className="text-neutral-500 text-[10px] font-bold uppercase tracking-[0.3em]">
+            {isStaff ? 'Real-time payout ledger' : `Payout ledger for ${user?.username || 'Authorized Cashier'}`}
+          </p>
         </div>
       </div>
 

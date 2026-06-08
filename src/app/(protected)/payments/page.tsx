@@ -63,7 +63,7 @@ export default function PaymentsPage() {
     setProcessingId(id);
     try {
       const endpoint = `payments/admin/methods/${id}/`;
-      const res = await API.request<any>(endpoint, {
+      const res = await API.request<{ is_active: boolean }>(endpoint, {
         method: 'PATCH',
         body: JSON.stringify({ is_active: !currentStatus }),
       });
@@ -183,13 +183,21 @@ export default function PaymentsPage() {
         <div className="space-y-2">
            <div className="flex items-center gap-2">
               <span className="px-2 py-0.5 bg-teal-500 text-white text-[9px] font-black uppercase tracking-widest rounded-md">FINANCIAL_SEC_V4</span>
-              {isAdminView && <span className="px-2 py-0.5 bg-slate-900 text-white text-[9px] font-black uppercase tracking-widest rounded-md flex items-center gap-1"><ShieldCheck size={10} /> ROOT_ACCESS</span>}
+              {isAdminView ? (
+                <span className="px-2 py-0.5 bg-slate-900 text-white text-[9px] font-black uppercase tracking-widest rounded-md flex items-center gap-1">
+                  <ShieldCheck size={10} /> ROOT_ACCESS :: GLOBAL_AUDIT
+                </span>
+              ) : (
+                <span className="px-2 py-0.5 bg-amber-500 text-black text-[9px] font-black uppercase tracking-widest rounded-md flex items-center gap-1">
+                  <Lock size={10} /> OWNED_PROTOCOL :: ISOLATED_VIEW
+                </span>
+              )}
            </div>
            <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none">
-             {isAdminView ? 'Gateway Registry' : 'Payment Protocols'}
+             {isAdminView ? 'Gateway Registry' : 'My Personal Gateways'}
            </h1>
            <p className="text-slate-400 text-xs font-bold uppercase tracking-[0.2em]">
-             {isAdminView ? 'Managing global financial entrypoints' : 'Configuring your personal deposit gateways'}
+             {isAdminView ? 'Managing global financial entrypoints' : `Securely managing gateways for ${user?.username || 'Authorized User'}`}
            </p>
         </div>
 
