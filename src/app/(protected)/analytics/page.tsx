@@ -5,7 +5,7 @@ import {
   ArrowDownRight, ArrowUpRight, TrendingUp, Users, ShieldAlert, 
   DollarSign, Activity, ChevronRight, Filter, Download, 
   BarChart3, PieChart, Wallet, Briefcase, UserCheck, Search,
-  ArrowRightLeft
+  ArrowRightLeft, ArrowDownLeft
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';

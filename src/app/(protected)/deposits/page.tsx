@@ -8,7 +8,7 @@ import { toast } from 'react-hot-toast';
 import { playSound } from '@/lib/sound';
 import { 
   CheckCircle2, XCircle, Search, Filter, 
-  ArrowUpRight, ArrowDownLeft, Clock, History, AlertTriangle, Image as ImageIcon
+  ArrowUpRight, ArrowDownLeft, Clock, History, AlertTriangle, Image as ImageIcon, Users
 } from 'lucide-react';
 
 interface Transaction {
