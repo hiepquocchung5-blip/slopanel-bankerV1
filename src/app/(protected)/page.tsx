@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { apiClient } from '@/lib/api';
 import { API_ENDPOINTS } from '@/lib/endpoints';
 import { useAuth } from '@/context/AuthContext';
+import { cn } from '@/lib/utils';
 import { 
   BarChart3, Fingerprint, QrCode, ShieldCheck,
   TrendingUp, Users, Wallet, Zap, Loader2,
