@@ -190,34 +190,45 @@ export default function AuditQueuePage() {
               filteredTxs.map((tx) => (
                 <tr key={tx.id} className={`hover:bg-white/5 transition-colors ${tx.status === 'PENDING' ? 'text-white' : 'text-neutral-500'}`}>
                   <td className="p-4">
-                    <div className="flex items-center gap-2">
-                      <span className={`px-1.5 py-0.5 rounded-[4px] text-[10px] font-black ${tx.user_type === 'VIP' ? 'bg-amber-500/10 text-amber-500' : 'bg-neutral-700 text-neutral-400'}`}>
-                        [{tx.user_type}]
-                      </span>
-                      <span className="font-bold tracking-tighter">{tx.user_phone}</span>
+                    <div className="flex flex-col gap-0.5">
+                      <div className="flex items-center gap-2">
+                        <span className={`px-1.5 py-0.5 rounded-[4px] text-[10px] font-black ${tx.user_type === 'VIP' ? 'bg-amber-500/10 text-amber-500' : 'bg-neutral-700 text-neutral-400'}`}>
+                          [{tx.user_type}]
+                        </span>
+                        <span className="font-bold tracking-tighter text-sm">{tx.user_phone}</span>
+                      </div>
+                      <span className="text-[10px] font-bold text-neutral-600 tracking-widest uppercase pl-0.5">ID: {tx.user_id || '---'}</span>
                     </div>
                   </td>
                   <td className="p-4 text-center">
-                    <div className="inline-flex items-center gap-2 px-2 py-1 rounded-lg bg-neutral-800 border border-white/5">
-                       <Users size={12} className="text-amber-500" />
-                       <span className="text-[10px] font-black text-amber-500 uppercase tracking-tighter">
-                          {tx.referrer_username || 'DIRECT'}
-                       </span>
+                    <div className="flex flex-col items-center gap-1">
+                      <div className="inline-flex items-center gap-2 px-2 py-1 rounded-lg bg-neutral-800 border border-white/5">
+                         <Users size={12} className="text-amber-500" />
+                         <span className="text-[10px] font-black text-amber-500 uppercase tracking-tighter">
+                            {tx.referrer_username || 'SYSTEM'}
+                         </span>
+                      </div>
                     </div>
                   </td>
                   <td className="p-4 font-black">
                     <div className="flex flex-col gap-1">
-                      <span className="font-black text-amber-500">{Number(tx.amount).toLocaleString()} Ks</span>
-                      <span className="text-[10px] font-black text-amber-600/50 uppercase">COINS</span>
+                      <span className="font-black text-lg text-amber-500 tracking-tighter">{Number(tx.amount).toLocaleString()} <span className="text-[10px] opacity-50">Ks</span></span>
+                      <span className="text-[10px] font-black text-amber-600/50 uppercase tracking-widest">SLOPARA_COINS</span>
                     </div>
                   </td>
                   <td className="p-4">
                     <div className="flex flex-col gap-1">
-                       <span className="font-bold text-white text-xs tracking-tight">
-                         {tx.user_bank_name} - {tx.user_bank_account}
+                       <div className="flex items-center gap-2">
+                         <div className="w-1.5 h-1.5 rounded-full bg-red-500/50" />
+                         <span className="font-bold text-white text-xs tracking-tight uppercase">
+                           {tx.user_bank_name}
+                         </span>
+                       </div>
+                       <span className="text-[11px] font-black text-neutral-300 tracking-widest ml-3">
+                         {tx.user_bank_account}
                        </span>
-                       <span className="text-[10px] font-black text-amber-500 uppercase">
-                         {tx.user_account_name || 'Verification Needed'}
+                       <span className="text-[9px] font-black text-amber-600 uppercase tracking-widest ml-3">
+                         HOLDER: {tx.user_account_name || 'UNKNOWN'}
                        </span>
                     </div>
                   </td>

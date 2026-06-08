@@ -13,6 +13,7 @@ import {
 
 interface Transaction {
   id: number;
+  user_id: number;
   user_phone: string;
   user_type: string;
   amount: string;
@@ -305,6 +306,30 @@ export default function AuditQueuePage() {
 
       {/* IMAGE EXPAND MODAL */}
       {expandedImage && (
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-4 backdrop-blur-xl animate-in fade-in zoom-in duration-300"
+          onClick={() => setExpandedImage(null)}
+        >
+          <div className="relative max-w-4xl w-full max-h-[90vh] flex flex-col items-center">
+            <button 
+              className="absolute -top-12 right-0 text-white/50 hover:text-white flex items-center gap-2 font-black text-xs tracking-widest uppercase transition-colors"
+              onClick={() => setExpandedImage(null)}
+            >
+              Close <XCircle size={24} />
+            </button>
+            <img 
+              src={expandedImage} 
+              alt="Receipt" 
+              className="max-w-full max-h-full object-contain rounded-2xl border border-white/10 shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+ && (
         <div 
           className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-4 backdrop-blur-xl animate-in fade-in zoom-in duration-300"
           onClick={() => setExpandedImage(null)}
