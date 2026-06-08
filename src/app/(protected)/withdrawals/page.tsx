@@ -121,7 +121,7 @@ export default function AuditQueuePage() {
 
   const pendingCount = txs.filter(t => t.tx_type === 'WITHDRAW' && t.status === 'PENDING').length;
 
-  const isStaff = user?.is_staff || user?.is_superuser;
+  const isStaff = user?.is_staff;
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
