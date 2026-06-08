@@ -22,6 +22,7 @@ interface Transaction {
   bank_info: string;
   created_at: string;
   screenshot: string | null;
+  referrer_username?: string;
   payment_method_details?: {
     bank_name: string;
     bank_account: string;
@@ -39,10 +40,11 @@ export default function AuditQueuePage() {
   const [search, setSearch] = useState('');
   const [processingId, setProcessingId] = useState<number | null>(null);
   const [expandedImage, setExpandedImage] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
 
   const fetchTxs = async () => {
     try {
-      const res = await apiClient.get(API_ENDPOINTS.BANKER.TRANSACTIONS) as any;
+      const res = await apiClient.get(`${API_ENDPOINTS.BANKER.TRANSACTIONS}?page=${page}`) as any;
       // V2: slopanel-banker use fetch wrapper which returns data directly
       const newTxs = Array.isArray(res) ? res : (res?.results || []);
       
@@ -80,7 +82,7 @@ export default function AuditQueuePage() {
     fetchTxs();
     const interval = setInterval(fetchTxs, 15000); 
     return () => clearInterval(interval);
-  }, []);
+  }, [page]);
 
   const handleAction = async (id: number, action: 'approve' | 'reject') => {
     if (!confirm(`Are you sure you want to ${action} this request?`)) return;
@@ -107,11 +109,13 @@ export default function AuditQueuePage() {
     const phone = (t.user_phone || "").toLowerCase();
     const txd = (t.txd_id || "").toLowerCase();
     const idStr = (t.id || "").toString();
+    const agent = (t.referrer_username || "").toLowerCase();
 
     const matchesSearch = 
       phone.includes(searchLower) || 
       idStr.includes(searchLower) || 
-      txd.includes(searchLower);
+      txd.includes(searchLower) ||
+      agent.includes(searchLower);
 
     return matchesTab && matchesStatus && matchesSearch;
   });
@@ -142,7 +146,7 @@ export default function AuditQueuePage() {
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-600" size={18} />
           <input 
             type="text" 
-            placeholder="SEARCH BY PHONE, ID, OR TXD_ID..."
+            placeholder="SEARCH BY PHONE, ID, TXD, OR AGENT..."
             className="w-full bg-black/50 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-sm font-bold tracking-widest outline-none transition-all placeholder:text-neutral-700"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -164,11 +168,11 @@ export default function AuditQueuePage() {
 
       {/* TABLE */}
       <div className="bg-neutral-900/50 rounded-3xl border border-white/5 overflow-hidden overflow-x-auto">
-        <table className="w-full text-left border-collapse min-w-[800px]">
+        <table className="w-full text-left border-collapse min-w-[900px]">
           <thead>
             <tr className="bg-black/40 border-bottom border-white/5">
               <th className="p-4 text-[10px] font-black tracking-widest text-neutral-500 uppercase">User Identity</th>
-              <th className="p-4 text-[10px] font-black tracking-widest text-neutral-500 uppercase">Tx Type</th>
+              <th className="p-4 text-[10px] font-black tracking-widest text-neutral-500 uppercase text-center">Source Agent</th>
               <th className="p-4 text-[10px] font-black tracking-widest text-neutral-500 uppercase">Amount</th>
               <th className="p-4 text-[10px] font-black tracking-widest text-neutral-500 uppercase">TXD ID</th>
               <th className="p-4 text-[10px] font-black tracking-widest text-neutral-500 uppercase">Status</th>
@@ -192,7 +196,14 @@ export default function AuditQueuePage() {
                       <span className="font-bold tracking-tighter">{tx.user_phone}</span>
                     </div>
                   </td>
-                  <td className="p-4 font-black">{tx.tx_type}</td>
+                  <td className="p-4 text-center">
+                    <div className="inline-flex items-center gap-2 px-2 py-1 rounded-lg bg-neutral-800 border border-white/5">
+                       <Users size={12} className="text-amber-500" />
+                       <span className="text-[10px] font-black text-amber-500 uppercase tracking-tighter">
+                          {tx.referrer_username || 'DIRECT'}
+                       </span>
+                    </div>
+                  </td>
                   <td className="p-4">
                     <div className="flex flex-col gap-1">
                       <span className="font-black text-amber-500">{Number(tx.amount).toLocaleString()}</span>
@@ -269,6 +280,27 @@ export default function AuditQueuePage() {
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* PAGINATION */}
+      <div className="flex justify-center gap-4 mt-8">
+         <button 
+           disabled={page === 1}
+           onClick={() => setPage(p => p - 1)}
+           className="px-6 py-2 rounded-xl bg-neutral-900 border border-white/5 text-[10px] font-black text-neutral-500 hover:text-white transition-all disabled:opacity-30"
+         >
+            PREV_PAGE
+         </button>
+         <div className="flex items-center px-4 bg-neutral-900 rounded-xl border border-white/5">
+            <span className="text-[10px] font-black text-amber-500">PAGE_{page}</span>
+         </div>
+         <button 
+           onClick={() => setPage(p => p + 1)}
+           disabled={filteredTxs.length < 10}
+           className="px-6 py-2 rounded-xl bg-neutral-900 border border-white/5 text-[10px] font-black text-neutral-500 hover:text-white transition-all disabled:opacity-30"
+         >
+            NEXT_PAGE
+         </button>
       </div>
 
       {/* IMAGE EXPAND MODAL */}
