@@ -47,11 +47,16 @@ export default function RootLayout({
               fjs.parentNode.insertBefore(js, fjs);
             }(window,document, 'script', 'webpushr-jssdk'));
             
-            // V4: Secure Init
+            // V4: Secure & Robust Init
             window.addEventListener('load', function() {
-              if (window.webpushr) {
-                webpushr('init','BPLFlV_sxRAcFm_FPyitoyXgBG6ayH5LcwUj9y_O0z1_L4LAZ1CK5ubDRdckPzdliOctK0sYREwT9b8P-OxJeqA');
-              }
+              var checkInterval = setInterval(function() {
+                if (window.webpushr) {
+                  clearInterval(checkInterval);
+                  webpushr('init','BPLFlV_sxRAcFm_FPyitoyXgBG6ayH5LcwUj9y_O0z1_L4LAZ1CK5ubDRdckPzdliOctK0sYREwT9b8P-OxJeqA');
+                }
+              }, 500);
+              // Timeout after 10 seconds to prevent infinite loop
+              setTimeout(function() { clearInterval(checkInterval); }, 10000);
             });
           `}
         </Script>
