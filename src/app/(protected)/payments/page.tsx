@@ -38,8 +38,8 @@ export default function PaymentsPage() {
   const [newName, setNewName] = useState('');
 
   const isStaff = user?.is_staff;
-  const isManagement = isStaff || user?.is_cashier;
-  const canManage = isManagement || user?.user_type === 'AGENT' || user?.user_type === 'VIP';
+  const isCashier = user?.is_cashier;
+  const canManage = isStaff || isCashier;
   const isAdminView = isStaff; 
 
   const fetchMethods = useCallback(async () => {
@@ -168,9 +168,9 @@ export default function PaymentsPage() {
   if (!canManage) {
     return (
       <div className="py-40 text-center">
-         <AlertCircle size={64} className="mx-auto text-red-500 mb-6 opacity-20" />
-         <h2 className="text-2xl font-black text-slate-400 uppercase tracking-widest">Unauthorized Access</h2>
-         <p className="text-slate-500 mt-2 font-bold uppercase text-[10px] tracking-widest">Clearance Level AGENT or Higher Required</p>
+         <Lock size={64} className="mx-auto text-red-500 mb-6" />
+         <h2 className="text-2xl font-black text-white uppercase tracking-widest">Unauthorized Access</h2>
+         <p className="text-slate-500 mt-2 font-bold uppercase text-[10px] tracking-widest">Clearance Level CASHIER or Higher Required</p>
       </div>
     );
   }

@@ -96,7 +96,7 @@ export default function SettingsPage() {
                    { label: 'Biometric Access', status: 'VERIFIED', color: 'text-green-500' },
                    { label: 'Session Integrity', status: 'SECURE', color: 'text-green-500' },
                    { label: 'Data Encryption', status: 'AES-256', color: 'text-amber-500' },
-                   { label: 'Clearance Level', status: user?.is_staff ? 'L4_ADMIN' : 'L2_AGENT', color: 'text-blue-500' }
+                   { label: 'Clearance Level', status: user?.is_staff ? 'L4_ADMIN' : (user?.is_agent && user?.is_cashier) ? 'L3_DEPOSITER' : user?.is_cashier ? 'L3_WITHDRAWER' : 'L2_AGENT', color: 'text-blue-500' }
                  ].map((stat, i) => (
                    <div key={i} className="flex justify-between items-center p-5 bg-white/5 rounded-2xl border border-white/5">
                       <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{stat.label}</span>

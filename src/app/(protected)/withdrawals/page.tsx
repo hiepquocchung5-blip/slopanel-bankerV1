@@ -121,7 +121,21 @@ export default function AuditQueuePage() {
 
   const pendingCount = txs.filter(t => t.tx_type === 'WITHDRAW' && t.status === 'PENDING').length;
 
+  const isAgent = user?.is_agent || user?.user_type === 'AGENT' || user?.user_type === 'VIP';
   const isStaff = user?.is_staff;
+  const isCashier = user?.is_cashier;
+  const isPureWithdrawer = isCashier && !isAgent;
+  const isAllowed = isStaff || isPureWithdrawer;
+
+  if (!isAllowed) {
+    return (
+      <div className="py-32 text-center flex flex-col items-center">
+         <Lock size={64} className="mx-auto text-red-500 mb-6" />
+         <h2 className="text-2xl font-black text-white uppercase tracking-tighter">Access Denied</h2>
+         <p className="text-slate-400 mt-2 font-bold uppercase tracking-widest text-xs">Withdrawal Clearance Required</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">

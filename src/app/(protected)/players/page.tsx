@@ -182,12 +182,12 @@ export default function PlayersPage() {
   const handleDelete = () => setCoinAmount(prev => prev.slice(0, -1));
   const handleClear = () => setCoinAmount('');
 
-  if (!isManagement) {
+  if (!isAdmin) {
     return (
       <div className="py-32 text-center">
          <ShieldAlert size={64} className="mx-auto text-red-500 mb-6" />
-         <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tighter">Access Restricted</h2>
-         <p className="text-slate-400 mt-2 font-bold uppercase tracking-widest text-xs">Level 3 Clearance Required</p>
+         <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tighter">Access Denied</h2>
+         <p className="text-slate-400 mt-2 font-bold uppercase tracking-widest text-xs">Level 4 Admin Clearance Required</p>
       </div>
     );
   }

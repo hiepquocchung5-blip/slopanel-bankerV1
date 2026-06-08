@@ -40,7 +40,7 @@ export default function AgentNetworkPage() {
   const [isCreating, setIsCreating] = useState(false);
 
   const isStaff = user?.is_staff;
-  const isAgent = user?.user_type === 'AGENT' || user?.user_type === 'VIP';
+  const isAgent = user?.is_agent || user?.user_type === 'AGENT' || user?.user_type === 'VIP';
   const isAdminView = isStaff; // Only staff see the global registry
 
   const fetchAgents = async () => {

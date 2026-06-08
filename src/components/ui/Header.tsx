@@ -28,6 +28,12 @@ export default function GlobalHeader() {
 
   if (!user) return null;
 
+  const isAgent = user.is_agent || user.user_type === 'AGENT' || user.user_type === 'VIP';
+  const isStaff = user.is_staff;
+  const isCashier = user.is_cashier;
+  const isPureWithdrawer = isCashier && !isAgent;
+  const isDepositer = isAgent && isCashier;
+
   const navItems: NavItem[] = [
     { label: 'Dash', icon: LayoutDashboard, href: '/' },
     { label: 'Payments', icon: CreditCard, href: '/payments', managementOnly: true },
@@ -106,7 +112,7 @@ export default function GlobalHeader() {
               </span>
               <div className="mt-0.5 flex items-center gap-1.5">
                 <span className="text-[10px] font-black uppercase tracking-widest text-teal-600/80">
-                  {user.is_staff ? 'ADMIN_LVL_04' : user.is_cashier ? 'CASHIER_LVL_03' : 'AGENT_LVL_02'}
+                  {isStaff ? 'ADMIN_LVL_04' : isDepositer ? 'DEPOSITER_LVL_03' : isPureWithdrawer ? 'WITHDRAWER_LVL_03' : 'AGENT_LVL_02'}
                 </span>
                 <ShieldAlert size={10} className="text-teal-500" />
               </div>
@@ -120,17 +126,13 @@ export default function GlobalHeader() {
         <nav className="no-scrollbar -mx-2 mb-3 flex items-center justify-between gap-6 overflow-x-auto pb-1 px-2">
           <div className="flex items-center gap-1.5">
             {navItems.map((item) => {
-              const isAgent = user.is_agent || user.user_type === 'AGENT' || user.user_type === 'VIP';
-              const isStaff = user.is_staff;
-              const isCashier = user.is_cashier;
-              
               if (item.adminOnly && !isStaff) return null;
               if (item.isAgentOrAdmin && !(isStaff || isAgent)) return null;
-              if (item.managementOnly && !(isStaff || isCashier || isAgent)) return null;
+              if (item.managementOnly && !(isStaff || isCashier)) return null;
               
-              // V4 Optimized Navigation Logic
-              if (item.isDepositOnly && !(isStaff || (isAgent && isCashier))) return null;
-              if (item.isWithdrawOnly && !(isStaff || isCashier)) return null;
+              // V4_REFINED: Role-specific visibility
+              if (item.isDepositOnly && !(isStaff || isDepositer)) return null;
+              if (item.isWithdrawOnly && !(isStaff || isPureWithdrawer)) return null;
 
               const isActive = pathname === item.href;
 

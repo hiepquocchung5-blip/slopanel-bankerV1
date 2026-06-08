@@ -56,8 +56,10 @@ export default function Dashboard() {
 
   const isAgent = user?.is_agent || user?.user_type === 'AGENT' || user?.user_type === 'VIP';
   const isStaff = user?.is_staff;
-  const isPureCashier = user?.is_cashier && !isAgent;
-  const isManagement = isStaff || isPureCashier;
+  const isCashier = user?.is_cashier;
+  const isPureWithdrawer = isCashier && !isAgent;
+  const isDepositer = isAgent && isCashier;
+  const isManagement = isStaff || isCashier;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -94,13 +96,13 @@ export default function Dashboard() {
   }, [isManagement]);
 
   const displayProfit = houseStats
-    ? isPureCashier
+    ? isCashier
       ? parseFloat(houseStats.global.house_profit) * 0.9
       : parseFloat(houseStats.global.house_profit)
     : 0;
 
   const displayWagered = houseStats
-    ? isPureCashier
+    ? isCashier
       ? parseFloat(houseStats.global.total_wagered) * 0.9
       : parseFloat(houseStats.global.total_wagered)
     : 0;
@@ -142,7 +144,7 @@ export default function Dashboard() {
            </div>
 
            <div className="mt-12 px-10 py-3 rounded-2xl bg-amber-500 text-black text-[12px] font-black tracking-widest uppercase shadow-[0_0_40px_rgba(245,158,11,0.25)]">
-             {isStaff ? 'UNRESTRICTED_ACCESS' : isPureCashier ? 'TRANSACTION_MODE' : 'CORE_AGENT_LINK'}
+             {isStaff ? 'UNRESTRICTED_ACCESS' : isDepositer ? 'DEPOSIT_NODE' : isPureWithdrawer ? 'WITHDRAW_NODE' : 'CORE_AGENT_LINK'}
            </div>
       </div>
 
@@ -166,7 +168,7 @@ export default function Dashboard() {
               <TrendingUp size={32} className="text-amber-500 mb-4" />
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Net Profit (Coins)</p>
               <p className="text-2xl font-black text-slate-900 tabular-nums">{Math.floor(displayProfit).toLocaleString()}</p>
-              {isPureCashier && <span className="text-[9px] font-black text-amber-600 mt-2">ADJUSTED 90%</span>}
+              {isCashier && <span className="text-[9px] font-black text-amber-600 mt-2">ADJUSTED 90%</span>}
             </div>
             <div className="bg-white border border-slate-200 p-8 flex flex-col items-center text-center rounded-[32px] shadow-sm hover:border-amber-500/50 transition-colors">
               <BarChart3 size={32} className="text-amber-500 mb-4" />
