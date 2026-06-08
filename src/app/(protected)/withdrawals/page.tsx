@@ -7,7 +7,7 @@ import { API_ENDPOINTS } from '@/lib/endpoints';
 import { toast } from 'react-hot-toast';
 import { playSound } from '@/lib/sound';
 import { 
-  CheckCircle2, XCircle, Search, Filter, Users,
+  CheckCircle2, XCircle, Search, Filter, Users, Lock,
   ArrowUpRight, ArrowDownLeft, Clock, History, AlertTriangle, Image as ImageIcon
 } from 'lucide-react';
 
