@@ -4,7 +4,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { API } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
-import { AlertCircle, Plus, Minus, Landmark, CreditCard, User, ToggleLeft, ToggleRight, Loader2 } from 'lucide-react';
+import { AlertCircle, Plus, Minus, Landmark, CreditCard, User, ToggleLeft, ToggleRight, Loader2, Settings, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'react-hot-toast';
 import { playSound } from '@/lib/sound';
