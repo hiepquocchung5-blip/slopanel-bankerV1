@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { 
   ArrowDownRight, ArrowUpRight, TrendingUp, Users, ShieldAlert, 
   DollarSign, Activity, ChevronRight, Filter, Download, 
@@ -22,6 +23,8 @@ interface PLStats {
   active_agents: number;
   total_commission_paid: number;
   daily_flow: number[];
+  deposit_change_pct: number;
+  withdrawal_change_pct: number;
 }
 
 interface AgentPerformance {
@@ -33,12 +36,21 @@ interface AgentPerformance {
   commission_balance: number;
 }
 
+interface Transaction {
+  id: number;
+  user_phone: string;
+  amount: string;
+  tx_type: 'DEPOSIT' | 'WITHDRAW';
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+}
+
 export default function PLAnalyticsPage() {
   const { user } = useAuth();
   const isAdmin = user?.is_staff;
   
   const [stats, setStats] = useState<PLStats | null>(null);
   const [agents, setAgents] = useState<AgentPerformance[]>([]);
+  const [recentTraffic, setRecentTraffic] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [timeRange, setTimeRange] = useState<'24H' | '7D' | '30D' | 'ALL'>('7D');
@@ -46,21 +58,26 @@ export default function PLAnalyticsPage() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      // Simulation of granular P&L data fetching
-      // In a real scenario, we'd have a specific P&L endpoint
-      const dashboardRes = await apiClient.get(API_ENDPOINTS.BANKER.DASHBOARD_STATS) as any;
-      const agentsRes = await apiClient.get(API_ENDPOINTS.BANKER.AGENTS) as any;
+      // V4: Fetch real financial aggregates, agents, and recent flow
+      const [dashboardRes, agentsRes, trafficRes] = await Promise.all([
+        apiClient.get(API_ENDPOINTS.BANKER.DASHBOARD_STATS),
+        apiClient.get(API_ENDPOINTS.BANKER.AGENTS),
+        apiClient.get(API_ENDPOINTS.BANKER.TRANSACTIONS)
+      ]) as any;
       
       const agentsData = Array.isArray(agentsRes) ? agentsRes : (agentsRes?.results || []);
+      const trafficData = Array.isArray(trafficRes) ? trafficRes : (trafficRes?.results || []);
       
       setStats({
         total_deposits: dashboardRes?.total_deposits || 0,
         total_withdrawals: dashboardRes?.total_withdrawals || 0,
-        net_profit: (dashboardRes?.total_deposits || 0) - (dashboardRes?.total_withdrawals || 0),
+        net_profit: dashboardRes?.net_profit || 0,
         total_users: dashboardRes?.total_users || 0,
         active_agents: agentsData.length,
-        total_commission_paid: agentsData.reduce((acc: number, curr: any) => acc + parseFloat(curr.total_commission_earned || 0), 0),
-        daily_flow: [45, 52, 38, 65, 48, 70, 58]
+        total_commission_paid: dashboardRes?.total_commission_paid || 0,
+        daily_flow: dashboardRes?.daily_volume || [0, 0, 0, 0, 0, 0, 0],
+        deposit_change_pct: dashboardRes?.deposit_change_pct || 0,
+        withdrawal_change_pct: dashboardRes?.withdrawal_change_pct || 0
       });
 
       setAgents(agentsData.map((a: any) => ({
@@ -71,6 +88,8 @@ export default function PLAnalyticsPage() {
         total_earnings: parseFloat(a.total_commission_earned || 0),
         commission_balance: parseFloat(a.commission_coins || 0)
       })));
+
+      setRecentTraffic(trafficData.slice(0, 4));
 
     } catch (e) {
       toast.error('Financial telemetry failed to sync');
@@ -131,7 +150,12 @@ export default function PLAnalyticsPage() {
               <div className="p-3 bg-green-500/10 rounded-2xl text-green-500 border border-green-500/20">
                  <ArrowDownLeft size={24} />
               </div>
-              <span className="text-[10px] font-black text-green-500 flex items-center gap-1 bg-green-500/5 px-2 py-1 rounded-full">+8.4%</span>
+              <span className={cn(
+                "text-[10px] font-black flex items-center gap-1 px-2 py-1 rounded-full",
+                (stats?.deposit_change_pct || 0) >= 0 ? "text-green-500 bg-green-500/5" : "text-red-500 bg-red-500/5"
+              )}>
+                {(stats?.deposit_change_pct || 0) >= 0 ? '+' : ''}{stats?.deposit_change_pct}%
+              </span>
            </div>
            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Gross Deposits</p>
            <h4 className="text-3xl font-black text-white tabular-nums">{stats?.total_deposits.toLocaleString()}<span className="text-xs text-slate-500 ml-1">Ks</span></h4>
@@ -142,7 +166,12 @@ export default function PLAnalyticsPage() {
               <div className="p-3 bg-red-500/10 rounded-2xl text-red-500 border border-red-500/20">
                  <ArrowUpRight size={24} />
               </div>
-              <span className="text-[10px] font-black text-red-500 flex items-center gap-1 bg-red-500/5 px-2 py-1 rounded-full">-2.1%</span>
+              <span className={cn(
+                "text-[10px] font-black flex items-center gap-1 px-2 py-1 rounded-full",
+                (stats?.withdrawal_change_pct || 0) <= 0 ? "text-green-500 bg-green-500/5" : "text-red-500 bg-red-500/5"
+              )}>
+                {(stats?.withdrawal_change_pct || 0) >= 0 ? '+' : ''}{stats?.withdrawal_change_pct}%
+              </span>
            </div>
            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Gross Withdrawals</p>
            <h4 className="text-3xl font-black text-white tabular-nums">{stats?.total_withdrawals.toLocaleString()}<span className="text-xs text-slate-500 ml-1">Ks</span></h4>
@@ -245,40 +274,35 @@ export default function PLAnalyticsPage() {
            </h5>
            
            <div className="bg-slate-900 rounded-[40px] p-8 border border-white/5 shadow-2xl space-y-6">
-              {[
-                { type: 'DEPOSIT', amount: 50000, user: '0977...123', status: 'SUCCESS' },
-                { type: 'WITHDRAW', amount: 120000, user: '0942...884', status: 'PENDING' },
-                { type: 'COMMISSION', amount: 1500, user: 'Agent_Zero', status: 'PAID' },
-                { type: 'DEPOSIT', amount: 25000, user: '0925...991', status: 'SUCCESS' },
-              ].map((log, i) => (
+              {recentTraffic.length === 0 ? (
+                <p className="text-center text-slate-500 py-10 uppercase text-[10px] font-black tracking-widest">Feed Secure & Clear</p>
+              ) : recentTraffic.map((log, i) => (
                 <div key={i} className="flex items-center justify-between border-b border-white/5 pb-4 last:border-0 last:pb-0">
                    <div className="flex items-center gap-3">
                       <div className={cn(
                         "p-2 rounded-lg",
-                        log.type === 'DEPOSIT' ? "bg-green-500/10 text-green-500" : 
-                        log.type === 'WITHDRAW' ? "bg-red-500/10 text-red-500" : "bg-blue-500/10 text-blue-500"
+                        log.tx_type === 'DEPOSIT' ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"
                       )}>
-                         {log.type === 'DEPOSIT' ? <ArrowDownLeft size={14} /> : 
-                          log.type === 'WITHDRAW' ? <ArrowUpRight size={14} /> : <ArrowRightLeft size={14} />}
+                         {log.tx_type === 'DEPOSIT' ? <ArrowDownLeft size={14} /> : <ArrowUpRight size={14} />}
                       </div>
                       <div>
-                         <p className="text-[10px] font-black text-white uppercase">{log.type}</p>
-                         <p className="text-[9px] font-bold text-slate-500">{log.user}</p>
+                         <p className="text-[10px] font-black text-white uppercase">{log.tx_type}</p>
+                         <p className="text-[9px] font-bold text-slate-500">{log.user_phone}</p>
                       </div>
                    </div>
                    <div className="text-right">
-                      <p className="text-xs font-black text-white">{log.amount.toLocaleString()} Ks</p>
+                      <p className="text-xs font-black text-white">{Number(log.amount).toLocaleString()} Ks</p>
                       <span className={cn(
                         "text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-widest",
-                        log.status === 'SUCCESS' || log.status === 'PAID' ? "text-green-500 bg-green-500/10" : "text-amber-500 bg-amber-500/10 animate-pulse"
+                        log.status === 'APPROVED' ? "text-green-500 bg-green-500/10" : "text-amber-500 bg-amber-500/10 animate-pulse"
                       )}>{log.status}</span>
                    </div>
                 </div>
               ))}
               
-              <button className="w-full py-4 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-black text-slate-400 uppercase tracking-widest hover:bg-white/10 transition-all flex items-center justify-center gap-2">
+              <Link href="/payments" className="w-full py-4 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-black text-slate-400 uppercase tracking-widest hover:bg-white/10 transition-all flex items-center justify-center gap-2">
                  VIEW ARCHIVED TELEMETRY <ChevronRight size={14} />
-              </button>
+              </Link>
            </div>
         </div>
       </div>

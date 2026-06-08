@@ -2,11 +2,13 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { API } from '@/lib/api';
+import { apiClient } from '@/lib/api';
+import { API_ENDPOINTS } from '@/lib/endpoints';
 import { useAuth } from '@/context/AuthContext';
 import { 
   BarChart3, Fingerprint, QrCode, ShieldCheck,
-  TrendingUp, Users, Wallet, Zap, Loader2
+  TrendingUp, Users, Wallet, Zap, Loader2,
+  DollarSign, Activity
 } from 'lucide-react';
 
 interface HouseStats {
@@ -18,6 +20,13 @@ interface HouseStats {
   };
 }
 
+interface FinancialStats {
+  total_deposits: number;
+  total_withdrawals: number;
+  net_profit: number;
+  total_users: number;
+}
+
 interface ReferralStats {
   referral_code: string;
   total_referrals: number;
@@ -27,16 +36,18 @@ interface ReferralStats {
 
 interface Transaction {
   id: number;
-  user: number;
   amount: string;
   tx_type: 'DEPOSIT' | 'WITHDRAW';
   status: 'PENDING' | 'APPROVED' | 'REJECTED';
   created_at: string;
+  user_phone: string;
+  user_bank_name?: string;
 }
 
 export default function Dashboard() {
   const { user } = useAuth();
   const [houseStats, setHouseStats] = useState<HouseStats | null>(null);
+  const [finStats, setFinStats] = useState<FinancialStats | null>(null);
   const [refStats, setRefStats] = useState<ReferralStats | null>(null);
   const [recentTraffic, setRecentTraffic] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -49,22 +60,28 @@ export default function Dashboard() {
     const fetchData = async () => {
       try {
         if (isManagement) {
-          const [house, traffic] = await Promise.all([
-            API.request<HouseStats>('game/admin/analytics/'),
-            API.request<Transaction[]>('payments/admin/transactions/'),
+          const [house, traffic, financial] = await Promise.all([
+            apiClient.get<HouseStats>('game/admin/analytics/'),
+            apiClient.get(API_ENDPOINTS.BANKER.TRANSACTIONS),
+            apiClient.get<FinancialStats>(API_ENDPOINTS.BANKER.DASHBOARD_STATS),
           ]);
           setHouseStats(house);
-          setRecentTraffic(traffic.slice(0, 5));
+          setFinStats(financial);
+          
+          const trafficData = (traffic as any)?.results || traffic;
+          setRecentTraffic(Array.isArray(trafficData) ? trafficData.slice(0, 5) : []);
         } else {
           const [referrals, traffic] = await Promise.all([
-            API.request<ReferralStats>('users/referrals/'),
-            API.request<Transaction[]>('payments/admin/transactions/'),
+            apiClient.get<ReferralStats>('users/referrals/stats/'),
+            apiClient.get(API_ENDPOINTS.BANKER.TRANSACTIONS),
           ]);
           setRefStats(referrals);
-          setRecentTraffic(traffic.slice(0, 5));
+          
+          const trafficData = (traffic as any)?.results || traffic;
+          setRecentTraffic(Array.isArray(trafficData) ? trafficData.slice(0, 5) : []);
         }
-      } catch {
-        console.error('Dashboard load failed');
+      } catch (e) {
+        console.error('Dashboard load failed', e);
       } finally {
         setIsLoading(false);
       }
@@ -127,8 +144,20 @@ export default function Dashboard() {
 
       {/* STATS GRID */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-        {isManagement && houseStats ? (
+        {isManagement && (houseStats || finStats) ? (
           <>
+            <div className="bg-slate-900 border border-white/5 p-8 flex flex-col items-center text-center rounded-[32px] shadow-2xl transition-all hover:-translate-y-1">
+              <DollarSign size={32} className="text-green-500 mb-4" />
+              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Total Deposits</p>
+              <p className="text-2xl font-black text-white tabular-nums">{(finStats?.total_deposits || 0).toLocaleString()}</p>
+            </div>
+
+            <div className="bg-slate-900 border border-white/5 p-8 flex flex-col items-center text-center rounded-[32px] shadow-2xl transition-all hover:-translate-y-1">
+              <Activity size={32} className="text-red-500 mb-4" />
+              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Total Withdrawals</p>
+              <p className="text-2xl font-black text-white tabular-nums">{(finStats?.total_withdrawals || 0).toLocaleString()}</p>
+            </div>
+
             <div className="bg-white border border-slate-200 p-8 flex flex-col items-center text-center rounded-[32px] shadow-sm hover:border-amber-500/50 transition-colors">
               <TrendingUp size={32} className="text-amber-500 mb-4" />
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Net Profit (Coins)</p>
@@ -138,17 +167,7 @@ export default function Dashboard() {
             <div className="bg-white border border-slate-200 p-8 flex flex-col items-center text-center rounded-[32px] shadow-sm hover:border-amber-500/50 transition-colors">
               <BarChart3 size={32} className="text-amber-500 mb-4" />
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Global RTP</p>
-              <p className="text-2xl font-black text-slate-900 tabular-nums">{houseStats.global.rtp_percentage}%</p>
-            </div>
-            <div className="bg-white border border-slate-200 p-8 flex flex-col items-center text-center rounded-[32px] shadow-sm hover:border-amber-500/50 transition-colors">
-              <Zap size={32} className="text-amber-500 mb-4" />
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Total Spins</p>
-              <p className="text-2xl font-black text-slate-900 tabular-nums">{houseStats.global.total_spins.toLocaleString()}</p>
-            </div>
-            <div className="bg-white border border-slate-200 p-8 flex flex-col items-center text-center rounded-[32px] shadow-sm hover:border-amber-500/50 transition-colors">
-              <Wallet size={32} className="text-amber-500 mb-4" />
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Wagered (Coins)</p>
-              <p className="text-2xl font-black text-slate-900 tabular-nums">{Math.floor(displayWagered).toLocaleString()}</p>
+              <p className="text-2xl font-black text-slate-900 tabular-nums">{houseStats?.global.rtp_percentage || 0}%</p>
             </div>
           </>
         ) : refStats ? (
@@ -196,13 +215,16 @@ export default function Dashboard() {
                        <Zap size={20} className={tx.tx_type === 'DEPOSIT' ? 'text-amber-500' : 'text-slate-400'} />
                        <div className="flex flex-col">
                           <span className="text-xs font-black uppercase text-slate-900">{tx.tx_type}</span>
-                          <span className="text-[9px] font-bold text-slate-400 uppercase">{tx.status}</span>
+                          <span className="text-[9px] font-bold text-slate-400 uppercase">{tx.user_phone}</span>
                        </div>
                     </div>
                     <div className="flex flex-col items-end">
                        <span className="text-base font-black tabular-nums text-slate-900">{Math.floor(parseFloat(tx.amount)).toLocaleString()}</span>
-                       <span className="text-[9px] font-black text-amber-600 uppercase">
-                         {tx.tx_type === 'WITHDRAW' ? (tx as any).user_bank_name || 'COINS' : 'COINS'}
+                       <span className={cn(
+                          "text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-widest",
+                          tx.status === 'APPROVED' ? "text-green-500 bg-green-500/10" : "text-amber-500 bg-amber-500/10 animate-pulse"
+                       )}>
+                         {tx.status}
                        </span>
                     </div>
                  </div>

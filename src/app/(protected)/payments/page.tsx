@@ -38,6 +38,8 @@ export default function PaymentsPage() {
   const fetchMethods = useCallback(async () => {
     setIsLoading(true);
     try {
+      // isManagement (Admin/Cashier) uses the /admin/ endpoint which now returns ALL methods.
+      // Agents use the /agent/ endpoint which returns their own.
       const endpoint = isManagement ? 'payments/admin/methods/' : 'payments/agent/methods/';
       const data = await API.request<PaymentMethod[]>(endpoint);
       setMethods(data);
