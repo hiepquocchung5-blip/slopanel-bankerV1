@@ -13,6 +13,7 @@ import {
 
 interface Transaction {
   id: number;
+  user_id: number;
   user_phone: string;
   user_type: string;
   amount: string;
@@ -36,7 +37,6 @@ interface Transaction {
 
 export default function AuditQueuePage() {
   const { user } = useAuth();
-  const [activeTab] = useState<'WITHDRAW'>('WITHDRAW');
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED'>('ALL');
   const [txs, setTxs] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
@@ -48,10 +48,8 @@ export default function AuditQueuePage() {
   const fetchTxs = async () => {
     try {
       const res = await apiClient.get(`${API_ENDPOINTS.BANKER.TRANSACTIONS}?page=${page}`) as any;
-      // V2: slopanel-banker use fetch wrapper which returns data directly
       const newTxs = Array.isArray(res) ? res : (res?.results || []);
       
-      // V2: Detect new pending transactions for alerting
       const currentPendingIds = new Set(txs.filter(t => t.status === 'PENDING').map(t => t.id));
       const hasNewPending = newTxs.some((t: any) => t.status === 'PENDING' && !currentPendingIds.has(t.id));
 

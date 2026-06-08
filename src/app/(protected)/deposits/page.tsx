@@ -34,7 +34,6 @@ interface Transaction {
 
 export default function AuditQueuePage() {
   const { user } = useAuth();
-  const [activeTab] = useState<'DEPOSIT'>('DEPOSIT');
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED'>('ALL');
   const [txs, setTxs] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,10 +45,8 @@ export default function AuditQueuePage() {
   const fetchTxs = async () => {
     try {
       const res = await apiClient.get(`${API_ENDPOINTS.BANKER.TRANSACTIONS}?page=${page}`) as any;
-      // V2: slopanel-banker use fetch wrapper which returns data directly
       const newTxs = Array.isArray(res) ? res : (res?.results || []);
       
-      // V2: Detect new pending transactions for alerting
       const currentPendingIds = new Set(txs.filter(t => t.status === 'PENDING').map(t => t.id));
       const hasNewPending = newTxs.some((t: any) => t.status === 'PENDING' && !currentPendingIds.has(t.id));
 
@@ -190,40 +187,51 @@ export default function AuditQueuePage() {
               filteredTxs.map((tx) => (
                 <tr key={tx.id} className={`hover:bg-white/5 transition-colors ${tx.status === 'PENDING' ? 'text-white' : 'text-neutral-500'}`}>
                   <td className="p-4">
-                    <div className="flex items-center gap-2">
-                      <span className={`px-1.5 py-0.5 rounded-[4px] text-[10px] font-black ${tx.user_type === 'VIP' ? 'bg-amber-500/10 text-amber-500' : 'bg-neutral-700 text-neutral-400'}`}>
-                        [{tx.user_type}]
-                      </span>
-                      <span className="font-bold tracking-tighter">{tx.user_phone}</span>
+                    <div className="flex flex-col gap-0.5">
+                      <div className="flex items-center gap-2">
+                        <span className={`px-1.5 py-0.5 rounded-[4px] text-[10px] font-black ${tx.user_type === 'VIP' ? 'bg-amber-500/10 text-amber-500' : 'bg-neutral-700 text-neutral-400'}`}>
+                          [{tx.user_type}]
+                        </span>
+                        <span className="font-bold tracking-tighter text-sm">{tx.user_phone}</span>
+                      </div>
+                      <span className="text-[10px] font-bold text-neutral-600 tracking-widest uppercase pl-0.5">ID: {tx.user_id || '---'}</span>
                     </div>
                   </td>
                   <td className="p-4 text-center">
-                    <div className="inline-flex items-center gap-2 px-2 py-1 rounded-lg bg-neutral-800 border border-white/5">
-                       <Users size={12} className="text-amber-500" />
-                       <span className="text-[10px] font-black text-amber-500 uppercase tracking-tighter">
-                          {tx.referrer_username || 'DIRECT'}
-                       </span>
+                    <div className="flex flex-col items-center gap-1">
+                      <div className="inline-flex items-center gap-2 px-2 py-1 rounded-lg bg-neutral-800 border border-white/5">
+                         <Users size={12} className="text-amber-500" />
+                         <span className="text-[10px] font-black text-amber-500 uppercase tracking-tighter">
+                            {tx.referrer_username || 'SYSTEM'}
+                         </span>
+                      </div>
                     </div>
                   </td>
                   <td className="p-4">
                     <div className="flex flex-col gap-1">
-                      <span className="font-black text-amber-500">{Number(tx.amount).toLocaleString()}</span>
+                      <span className="font-black text-lg text-amber-500 tracking-tighter">{Number(tx.amount).toLocaleString()} <span className="text-[10px] opacity-50">Ks</span></span>
                       {tx.payment_method_details && (
-                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">
-                          via {tx.payment_method_details.bank_name} ({tx.payment_method_details.account_name})
-                        </span>
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-1.5 h-1.5 rounded-full bg-green-500/50" />
+                          <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-tighter">
+                            {tx.payment_method_details.bank_name} • {tx.payment_method_details.account_name}
+                          </span>
+                        </div>
                       )}
                     </div>
                   </td>
                   <td className="p-4">
-                    <div className="flex flex-col gap-1">
-                       <span className="font-bold text-neutral-400">{tx.txd_id || '-'}</span>
+                    <div className="flex flex-col gap-1.5">
+                       <div className="inline-flex items-center gap-2 bg-black/40 px-2 py-1 rounded-md border border-white/5 w-fit">
+                          <span className="text-[11px] font-black text-neutral-300 tracking-widest">{tx.txd_id || 'NO_TXD'}</span>
+                       </div>
                        {tx.screenshot && (
                          <button 
                            onClick={() => setExpandedImage(tx.screenshot?.startsWith('http') ? tx.screenshot : `https://api.suropara.com${tx.screenshot}`)}
-                           className="text-[9px] text-amber-500 hover:text-amber-400 flex items-center gap-1 font-black uppercase transition-colors"
+                           className="text-[9px] text-amber-500 hover:text-amber-400 flex items-center gap-1.5 font-black uppercase transition-colors group"
                          >
-                           <ImageIcon size={10} /> View Receipt
+                           <ImageIcon size={12} className="group-hover:scale-110 transition-transform" /> 
+                           <span className="underline underline-offset-2">Verify Receipt</span>
                          </button>
                        )}
                     </div>
