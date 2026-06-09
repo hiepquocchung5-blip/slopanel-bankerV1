@@ -5,7 +5,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { 
   ChevronLeft, User, LayoutDashboard, CreditCard, 
-  Zap, Users, LogOut, Settings, BarChart2, ShieldAlert 
+  Zap, Users, LogOut, Settings, BarChart2, ShieldAlert,
+  Monitor, TrendingUp 
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
@@ -39,6 +40,8 @@ export default function GlobalHeader() {
     { label: 'Payments', icon: CreditCard, href: '/payments', managementOnly: true },
     { label: 'Deposits', icon: Zap, href: '/deposits', isDepositOnly: true },
     { label: 'Withdrawals', icon: Zap, href: '/withdrawals', isWithdrawOnly: true },
+    { label: 'Control', icon: Monitor, href: '/control-center', adminOnly: true },
+    { label: 'Growth', icon: TrendingUp, href: '/agents-progress', adminOnly: true },
     { label: 'Agents', icon: ShieldAlert, href: '/agents', isAgentOrAdmin: true },
     { label: 'Players', icon: Users, href: '/players', adminOnly: true },
     { label: 'Stats', icon: BarChart2, href: '/analytics', adminOnly: true },
