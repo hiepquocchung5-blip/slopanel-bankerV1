@@ -20,6 +20,8 @@ interface AgentProgress {
   total_commission_earned: string;
   handled_deposits_total: string;
   handled_deposits_count: number;
+  deposit_commission_earned: string;
+  transfer_remaining_to_ceo: string;
   handled_withdrawals_total: string;
   handled_withdrawals_count: number;
   referred_users_count: number;
@@ -102,9 +104,9 @@ export default function AgentProgressPage() {
             <tr className="bg-black/40 border-bottom border-white/5">
               <th className="p-6 text-[10px] font-black tracking-widest text-neutral-500 uppercase">Agent Identity</th>
               <th className="p-6 text-[10px] font-black tracking-widest text-neutral-500 uppercase">Recruits</th>
-              <th className="p-6 text-[10px] font-black tracking-widest text-neutral-500 uppercase">Handled Deposits</th>
+              <th className="p-6 text-[10px] font-black tracking-widest text-neutral-500 uppercase">Financial Reconciliations</th>
               <th className="p-6 text-[10px] font-black tracking-widest text-neutral-500 uppercase">Handled Withdrawals</th>
-              <th className="p-6 text-[10px] font-black tracking-widest text-neutral-500 uppercase">Commissions</th>
+              <th className="p-6 text-[10px] font-black tracking-widest text-neutral-500 uppercase">Total Commissions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5 font-mono text-sm">
@@ -134,12 +136,19 @@ export default function AgentProgressPage() {
                     </div>
                   </td>
                   <td className="p-6">
-                    <div className="flex flex-col">
-                      <div className="flex items-center gap-2 text-green-500">
-                         <ArrowUpRight size={14} />
-                         <span className="text-md font-black tracking-tighter">{Number(agent.handled_deposits_total).toLocaleString()} Ks</span>
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center justify-between gap-4 border-b border-white/5 pb-1">
+                         <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Total Handled:</span>
+                         <span className="text-sm font-black text-green-500">{Number(agent.handled_deposits_total).toLocaleString()} Ks</span>
                       </div>
-                      <span className="text-[10px] font-bold text-neutral-600 uppercase pl-5">{agent.handled_deposits_count} TXs</span>
+                      <div className="flex items-center justify-between gap-4 border-b border-white/5 pb-1">
+                         <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">10% Agent Cut:</span>
+                         <span className="text-sm font-black text-amber-500">- {Number(agent.deposit_commission_earned).toLocaleString()} Ks</span>
+                      </div>
+                      <div className="flex items-center justify-between gap-4 pt-1 bg-black/20 p-2 rounded-lg">
+                         <span className="text-[10px] font-black text-white uppercase tracking-widest">Net to CEO:</span>
+                         <span className="text-sm font-black text-white">{Number(agent.transfer_remaining_to_ceo).toLocaleString()} Ks</span>
+                      </div>
                     </div>
                   </td>
                   <td className="p-6">
