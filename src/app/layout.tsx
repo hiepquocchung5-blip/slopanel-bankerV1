@@ -38,6 +38,9 @@ export default function RootLayout({
       >
         <Script id="webpushr-jssdk" strategy="afterInteractive">
           {`
+            // Prevent Webpushr from auto-prompting and crashing
+            window.webpushr_custom_prompt = true;
+            
             (function(w,d, s, id) {
               if(typeof(w.webpushr)!=='undefined') return;
               w.webpushr=w.webpushr||function(){(w.webpushr.q=w.webpushr.q||[]).push(arguments)};
@@ -47,12 +50,16 @@ export default function RootLayout({
               fjs.parentNode.insertBefore(js, fjs);
             }(window,document, 'script', 'webpushr-jssdk'));
             
-            // V4: Secure & Robust Init
+            // V4: Secure & Robust Init with Try-Catch
             window.addEventListener('load', function() {
               var checkInterval = setInterval(function() {
                 if (window.webpushr) {
                   clearInterval(checkInterval);
-                  webpushr('init','BPLFlV_sxRAcFm_FPyitoyXgBG6ayH5LcwUj9y_O0z1_L4LAZ1CK5ubDRdckPzdliOctK0sYREwT9b8P-OxJeqA');
+                  try {
+                    webpushr('init','BPLFlV_sxRAcFm_FPyitoyXgBG6ayH5LcwUj9y_O0z1_L4LAZ1CK5ubDRdckPzdliOctK0sYREwT9b8P-OxJeqA');
+                  } catch (e) {
+                    console.warn("Webpushr Init Suppressed:", e);
+                  }
                 }
               }, 500);
               // Timeout after 10 seconds to prevent infinite loop
