@@ -33,7 +33,7 @@ export default function AgentProgressPage() {
 
   const fetchProgress = async () => {
     try {
-      const res = await apiClient.get('/api/users/admin/agents/progress/') as AgentProgress[];
+      const res = await apiClient.get('/users/admin/agents/progress/') as AgentProgress[];
       setAgents(res);
     } catch (e) {
       toast.error('Failed to sync agent metrics');

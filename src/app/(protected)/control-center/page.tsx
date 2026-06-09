@@ -34,8 +34,8 @@ export default function ControlCenterPage() {
 
   const fetchStatus = async () => {
     try {
-      // Note: Need to add this endpoint to API_ENDPOINTS.GAME.CONTROL_CENTER
-      const res = await apiClient.get('/api/game/admin/control-center/') as Island[];
+      // The correct Django path is /game/admin/control-center/
+      const res = await apiClient.get('/game/admin/control-center/') as Island[];
       setIslands(res);
       setLastUpdated(new Date());
     } catch (e) {
