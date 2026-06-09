@@ -10,6 +10,7 @@ export interface User {
   username: string | null;
   user_type: 'NORMAL' | 'AGENT' | 'VIP' | 'CEO' | 'TECHNICIAN';
   is_staff: boolean;
+  is_superuser?: boolean;
   is_cashier: boolean;
   is_agent: boolean;
   slopara_coins: number;
