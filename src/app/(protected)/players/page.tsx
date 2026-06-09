@@ -48,6 +48,7 @@ export default function PlayersPage() {
   const [activeTopupPlayer, setActiveTopupPlayer] = useState<Player | null>(null);
   const [activeRolePlayer, setActiveRolePlayer] = useState<Player | null>(null);
   const [coinAmount, setCoinAmount] = useState<string>('');
+  const [coinAction, setCoinAction] = useState<'add' | 'remove'>('add');
 
   const isAdmin = user?.is_staff;
   const isAgent = user?.is_agent || user?.user_type === 'AGENT' || user?.user_type === 'VIP';
@@ -157,17 +158,18 @@ export default function PlayersPage() {
     try {
       await API.request(`users/admin/players/${activeTopupPlayer.id}/add-coins/`, { 
         method: 'POST',
-        body: JSON.stringify({ amount: coinAmount })
+        body: JSON.stringify({ amount: coinAmount, action: coinAction })
       });
       playSound('success');
-      toast.success('Assets transferred successfully');
+      toast.success(coinAction === 'add' ? 'Assets transferred successfully' : 'Assets deducted successfully');
       setCoinAmount('');
+      setCoinAction('add');
       setActiveTopupPlayer(null);
       // Refresh current player list
       handleSearch();
-    } catch {
+    } catch (e: any) {
       playSound('error');
-      toast.error('Transaction Failed. Check secure node connection.');
+      toast.error(e.message || 'Transaction Failed. Check secure node connection.');
     } finally {
       setProcessingId(null);
     }
@@ -443,79 +445,79 @@ export default function PlayersPage() {
              >
                 <div className="p-6 md:p-10">
                    <div className="flex justify-between items-center mb-6 md:mb-8">
-                      <div className="bg-blue-500/10 border border-blue-500/20 px-4 md:px-5 py-2 rounded-full flex items-center gap-2">
-                         <Zap size={16} className="text-blue-600" />
-                         <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest">Credit Allocation</span>
+                      <div className={`border px-4 md:px-5 py-2 rounded-full flex items-center gap-2 ${coinAction === 'add' ? 'bg-blue-500/10 border-blue-500/20 text-blue-600' : 'bg-red-500/10 border-red-500/20 text-red-600'}`}>
+                         <Zap size={16} />
+                         <span className="text-[10px] font-black uppercase tracking-widest">Credit Allocation</span>
                       </div>
                       <button onClick={() => setActiveTopupPlayer(null)} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
                          <X size={24} className="text-slate-400" />
                       </button>
                    </div>
 
-                   <div className="text-center mb-8 md:mb-10">
+                   <div className="text-center mb-6">
                       <p className="text-[10px] md:text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Target Account</p>
                       <h3 className="text-2xl md:text-3xl font-black text-slate-900">{activeTopupPlayer.phone_number}</h3>
+                      <p className="text-xs font-bold text-slate-500 mt-2">Current Balance: <span className="font-black text-slate-800">{activeTopupPlayer.slopara_credits.toLocaleString()} CR</span></p>
+                   </div>
+
+                   {/* ACTION TOGGLE */}
+                   <div className="flex bg-slate-100 p-1.5 rounded-[24px] mb-8">
+                      <button 
+                         onClick={() => setCoinAction('add')}
+                         className={`flex-1 py-3 rounded-[20px] text-xs font-black uppercase tracking-widest transition-all ${coinAction === 'add' ? 'bg-white text-blue-600 shadow-md' : 'text-slate-400 hover:text-slate-600'}`}
+                      >
+                         Add Credits
+                      </button>
+                      <button 
+                         onClick={() => setCoinAction('remove')}
+                         className={`flex-1 py-3 rounded-[20px] text-xs font-black uppercase tracking-widest transition-all ${coinAction === 'remove' ? 'bg-white text-red-600 shadow-md' : 'text-slate-400 hover:text-slate-600'}`}
+                      >
+                         Deduct Credits
+                      </button>
                    </div>
 
                    {/* AMOUNT DISPLAY */}
-                   <div className="bg-slate-900 border-2 border-blue-500/20 rounded-[32px] p-8 md:p-10 mb-8 md:mb-10 flex flex-col items-center shadow-xl">
-                      <span className="text-[10px] font-black text-blue-500 uppercase tracking-[0.3em] mb-4">Value</span>
+                   <div className={`bg-slate-900 border-2 rounded-[32px] p-6 md:p-8 mb-8 flex flex-col items-center shadow-xl transition-colors ${coinAction === 'add' ? 'border-blue-500/20' : 'border-red-500/20'}`}>
+                      <span className={`text-[10px] font-black uppercase tracking-[0.3em] mb-4 ${coinAction === 'add' ? 'text-blue-500' : 'text-red-500'}`}>Value</span>
                       <div className="flex items-baseline gap-4">
                          <span className="text-5xl md:text-6xl font-black text-white tabular-nums tracking-tighter">
-                            {coinAmount ? Number(coinAmount).toLocaleString() : '0'}
+                            {coinAction === 'remove' && coinAmount ? '-' : ''}{coinAmount ? Number(coinAmount).toLocaleString() : '0'}
                          </span>
-                         <span className="text-blue-500 font-black text-base md:text-lg uppercase">CR</span>
+                         <span className={`font-black text-base md:text-lg uppercase ${coinAction === 'add' ? 'text-blue-500' : 'text-red-500'}`}>CR</span>
                       </div>
-                      <p className="mt-4 text-[8px] font-black text-slate-500 uppercase tracking-widest text-center italic opacity-60">
-                        * Credits are non-withdrawable gameplay assets.
-                      </p>
-                   </div>
-
-                   {/* QUICK PRESETS */}
-                   <div className="grid grid-cols-4 gap-3 md:gap-4 mb-8 md:mb-10">
-                      {[100, 500, 1000, 5000].map(val => (
-                        <button 
-                          key={val}
-                          onClick={() => setCoinAmount(val.toString())}
-                          className="bg-slate-50 border border-slate-200 h-14 md:h-16 rounded-2xl flex flex-col items-center justify-center hover:border-blue-500/40 hover:bg-blue-50 transition-all group active:scale-95"
-                        >
-                           <span className="text-sm md:text-base font-black text-slate-900 group-hover:text-blue-600">{val}</span>
-                           <span className="text-[7px] md:text-[8px] font-black text-slate-400 uppercase">{val.toLocaleString()} CR</span>
-                        </button>
-                      ))}
                    </div>
 
                    {/* CUSTOM KEYPAD */}
-                   <div className="grid grid-cols-3 gap-3 md:gap-5 mb-10 md:mb-12">
+                   <div className="grid grid-cols-3 gap-3 md:gap-4 mb-8">
                       {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => (
                         <button 
                           key={n}
                           onClick={() => handleKeyPress(n.toString())}
-                          className="h-16 md:h-20 rounded-[24px] bg-white border border-slate-200 flex items-center justify-center text-xl md:text-2xl font-black text-slate-800 hover:bg-slate-50 hover:border-amber-500/30 active:scale-90 transition-all shadow-sm"
+                          className="h-14 md:h-16 rounded-[20px] bg-white border border-slate-200 flex items-center justify-center text-xl font-black text-slate-800 hover:bg-slate-50 hover:border-amber-500/30 active:scale-90 transition-all shadow-sm"
                         >
                           {n}
                         </button>
                       ))}
-                      <button onClick={handleClear} className="h-16 md:h-20 rounded-[24px] bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-all active:scale-90">
-                        <RotateCcw size={24} />
+                      <button onClick={handleClear} className="h-14 md:h-16 rounded-[20px] bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-all active:scale-90">
+                        <RotateCcw size={20} />
                       </button>
-                      <button onClick={() => handleKeyPress('0')} className="h-16 md:h-20 rounded-[24px] bg-white border border-slate-200 flex items-center justify-center text-xl md:text-2xl font-black text-slate-800 hover:bg-slate-50 active:scale-90 transition-all shadow-sm">
+                      <button onClick={() => handleKeyPress('0')} className="h-14 md:h-16 rounded-[20px] bg-white border border-slate-200 flex items-center justify-center text-xl font-black text-slate-800 hover:bg-slate-50 active:scale-90 transition-all shadow-sm">
                         0
                       </button>
-                      <button onClick={handleDelete} className="h-16 md:h-20 rounded-[24px] bg-red-50 border border-red-100 flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-all active:scale-90 shadow-sm">
-                        <Delete size={24} />
+                      <button onClick={handleDelete} className="h-14 md:h-16 rounded-[20px] bg-red-50 border border-red-100 flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-all active:scale-90 shadow-sm">
+                        <Delete size={20} />
                       </button>
                    </div>
 
                    <button 
                      disabled={!coinAmount || processingId !== null}
                      onClick={handleAddCoinsFinal}
-                     className="w-full h-16 md:h-20 bg-blue-600 text-white font-black uppercase tracking-widest text-sm md:text-base rounded-[24px] flex items-center justify-center gap-4 hover:bg-blue-700 transition-all active:scale-95 shadow-[0_15px_40px_rgba(37,99,235,0.3)]"
+                     className={`w-full h-16 md:h-20 text-white font-black uppercase tracking-widest text-sm md:text-base rounded-[24px] flex items-center justify-center gap-4 transition-all active:scale-95 shadow-[0_15px_40px_rgba(0,0,0,0.15)] ${coinAction === 'add' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-red-600 hover:bg-red-700'}`}
                    >
                      {processingId ? <Loader2 className="animate-spin" /> : (
                         <>
                           <CheckCircle2 size={24} />
-                          Commit Allocation
+                          {coinAction === 'add' ? 'Commit Allocation' : 'Deduct Credits'}
                         </>
                      )}
                    </button>
