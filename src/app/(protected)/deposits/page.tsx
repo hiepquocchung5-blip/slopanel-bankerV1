@@ -253,7 +253,7 @@ export default function AuditQueuePage() {
                        </div>
                        {tx.screenshot && (
                          <button 
-                           onClick={() => setExpandedImage(tx.screenshot?.startsWith('http') ? tx.screenshot : `https://api.suropara.com${tx.screenshot}`)}
+                           onClick={() => setExpandedImage(tx.screenshot?.startsWith('http') ? tx.screenshot : `https://api.suropara.com/${tx.screenshot}`)}
                            className="text-[9px] text-amber-500 hover:text-amber-400 flex items-center gap-1.5 font-black uppercase transition-colors group"
                          >
                            <ImageIcon size={12} className="group-hover:scale-110 transition-transform" /> 
