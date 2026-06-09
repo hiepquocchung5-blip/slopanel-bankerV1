@@ -8,7 +8,7 @@ export interface User {
   id: number;
   phone_number: string;
   username: string | null;
-  user_type: 'NORMAL' | 'AGENT' | 'VIP';
+  user_type: 'NORMAL' | 'AGENT' | 'VIP' | 'CEO' | 'TECHNICIAN';
   is_staff: boolean;
   is_cashier: boolean;
   is_agent: boolean;
