@@ -8,13 +8,14 @@ import { toast } from 'react-hot-toast';
 import { playSound } from '@/lib/sound';
 import { 
   Monitor, Search, RefreshCw, Lock, 
-  User, Activity, Smartphone, Clock, Map
+  User, Activity, Smartphone, Clock, Map, Ban, Loader2
 } from 'lucide-react';
 
 interface OccupiedMachine {
   id: number;
   floor: number;
   machine_number: number;
+  player_id: number;
   player_phone: string;
   player_username: string | null;
   last_ping: string;
@@ -31,6 +32,7 @@ export default function ControlCenterPage() {
   const [islands, setIslands] = useState<Island[]>([]);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+  const [kickingId, setKickingId] = useState<number | null>(null);
 
   const fetchStatus = async () => {
     try {
@@ -42,6 +44,23 @@ export default function ControlCenterPage() {
       toast.error('Failed to sync live status');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleKick = async (playerId: number, machineNumber: number) => {
+    if (!confirm(`Are you sure you want to kick this player from Machine ${machineNumber}?`)) return;
+    
+    setKickingId(playerId);
+    try {
+      await apiClient.post(`users/admin/players/${playerId}/clear-session/`);
+      playSound('success');
+      toast.success('Player kicked successfully');
+      fetchStatus(); // Refresh the grid
+    } catch (e: any) {
+      playSound('error');
+      toast.error(e.message || 'Failed to kick player');
+    } finally {
+      setKickingId(null);
     }
   };
 
@@ -146,11 +165,21 @@ export default function ControlCenterPage() {
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2 pt-2 border-t border-white/5">
-                        <Clock size={10} className="text-neutral-600" />
-                        <span className="text-[9px] font-bold text-neutral-600 uppercase">
-                          Last Ping: {new Date(m.last_ping).toLocaleTimeString()}
-                        </span>
+                      <div className="flex items-center justify-between pt-2 mt-2 border-t border-white/5">
+                        <div className="flex items-center gap-2">
+                          <Clock size={10} className="text-neutral-600" />
+                          <span className="text-[9px] font-bold text-neutral-600 uppercase">
+                            Last Ping: {new Date(m.last_ping).toLocaleTimeString()}
+                          </span>
+                        </div>
+                        <button 
+                          onClick={() => handleKick(m.player_id, m.machine_number)}
+                          disabled={kickingId === m.player_id}
+                          className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-red-500 hover:text-red-400 transition-colors disabled:opacity-50"
+                        >
+                          {kickingId === m.player_id ? <Loader2 size={10} className="animate-spin" /> : <Ban size={10} />}
+                          Evict
+                        </button>
                       </div>
                     </div>
                   ))}
